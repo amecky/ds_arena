@@ -3,14 +3,17 @@
 #include "..\..\diesel\diesel.h"
 
 const static float SHOOT_TTL = 0.2f;
+const static float SPAWN_QUEUE_TTL = 0.8f;
+const static float SPAWN_DELAY = 5.0f;
 
 Game::Game() {
 	_player.pos = ds::vec2(512, 384);
 	_player.angle = 0.0f;
+	_player.energy = 100;
 	_shooting = false;
 	_shootingTimer = 0.0f;
 	_spawnTimer = 0.0f;
-
+	_spawnQueueTimer = 0.0f;
 	_scalePath.add(0.0f, 0.2f);
 	_scalePath.add(0.5f, 1.5f);
 	_scalePath.add(0.75f, 0.6f);
@@ -38,6 +41,13 @@ Game::Game() {
 	_explosionSettings.ttl = ds::vec2(0.6f, 0.9f);
 	_explosionSettings.velocityVariance = ds::vec2(100.0f, 240.0f);
 	_explosionSettings.sizeVariance = ds::vec2(0.5f, 2.0f);
+
+	_bulletExplosionSettings.count = 16;
+	_bulletExplosionSettings.angleVariance = 0.1f;
+	_bulletExplosionSettings.radiusVariance = 5.0f;
+	_bulletExplosionSettings.ttl = ds::vec2(0.6f, 0.9f);
+	_bulletExplosionSettings.velocityVariance = ds::vec2(100.0f, 240.0f);
+	_bulletExplosionSettings.sizeVariance = ds::vec2(0.5f, 2.0f);
 
 }
 
@@ -81,6 +91,10 @@ void Game::tick(float dt) {
 
 	handleCollisions();
 
+	handlePlayerCollision();
+
+	spawn(dt);
+
 	spawnEnemies(dt);
 
 	_particleManager->tick(dt);
@@ -90,22 +104,46 @@ void Game::tick(float dt) {
 // ---------------------------------------------------------------
 // spawn enemies
 // ---------------------------------------------------------------
-void Game::spawnEnemies(float dt) {
+void Game::spawn(float dt) {
 	_spawnTimer += dt;
-	if (_spawnTimer >= 1.0f) {
-		_spawnTimer -= 1.0f;
-		// emitt enemy
-		ID id = _enemies.add();
-		Enemy& e = _enemies.get(id);
-		e.pos = ds::vec2(ds::random(100.0f, 900.0f), ds::random(100.0f, 660.0f));
-		e.id = id;
-		e.angle = 0.0f;
-		e.force = ds::vec2(0.0f);
-		e.velocity = ds::vec2(0.0f);
-		e.state = ES_STARTING;
-		e.timer = 0.0f;
-		e.scale = ds::vec2(1.0f);
-		e.energy = 4;
+	if (_spawnTimer >= SPAWN_DELAY) {
+		_spawnTimer -= SPAWN_DELAY;
+		ds::vec2 p = ds::vec2(512,384) + ds::vec2(ds::random(-100.0f, 100.0f), ds::random(-100.0f, 100.0f));
+		int start = ds::random(0, 36);
+		float step = ds::TWO_PI / 36.0f;
+		float angle = start * step;
+		for (int i = 0; i < 10; ++i) {
+			SpawnItem item;
+			item.pos = ds::vec2(cos(angle), sin(angle)) * 300.0f + p;
+			item.type = 1;
+			_spawnItems.push(item);
+			angle += step;
+		}
+	}
+}
+
+// ---------------------------------------------------------------
+// spawn from spawn queue
+// ---------------------------------------------------------------
+void Game::spawnEnemies(float dt) {
+	if ( !_spawnItems.empty()) {
+		_spawnQueueTimer += dt;
+		if (_spawnQueueTimer >= SPAWN_QUEUE_TTL) {
+			_spawnTimer -= SPAWN_QUEUE_TTL;
+			ds::vec2 p = _spawnItems.top().pos;
+			_spawnItems.pop();
+			ID id = _enemies.add();
+			Enemy& e = _enemies.get(id);
+			e.pos = p;
+			e.id = id;
+			e.angle = 0.0f;
+			e.force = ds::vec2(0.0f);
+			e.velocity = ds::vec2(0.0f);
+			e.state = ES_STARTING;
+			e.timer = 0.0f;
+			e.scale = ds::vec2(1.0f);
+			e.energy = 4;
+		}
 	}
 }
 
@@ -134,6 +172,33 @@ void Game::handleShooting() {
 }
 
 // ---------------------------------------------------------------
+// handle player collisions
+// ---------------------------------------------------------------
+bool Game::handlePlayerCollision() {
+	float dist = 0.0f;
+	ds::vec2 pnv;
+	bool hit = false;
+	DataArray<Enemy>::iterator eit = _enemies.begin();
+	while (eit != _enemies.end()) {
+		if (eit->state == ES_MOVING) {
+			if (math::checkCircleIntersection(_player.pos, 20.0f, eit->pos, 20.0f, &dist, &pnv)) {
+				emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
+				eit = _enemies.remove(eit->id);
+				_player.energy -= 10;
+				hit = true;
+			}
+			else {
+				++eit;
+			}
+		}
+		else {
+			++eit;
+		}
+	}
+	return hit;
+}
+
+// ---------------------------------------------------------------
 // handle collisions
 // ---------------------------------------------------------------
 void Game::handleCollisions() {
@@ -148,6 +213,7 @@ void Game::handleCollisions() {
 			if (eit->state == ES_MOVING) {
 				if (math::checkCircleIntersection(it->pos, 5.0f, eit->pos, 20.0f, &dist, &pnv)) {
 					if (_bullets.contains(it->id)) {
+						emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 						it = _bullets.remove(it->id);
 						hit = true;						
 					}

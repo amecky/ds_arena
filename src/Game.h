@@ -4,12 +4,14 @@
 #include "math.h"
 #include "FloatArray.h"
 #include "particles\Particlesystem.h"
+#include <stack>
 // ---------------------------------------------------------------
 // Player
 // ---------------------------------------------------------------
 struct Player {
 	ds::vec2 pos;
 	float angle;
+	int energy;
 };
 
 // ---------------------------------------------------------------
@@ -41,6 +43,11 @@ struct Enemy {
 	int energy;
 };
 
+struct SpawnItem {
+	int type;
+	ds::vec2 pos;
+};
+
 struct ExplosionSettings {
 	int count;
 	ds::vec2 ttl;
@@ -62,8 +69,10 @@ private:
 	void moveBullets(float dt);
 	void moveEnemies(float dt);
 	void spawnEnemies(float dt);
+	void spawn(float dt);
 	void handleCollisions();
 	void handleShooting();
+	bool handlePlayerCollision();
 	void emittExplosion(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius);
 	Player _player;
 	DataArray<Bullet> _bullets;
@@ -71,9 +80,12 @@ private:
 	bool _shooting;
 	float _shootingTimer;
 	float _spawnTimer;
+	float _spawnQueueTimer;
 	AbstractPath<float> _scalePath;
 	ParticleManager* _particleManager;
 	Particlesystem* _enemyExplosion;
 	ExplosionSettings _explosionSettings;
+	ExplosionSettings _bulletExplosionSettings;
+	std::stack<SpawnItem> _spawnItems;
 };
 
