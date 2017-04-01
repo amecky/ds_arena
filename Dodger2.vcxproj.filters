@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\sprites.cpp" />
+    <ClCompile Include="src\math.cpp" />
+    <ClCompile Include="src\Game.cpp" />
+    <ClCompile Include="src\tweening.cpp" />
+    <ClCompile Include="src\particles\Particlesystem.cpp">
+      <Filter>particles</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\sprites.h" />
+    <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\DataArray.h" />
+    <ClInclude Include="src\Game.h" />
+    <ClInclude Include="src\FloatArray.h" />
+    <ClInclude Include="src\tweening.h" />
+    <ClInclude Include="src\particles\Particlesystem.h">
+      <Filter>particles</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="particles">
+      <UniqueIdentifier>{824f6684-751a-4726-a699-e92475cff587}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="src\particles\Particles_GS_Main.inc">
+      <Filter>particles</Filter>
+    </None>
+    <None Include="src\particles\Particles_PS_Main.inc">
+      <Filter>particles</Filter>
+    </None>
+    <None Include="src\particles\Particles_VS_Main.inc">
+      <Filter>particles</Filter>
+    </None>
+  </ItemGroup>
+</Project>
