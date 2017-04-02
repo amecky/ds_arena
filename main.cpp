@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include "..\diesel\examples\common\stb_image.h"
 #include "src\Game.h"
-
+#include "src\utils\json.h"
 
 // ---------------------------------------------------------------
 // load image using stb_image
@@ -38,18 +38,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	Game game;
 
+	SJSONReader reader;
+	reader.parse("content\\particlesystems.json");
+	int mp = -1;
+	reader.get("explosion.max_particles", &mp);
+	ds::vec2 m;
+	reader.get("explosion.particle_dimension", &m);
+
 	while (ds::isRunning()) {
 
 		ds::begin();
 
 		game.tick(static_cast<float>(ds::getElapsedSeconds()));
 		
-		//sprites::begin();
-
 		game.render();
 		
-		//sprites::flush();
-
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
 
 		ds::end();

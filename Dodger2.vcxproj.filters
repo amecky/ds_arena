@@ -9,6 +9,12 @@
     <ClCompile Include="src\particles\Particlesystem.cpp">
       <Filter>particles</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\json.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\BlockArray.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sprites.h" />
@@ -20,10 +26,23 @@
     <ClInclude Include="src\particles\Particlesystem.h">
       <Filter>particles</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\json.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Stack.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\DynamicArray.h" />
+    <ClInclude Include="src\utils\BlockArray.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="particles">
       <UniqueIdentifier>{824f6684-751a-4726-a699-e92475cff587}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="utils">
+      <UniqueIdentifier>{be81c676-5732-48fd-93d0-76cbf5604ada}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

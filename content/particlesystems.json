@@ -1,0 +1,9 @@
+explosion {
+    max_Particles : 1024
+	particle_dimension : 64, 64
+	scale : 0.2f, 0.2f
+	growth : -0.5f, -0.5f
+	start_color : 250, 250, 250, 255
+	end_color : 248, 213, 131, 0
+	texture_rect : 0, 0, 64, 64	
+}
