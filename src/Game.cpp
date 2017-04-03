@@ -8,7 +8,7 @@ const static float SPAWN_QUEUE_TTL = 0.8f;
 const static float SPAWN_DELAY = 5.0f;
 
 void loadSystem(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
-	reader.get("count", &descriptor->maxParticles, catName);
+	reader.get("max_particles", &descriptor->maxParticles, catName);
 	reader.get("particle_dimension", &descriptor->particleDimension, catName);
 	reader.get("scale", &descriptor->scale, catName);
 	reader.get("growth", &descriptor->growth, catName);
@@ -56,9 +56,10 @@ Game::Game() {
 	loadSettings(reader, "bullet_explosion_settings", &_bulletExplosionSettings);
 
 	SJSONReader settingsReader;
-	reader.parse("content\\settings.json");
+	settingsReader.parse("content\\settings.json");
+	settingsReader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
 
-	reader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
+	_borders = new ElasticBorder(40.0f, 25, 20, ds::vec4(520, 0, 40, 40), textureID);
 
 }
 
@@ -91,6 +92,12 @@ void Game::emittExplosion(Particlesystem* system, const ExplosionSettings& setti
 // tick
 // ---------------------------------------------------------------
 void Game::tick(float dt) {
+
+	if (ds::isMouseButtonPressed(1)) {
+		_borders->splash(10, 10.0f);
+	}
+
+	_borders->tick(dt);
 
 	movePlayer(dt);
 
@@ -361,6 +368,7 @@ void Game::movePlayer(float dt) {
 // render
 // ---------------------------------------------------------------
 void Game::render() {
+	_borders->render();
 	sprites::begin();
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {

@@ -4,6 +4,7 @@
 #include "math.h"
 #include "FloatArray.h"
 #include "particles\Particlesystem.h"
+#include "ElasticBorder.h"
 #include <stack>
 // ---------------------------------------------------------------
 // Player
@@ -92,5 +93,6 @@ private:
 	ExplosionSettings _bulletExplosionSettings;
 	std::stack<SpawnItem> _spawnItems;
 	GameSettings _gameSettings;
+	ElasticBorder* _borders;
 };
 

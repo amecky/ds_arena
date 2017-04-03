@@ -21,6 +21,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="src\ElasticBorder.cpp" />
     <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\math.cpp" />
     <ClCompile Include="src\particles\Particlesystem.cpp" />
@@ -31,6 +32,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\DataArray.h" />
+    <ClInclude Include="src\ElasticBorder.h" />
     <ClInclude Include="src\FloatArray.h" />
     <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\math.h" />
@@ -43,6 +45,8 @@
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\Border_PS_Main.inc" />
+    <None Include="shaders\Border_VS_Main.inc" />
     <None Include="src\particles\Particles_GS_Main.inc" />
     <None Include="src\particles\Particles_PS_Main.inc" />
     <None Include="src\particles\Particles_VS_Main.inc" />

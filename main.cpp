@@ -38,13 +38,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	Game game;
 
-	SJSONReader reader;
-	reader.parse("content\\particlesystems.json");
-	int mp = -1;
-	reader.get("explosion.max_particles", &mp);
-	ds::vec2 m;
-	reader.get("explosion.particle_dimension", &m);
-
 	while (ds::isRunning()) {
 
 		ds::begin();

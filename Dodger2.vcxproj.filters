@@ -15,6 +15,7 @@
     <ClCompile Include="src\utils\BlockArray.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\ElasticBorder.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sprites.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="src\utils\BlockArray.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="src\ElasticBorder.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="particles">
@@ -43,6 +45,9 @@
     </Filter>
     <Filter Include="utils">
       <UniqueIdentifier>{be81c676-5732-48fd-93d0-76cbf5604ada}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="shaders">
+      <UniqueIdentifier>{0e0bfeba-f7f9-4d3b-896d-33a5482fc3b9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -54,6 +59,12 @@
     </None>
     <None Include="src\particles\Particles_VS_Main.inc">
       <Filter>particles</Filter>
+    </None>
+    <None Include="shaders\Border_PS_Main.inc">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\Border_VS_Main.inc">
+      <Filter>shaders</Filter>
     </None>
   </ItemGroup>
 </Project>
