@@ -92,6 +92,7 @@ void Tokenizer::parseFile(const char* fileName, bool skipComments) {
 }
 
 void Tokenizer::parse(const char* text, bool skipComments) {
+	_data = text;
 	int cnt = 0;
 	const char* p = text;
 	while (*p != 0) {
@@ -187,6 +188,25 @@ bool Tokenizer::checkType(int index, Token::TokenType type) const {
 	return false;
 }
 
+void Tokenizer::saveTokens(const char* fileName) {
+	FILE* fp = fopen(fileName, "w");
+	for (int i = 0; i < _tokens.size(); ++i) {
+		const Token& t = _tokens[i];
+		fprintf(fp, "%s : ", name(i));
+		if (t.type == Token::NAME) {
+			char tmp[128];
+			strncpy(tmp, _data + t.index, t.size);
+			tmp[t.size] = '\0';
+			fprintf(fp, "%s", tmp);
+		}
+		else if (t.type == Token::NUMBER) {
+			fprintf(fp, "%g", t.value);
+		}
+		fprintf(fp, "\n");
+	}
+	fclose(fp);
+}
+
 SJSONReader::SJSONReader() {
 	int data_sizes[] = { sizeof(unsigned int), sizeof(int), sizeof(int), sizeof(int) };
 	_data_buffer.init(data_sizes, 4);
@@ -277,8 +297,13 @@ void SJSONReader::add(int pIndex, char c) {
 // -------------------------------------------
 // get index
 // -------------------------------------------
-int SJSONReader::get_index(const char* name) const {
+int SJSONReader::get_index(const char* name, const char* prefix) const {
 	ds::StaticHash key(name);
+	if (prefix != 0) {
+		char tmp[128];
+		sprintf_s(tmp, 128, "%s.%s", prefix, name);
+		key = ds::StaticHash(tmp);
+	}
 	for (int i = 0; i < _data_buffer.size; ++i) {
 		if (_data_keys[i].get() == key.get()) {
 			return i;
@@ -295,23 +320,12 @@ float SJSONReader::get(int index) const {
 	float* v = (float*)(p);
 	return *v;
 }
-// -------------------------------------------
-// get float
-// -------------------------------------------
-bool SJSONReader::get_float(const char* name, float* ret) const {
-	int idx = get_index(name);
-	if (idx != -1) {
-		*ret = get(_data_indices[idx]);
-		return true;
-	}
-	return false;
-}
 
 // -------------------------------------------
 // get float
 // -------------------------------------------
-bool SJSONReader::get(const char* name, float* ret) const {
-	int idx = get_index(name);
+bool SJSONReader::get(const char* name, float* ret, const char* prefix) const {
+	int idx = get_index(name, prefix);
 	if (idx != -1) {
 		*ret = get(_data_indices[idx]);
 		return true;
@@ -322,8 +336,8 @@ bool SJSONReader::get(const char* name, float* ret) const {
 // -------------------------------------------
 // get int
 // -------------------------------------------
-bool SJSONReader::get(const char* name, int* ret) const {
-	int idx = get_index(name);
+bool SJSONReader::get(const char* name, int* ret, const char* prefix) const {
+	int idx = get_index(name, prefix);
 	if (idx != -1) {
 		*ret = static_cast<int>(get(_data_indices[idx]));
 		return true;
@@ -331,8 +345,20 @@ bool SJSONReader::get(const char* name, int* ret) const {
 	return false;
 }
 
-bool SJSONReader::get(const char* name, ds::Color* ret) const {
-	int idx = get_index(name);
+// -------------------------------------------
+// get int
+// -------------------------------------------
+bool SJSONReader::get(const char* name, uint16_t* ret, const char* prefix) const {
+	int idx = get_index(name, prefix);
+	if (idx != -1) {
+		*ret = static_cast<int>(get(_data_indices[idx]));
+		return true;
+	}
+	return false;
+}
+
+bool SJSONReader::get(const char* name, ds::Color* ret, const char* prefix) const {
+	int idx = get_index(name, prefix);
 	if (idx != -1) {
 		ret->r = get(_data_indices[idx]) / 255.0f;
 		ret->g = get(_data_indices[idx] + 1) / 255.0f;
@@ -343,8 +369,8 @@ bool SJSONReader::get(const char* name, ds::Color* ret) const {
 	return false;
 }
 
-bool SJSONReader::get(const char* name, ds::vec2* ret) const {
-	int idx = get_index(name);
+bool SJSONReader::get(const char* name, ds::vec2* ret, const char* prefix) const {
+	int idx = get_index(name, prefix);
 	if (idx != -1) {
 		ret->x = get(_data_indices[idx]);
 		ret->y = get(_data_indices[idx] + 1);
@@ -356,8 +382,8 @@ bool SJSONReader::get(const char* name, ds::vec2* ret) const {
 // -------------------------------------------
 // get rect
 // -------------------------------------------
-bool SJSONReader::get(const char* name, ds::vec4* ret) const {
-	int idx = get_index(name);
+bool SJSONReader::get(const char* name, ds::vec4* ret, const char* prefix) const {
+	int idx = get_index(name, prefix);
 	if (idx != -1) {
 		ret->x = get(_data_indices[idx]);
 		ret->y = get(_data_indices[idx] + 1);
@@ -383,11 +409,7 @@ bool SJSONReader::parse(const char* fileName) {
 	loadFile(fileName, &f);
 	Tokenizer tokenizer;
 	tokenizer.parse(f.data);
-	FILE* test = fopen("tokens.log", "w");
-	for (int i = 0; i < tokenizer.size(); ++i) {
-		fprintf(test, "%s\n", tokenizer.name(i));
-	}
-	fclose(test);
+	//tokenizer.saveTokens("tokens.log");
 	char name[128];
 	char fullName[256];
 	int n = 0;
@@ -439,7 +461,7 @@ bool SJSONReader::parse(const char* fileName) {
 					while (parsing) {
 						if (v.type == Token::NUMBER) {
 							add(p, v.value);
-							if (tokenizer.checkType(n + 1,Token::DELIMITER)) {
+							if (!tokenizer.checkType(n + 1,Token::DELIMITER)) {
 								parsing = false;
 							}
 						}

@@ -57,6 +57,10 @@ struct ExplosionSettings {
 	ds::vec2 sizeVariance;
 };
 
+struct GameSettings {
+	int maxSpawnEnemies;
+};
+
 class Game {
 
 public:
@@ -87,5 +91,6 @@ private:
 	ExplosionSettings _explosionSettings;
 	ExplosionSettings _bulletExplosionSettings;
 	std::stack<SpawnItem> _spawnItems;
+	GameSettings _gameSettings;
 };
 

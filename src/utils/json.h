@@ -86,7 +86,9 @@ public:
 	}
 	bool checkType(int index, Token::TokenType type) const;
 	const char* name(int index) const;
+	void saveTokens(const char* fileName);
 private:
+	const char* _data;
 	std::vector<Token> _tokens;
 	Token UNKNOWN_TOKEN;
 };
@@ -108,13 +110,13 @@ public:
 	SJSONReader();
 	~SJSONReader() {}
 	bool parse(const char* fileName);
-	bool get_float(const char* name, float* ret) const;
-	bool get(const char* name, float* ret) const;
-	bool get(const char* name, int* ret) const;
-	bool get(const char* name, ds::vec4* ret) const;
-	bool get(const char* name, ds::Color* ret) const;
-	bool get(const char* name, ds::vec3* ret) const;
-	bool get(const char* name, ds::vec2* ret) const;
+	bool get(const char* name, float* ret, const char* prefix = 0) const;
+	bool get(const char* name, int* ret, const char* prefix = 0) const;
+	bool get(const char* name, uint16_t* ret, const char* prefix = 0) const;
+	bool get(const char* name, ds::vec4* ret, const char* prefix = 0) const;
+	bool get(const char* name, ds::Color* ret, const char* prefix = 0) const;
+	bool get(const char* name, ds::vec3* ret, const char* prefix = 0) const;
+	bool get(const char* name, ds::vec2* ret, const char* prefix = 0) const;
 	//bool get(const char* name, V3Path* ret) const;
 	bool contains(const char* name) const;	
 private:
@@ -126,7 +128,7 @@ private:
 	int create_property(const char* name);
 	void alloc(int elements);
 	float get(int index) const;
-	int get_index(const char* name) const;
+	int get_index(const char* name, const char* prefix = 0) const;
 	Array<char> _name_buffer;
 	BlockArray _data_buffer;
 	ds::StaticHash* _data_keys;

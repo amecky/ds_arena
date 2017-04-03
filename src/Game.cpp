@@ -1,10 +1,30 @@
 #include "Game.h"
 #include <cmath>
 #include "..\..\diesel\diesel.h"
+#include "utils\json.h"
 
 const static float SHOOT_TTL = 0.2f;
 const static float SPAWN_QUEUE_TTL = 0.8f;
 const static float SPAWN_DELAY = 5.0f;
+
+void loadSystem(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
+	reader.get("count", &descriptor->maxParticles, catName);
+	reader.get("particle_dimension", &descriptor->particleDimension, catName);
+	reader.get("scale", &descriptor->scale, catName);
+	reader.get("growth", &descriptor->growth, catName);
+	reader.get("start_color", &descriptor->startColor, catName);
+	reader.get("end_color", &descriptor->endColor, catName);
+	reader.get("texture_rect", &descriptor->textureRect, catName);
+}
+
+void loadSettings(const SJSONReader& reader, const char* catName, ExplosionSettings* settings) {
+	reader.get("count", &settings->count,catName);
+	reader.get("angle_variance", &settings->angleVariance, catName);
+	reader.get("radius_variance", &settings->radiusVariance, catName);
+	reader.get("ttl", &settings->ttl, catName);
+	reader.get("velocity_variance", &settings->velocityVariance, catName);
+	reader.get("size_variance", &settings->sizeVariance, catName);
+}
 
 Game::Game() {
 	_player.pos = ds::vec2(512, 384);
@@ -22,32 +42,23 @@ Game::Game() {
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
 	_particleManager = new ParticleManager(4096, textureID);
 
+	SJSONReader reader;
+	reader.parse("content\\particlesystems.json");
+
 	ParticlesystemDescriptor descriptor;
-	descriptor.maxParticles = 1024;
-	descriptor.particleDimension = ds::vec2(64, 64);
-	descriptor.scale = ds::vec2(0.2f, 0.2f);
-	descriptor.growth = ds::vec2(-0.5f, -0.5f);
-	descriptor.startColor = ds::Color(250, 250, 250, 255);
-	descriptor.endColor = ds::Color(248, 213, 131, 0);
-	descriptor.textureRect = ds::vec4(0, 0, 64, 64);
+	loadSystem(reader, "explosion", &descriptor);
 	descriptor.textureID = textureID;
 
 	_enemyExplosion = new Particlesystem(descriptor);
 	_particleManager->add(_enemyExplosion);
 
-	_explosionSettings.count = 128;
-	_explosionSettings.angleVariance = 0.1f;
-	_explosionSettings.radiusVariance = 10.0f;
-	_explosionSettings.ttl = ds::vec2(0.6f, 0.9f);
-	_explosionSettings.velocityVariance = ds::vec2(100.0f, 240.0f);
-	_explosionSettings.sizeVariance = ds::vec2(0.5f, 2.0f);
+	loadSettings(reader, "explosion_settings", &_explosionSettings);
+	loadSettings(reader, "bullet_explosion_settings", &_bulletExplosionSettings);
 
-	_bulletExplosionSettings.count = 16;
-	_bulletExplosionSettings.angleVariance = 0.1f;
-	_bulletExplosionSettings.radiusVariance = 5.0f;
-	_bulletExplosionSettings.ttl = ds::vec2(0.6f, 0.9f);
-	_bulletExplosionSettings.velocityVariance = ds::vec2(100.0f, 240.0f);
-	_bulletExplosionSettings.sizeVariance = ds::vec2(0.5f, 2.0f);
+	SJSONReader settingsReader;
+	reader.parse("content\\settings.json");
+
+	reader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
 
 }
 
@@ -109,8 +120,8 @@ void Game::spawn(float dt) {
 	if (_spawnTimer >= SPAWN_DELAY) {
 		_spawnTimer -= SPAWN_DELAY;
 		ds::vec2 p = ds::vec2(512,384) + ds::vec2(ds::random(-100.0f, 100.0f), ds::random(-100.0f, 100.0f));
-		int start = ds::random(0, 36);
-		float step = ds::TWO_PI / 36.0f;
+		int start = ds::random(0, _gameSettings.maxSpawnEnemies);
+		float step = ds::TWO_PI / static_cast<float>(_gameSettings.maxSpawnEnemies);
 		float angle = start * step;
 		for (int i = 0; i < 10; ++i) {
 			SpawnItem item;

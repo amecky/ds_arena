@@ -47,3 +47,6 @@ Temporary Items
 .apdisk
 Dodger2.VC.db
 *.opendb
+x64/Debug/
+Dodger2.sdf
+Dodger2.opensdf
