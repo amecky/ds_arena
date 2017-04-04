@@ -59,7 +59,7 @@ Game::Game() {
 	settingsReader.parse("content\\settings.json");
 	settingsReader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
 
-	_borders = new ElasticBorder(40.0f, 25, 20, ds::vec4(520, 0, 40, 40), textureID);
+	_borders = new ElasticBorder(20.0f, 5.0f, 48, 32, ds::vec4(520, 0, 40, 40), textureID);
 
 }
 
@@ -94,7 +94,7 @@ void Game::emittExplosion(Particlesystem* system, const ExplosionSettings& setti
 void Game::tick(float dt) {
 
 	if (ds::isMouseButtonPressed(1)) {
-		_borders->splash(10, 10.0f);
+		_borders->splash(10, 2.0f);
 	}
 
 	_borders->tick(dt);
@@ -265,6 +265,11 @@ void Game::moveBullets(float dt) {
 	while (it != _bullets.end()) {
 		it->pos += it->velocity * static_cast<float>(ds::getElapsedSeconds());
 		if (it->pos.x < 0.0f || it->pos.x > 1024.0f || it->pos.y < 0.0f || it->pos.y > 768.0f) {
+			emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+			it = _bullets.remove(it->id);
+		}
+		else if (_borders->collides(it->pos, 4.0f)) {
+			emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 			it = _bullets.remove(it->id);
 		}
 		else {

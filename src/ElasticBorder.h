@@ -14,50 +14,47 @@ struct GridVertex {
 	ds::Color color;
 };
 
+struct LinePoint {
+	float height;
+	float targetHeight;
+	float speed;
+	ds::vec2 pos;
+};
+
+struct Ribbon {
+	int num;
+	LinePoint* points;
+	float* lDeltas;
+	float* rDeltas;
+	bool vertical;
+};
+
 // ---------------------------------------------------
 // AbstractBorder
 // ---------------------------------------------------
 class ElasticBorder {
 
-	struct LinePoint {
-		float height;
-		float targetHeight;
-		float speed;
-		ds::vec2 dir;
-		ds::vec2 pos;
-	};
-
-
 public:
-	ElasticBorder(float size, int numX, int numY, const ds::vec4& texture, RID textureID);// , const ds::AABBox& box);
+	ElasticBorder(float length, float thickness, int numX, int numY, const ds::vec4& texture, RID textureID);// , const ds::AABBox& box);
 	virtual ~ElasticBorder();
 	void tick(float dt);
 	void render();
 	void splash(int index, float speed);
-	//virtual void buildColumn(int index, v3* positions) = 0;
-	//bool isInside(const v3& pos) const;
-	//bool collides(const ds::Sphere& s) const;
-	//virtual int getIndex(const v3& pos) const = 0;
+	bool collides(const ds::vec2& s, float r);
 private:
-	float _size;
-	int _numX;
-	int _numY;
-	LinePoint* _points;
-	RID _squareBuffer;
-	float* lDeltas;
-	float* rDeltas;
-	//int _num;
-	//float _target;
+	void splash(int ribbonIndex, int index, float speed);
+	RID createStateGroup(int numVertices, RID textureID);
+	float _length;
+	float _thickness;
 	ds::vec4 _texture;
-	RID _textureID;
-	RID createStateGroup(int numVertices);
+	RID _textureID;	
 	CubeConstantBuffer _constantBuffer;
 	RID _vertexBufferID;
 	RID _drawItem;
 	RID _orthoPass;
 	GridVertex* _vertices;
 	float _timer;
-	//ds::AABBox _box;
+	Ribbon _ribbons[4];
 };
 /*
 // ---------------------------------------------------
