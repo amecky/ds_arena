@@ -1,6 +1,7 @@
 #include "ElasticBorder.h"
 #include "..\shaders\Border_PS_Main.inc"
 #include "..\shaders\Border_VS_Main.inc"
+
 const float Tension = 0.025f;
 const float Dampening = 0.025f;
 const float Spread = 0.15f;
@@ -19,6 +20,7 @@ void initializeRibbon(Ribbon* ribbon, int num, const ds::vec2& startPos, const d
 		sp.x *= dir.x;
 		sp.y *= dir.y;
 		ribbon->points[i].pos = sp + startPos;
+		ribbon->points[i].color = ds::Color(192, 0, 0, 255);
 	}
 }
 
@@ -161,25 +163,31 @@ void ElasticBorder::render() {
 	for (int j = 0; j < 4; ++j) {
 		const Ribbon& ribbon = _ribbons[j];
 		for (int i = 0; i < ribbon.num - 1; ++i) {
+			ds::Color fc = ribbon.points[i].color;
+			fc.r = 192 + ribbon.points[i].height * 2.0f;
+			fc.g = ribbon.points[i].height * 0.5f - 20.0f;
+			ds::Color sc = ribbon.points[i + 1].color;
+			sc.r = 192 + ribbon.points[i + 1].height * 2.0f;
+			sc.g = ribbon.points[i + 1].height * 0.5f - 20.0f;
 			if (ribbon.vertical) {
-				ds::vec2 f = ds::vec2(0.0f, ribbon.points[i].height);
+				ds::vec2 f = ds::vec2(0.0f, ribbon.points[i].height);				
 				f += ribbon.points[i].pos;
 				ds::vec2 s = ds::vec2(0.0f, ribbon.points[i + 1].height);
-				s += ribbon.points[i + 1].pos;
-				_vertices[idx++] = { ds::vec3(f.x, f.y, 0.0f) , ds::vec2(40.0f,92.0f), ds::Color(255,255,255,255) };
-				_vertices[idx++] = { ds::vec3(s.x, s.y, 0.0f) , ds::vec2(60.0f,92.0f), ds::Color(255,255,255,255) };
-				_vertices[idx++] = { ds::vec3(s.x, s.y - _thickness, 0.0f) , ds::vec2(60.0f,112.0f), ds::Color(255,255,255,255) };
-				_vertices[idx++] = { ds::vec3(f.x, f.y - _thickness, 0.0f) , ds::vec2(40.0f,112.0f), ds::Color(255,255,255,255) };
+				s += ribbon.points[i + 1].pos;				
+				_vertices[idx++] = { ds::vec3(f.x, f.y, 0.0f) , ds::vec2(40.0f,92.0f), fc };
+				_vertices[idx++] = { ds::vec3(s.x, s.y, 0.0f) , ds::vec2(60.0f,92.0f), sc };
+				_vertices[idx++] = { ds::vec3(s.x, s.y - _thickness, 0.0f) , ds::vec2(60.0f,112.0f), sc };
+				_vertices[idx++] = { ds::vec3(f.x, f.y - _thickness, 0.0f) , ds::vec2(40.0f,112.0f), fc };
 			}
 			else {
 				ds::vec2 f = ds::vec2(ribbon.points[i].height,0.0f);
 				f += ribbon.points[i].pos;
 				ds::vec2 s = ds::vec2(ribbon.points[i + 1].height,0.0f);
 				s += ribbon.points[i + 1].pos;
-				_vertices[idx++] = { ds::vec3(s.x - _thickness, s.y, 0.0f) , ds::vec2(260.0f,20.0f), ds::Color(255,255,255,255) };
-				_vertices[idx++] = { ds::vec3(s.x, s.y, 0.0f) , ds::vec2(280.0f,20.0f), ds::Color(255,255,255,255) };
-				_vertices[idx++] = { ds::vec3(f.x, f.y, 0.0f) , ds::vec2(280.0f,40.0f), ds::Color(255,255,255,255) };
-				_vertices[idx++] = { ds::vec3(f.x - _thickness, f.y, 0.0f) , ds::vec2(260.0f,40.0f), ds::Color(255,255,255,255) };
+				_vertices[idx++] = { ds::vec3(s.x - _thickness, s.y, 0.0f) , ds::vec2(260.0f,20.0f), sc };
+				_vertices[idx++] = { ds::vec3(s.x, s.y, 0.0f) , ds::vec2(280.0f,20.0f), sc };
+				_vertices[idx++] = { ds::vec3(f.x, f.y, 0.0f) , ds::vec2(280.0f,40.0f), fc };
+				_vertices[idx++] = { ds::vec3(f.x - _thickness, f.y, 0.0f) , ds::vec2(260.0f,40.0f), fc };
 			}
 		}
 	}
@@ -195,7 +203,7 @@ void ElasticBorder::render() {
 	}
 	*/
 	ds::mapBufferData(_vertexBufferID, _vertices, idx * sizeof(GridVertex));
-	ds::submit(_orthoPass, _drawItem, idx * 6);
+	ds::submit(_orthoPass, _drawItem, idx / 4 * 6);
 }
 
 bool ElasticBorder::collides(const ds::vec2& s, float r) {
@@ -203,25 +211,25 @@ bool ElasticBorder::collides(const ds::vec2& s, float r) {
 	if (s.x < 40.0f) {
 		// left
 		int idx = (s.y - 40.0f) / _length;
-		splash(2, idx, 8.0f);
+		splash(2, idx, 12.0f);
 		hit = true;
 	}
 	if (s.y < 40.0f) {
 		// bottom
 		int idx = (s.x - 40.0f) / _length;
-		splash(0, idx, 8.0f);
+		splash(0, idx, 12.0f);
 		hit = true;
 	}
 	if (s.y > 670.0f) {
 		// top
 		int idx = (s.x - 40.0f) / _length;
-		splash(1, idx, 8.0f);
+		splash(1, idx, 12.0f);
 		hit = true;
 	}
 	if (s.x > 960.0f) {
 		// right
 		int idx = (s.y - 40.0f) / _length;
-		splash(3, idx, 8.0f);
+		splash(3, idx, 12.0f);
 		hit = true;
 	}
 	return hit;

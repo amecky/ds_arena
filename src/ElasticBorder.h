@@ -19,6 +19,7 @@ struct LinePoint {
 	float targetHeight;
 	float speed;
 	ds::vec2 pos;
+	ds::Color color;
 };
 
 struct Ribbon {
