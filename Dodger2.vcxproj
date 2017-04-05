@@ -28,6 +28,7 @@
     <ClCompile Include="src\sprites.cpp" />
     <ClCompile Include="src\tweening.cpp" />
     <ClCompile Include="src\utils\BlockArray.cpp" />
+    <ClCompile Include="src\utils\hud.cpp" />
     <ClCompile Include="src\utils\json.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -41,6 +42,7 @@
     <ClInclude Include="src\tweening.h" />
     <ClInclude Include="src\utils\BlockArray.h" />
     <ClInclude Include="src\utils\DynamicArray.h" />
+    <ClInclude Include="src\utils\hud.h" />
     <ClInclude Include="src\utils\json.h" />
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>

@@ -5,6 +5,7 @@
 #include "FloatArray.h"
 #include "particles\Particlesystem.h"
 #include "ElasticBorder.h"
+#include "utils\hud.h"
 #include <stack>
 // ---------------------------------------------------------------
 // Player
@@ -29,6 +30,7 @@ enum EnemyState {
 	ES_STARTING,
 	ES_MOVING
 };
+
 // ---------------------------------------------------------------
 // Enemy
 // ---------------------------------------------------------------
@@ -95,5 +97,6 @@ private:
 	GameSettings _gameSettings;
 	ElasticBorderSettings _borderSettings;
 	ElasticBorder* _borders;
+	HUD _hud;
 };
 

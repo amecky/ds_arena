@@ -74,7 +74,8 @@ Game::Game() {
 
 	_borderSettings.textureID = textureID;
 	_borders = new ElasticBorder(&_borderSettings);
-
+	
+	_hud.reset();
 }
 
 
@@ -213,6 +214,7 @@ bool Game::handlePlayerCollision() {
 				emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
+				_hud.decreaseHealth(10);
 				hit = true;
 			}
 			else {
@@ -249,6 +251,7 @@ void Game::handleCollisions() {
 					if (eit->energy <= 0) {
 						emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
 						eit = _enemies.remove(eit->id);
+						_hud.addScore(50);
 					}
 					else {
 						++eit;
@@ -383,8 +386,12 @@ void Game::movePlayer(float dt) {
 // render
 // ---------------------------------------------------------------
 void Game::render() {
+	sprites::begin();
+	sprites::add(ds::vec2(512, 384), ds::vec4(512, 0, 512, 384), ds::vec2(2, 2));
+	sprites::flush();
 	_borders->render();
 	sprites::begin();
+	_hud.render();
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {
 		sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle);

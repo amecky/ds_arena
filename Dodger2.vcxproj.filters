@@ -16,6 +16,9 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="src\ElasticBorder.cpp" />
+    <ClCompile Include="src\utils\hud.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sprites.h" />
@@ -38,6 +41,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="src\ElasticBorder.h" />
+    <ClInclude Include="src\utils\hud.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="particles">

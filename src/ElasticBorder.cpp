@@ -65,13 +65,13 @@ void updateRibbon(Ribbon* ribbon, ElasticBorderSettings* settings) {
 // ---------------------------------------------------
 ElasticBorder::ElasticBorder(ElasticBorderSettings* settings) : _settings(settings) {
 	// bottom
-	initializeRibbon(&_ribbons[0], settings->numX, ds::vec2(40, 0), ds::vec2(1, 0), true, settings->length);
+	initializeRibbon(&_ribbons[0], settings->numX, ds::vec2(40, 8), ds::vec2(1, 0), true, settings->length);
 	// top
-	initializeRibbon(&_ribbons[1], settings->numX, ds::vec2(40, 615), ds::vec2(1, 0), true, settings->length);
+	initializeRibbon(&_ribbons[1], settings->numX, ds::vec2(40, 620), ds::vec2(1, 0), true, settings->length);
 	// left
-	initializeRibbon(&_ribbons[2], settings->numY, ds::vec2(0, 35), ds::vec2(0, 1), false, settings->length);
+	initializeRibbon(&_ribbons[2], settings->numY, ds::vec2(4, 35), ds::vec2(0, 1), false, settings->length);
 	// right
-	initializeRibbon(&_ribbons[3], settings->numY, ds::vec2(940, 35), ds::vec2(0, 1), false, settings->length);
+	initializeRibbon(&_ribbons[3], settings->numY, ds::vec2(946, 35), ds::vec2(0, 1), false, settings->length);
 
 	int total = settings->numX * settings->numY * 2;
 	_vertices = new GridVertex[total * 4];
