@@ -93,6 +93,7 @@ private:
 	ExplosionSettings _bulletExplosionSettings;
 	std::stack<SpawnItem> _spawnItems;
 	GameSettings _gameSettings;
+	ElasticBorderSettings _borderSettings;
 	ElasticBorder* _borders;
 };
 

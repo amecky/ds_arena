@@ -5,7 +5,7 @@
 
 const static float SHOOT_TTL = 0.2f;
 const static float SPAWN_QUEUE_TTL = 0.8f;
-const static float SPAWN_DELAY = 5.0f;
+const static float SPAWN_DELAY = 2.0f;
 
 void loadSystem(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
 	reader.get("max_particles", &descriptor->maxParticles, catName);
@@ -32,7 +32,7 @@ Game::Game() {
 	_player.energy = 100;
 	_shooting = false;
 	_shootingTimer = 0.0f;
-	_spawnTimer = 0.0f;
+	_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.9f;
 	_spawnQueueTimer = 0.0f;
 	_scalePath.add(0.0f, 0.2f);
 	_scalePath.add(0.5f, 1.5f);
@@ -59,7 +59,21 @@ Game::Game() {
 	settingsReader.parse("content\\settings.json");
 	settingsReader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
 
-	_borders = new ElasticBorder(20.0f, 5.0f, 48, 32, ds::vec4(520, 0, 40, 40), textureID);
+	
+	settingsReader.get("Tension", &_borderSettings.Tension, "border_settings");
+	settingsReader.get("Dampening", &_borderSettings.Dampening, "border_settings");
+	settingsReader.get("Spread", &_borderSettings.Spread, "border_settings");
+	settingsReader.get("numX", &_borderSettings.numX, "border_settings");
+	settingsReader.get("numY", &_borderSettings.numY, "border_settings");
+	settingsReader.get("thickness", &_borderSettings.thickness, "border_settings");
+	settingsReader.get("verticalTexture", &_borderSettings.verticalTexture, "border_settings");
+	settingsReader.get("horizontalTexture", &_borderSettings.horizontalTexture, "border_settings");
+	settingsReader.get("targetHeight", &_borderSettings.targetHeight, "border_settings");
+	settingsReader.get("splashForce", &_borderSettings.splashForce, "border_settings");
+	settingsReader.get("length", &_borderSettings.length, "border_settings");
+
+	_borderSettings.textureID = textureID;
+	_borders = new ElasticBorder(&_borderSettings);
 
 }
 
@@ -93,10 +107,6 @@ void Game::emittExplosion(Particlesystem* system, const ExplosionSettings& setti
 // ---------------------------------------------------------------
 void Game::tick(float dt) {
 
-	if (ds::isMouseButtonPressed(1)) {
-		_borders->splash(10, 2.0f);
-	}
-
 	_borders->tick(dt);
 
 	movePlayer(dt);
@@ -126,13 +136,13 @@ void Game::spawn(float dt) {
 	_spawnTimer += dt;
 	if (_spawnTimer >= SPAWN_DELAY) {
 		_spawnTimer -= SPAWN_DELAY;
-		ds::vec2 p = ds::vec2(512,384) + ds::vec2(ds::random(-100.0f, 100.0f), ds::random(-100.0f, 100.0f));
+		ds::vec2 p = ds::vec2(512, 354);// +ds::vec2(ds::random(-100.0f, 100.0f), ds::random(-100.0f, 100.0f));
 		int start = ds::random(0, _gameSettings.maxSpawnEnemies);
 		float step = ds::TWO_PI / static_cast<float>(_gameSettings.maxSpawnEnemies);
 		float angle = start * step;
 		for (int i = 0; i < 10; ++i) {
 			SpawnItem item;
-			item.pos = ds::vec2(cos(angle), sin(angle)) * 300.0f + p;
+			item.pos = ds::vec2(cos(angle), sin(angle)) * 270.0f + p;
 			item.type = 1;
 			_spawnItems.push(item);
 			angle += step;

@@ -1,3 +1,17 @@
 settings {
     max_spawn_enemies : 18
 }
+border_settings {
+    Tension : 0.025
+	Dampening : 0.025
+	Spread : 0.15
+	numX : 48
+	numY : 32
+	thickness : 20.0
+	verticalTexture : 0,0,0,0
+	horizontalTexture : 0,0,0,0
+	textureID : textureID
+	targetHeight : 40.0
+	splashForce : 15.0
+	length : 20.0
+}

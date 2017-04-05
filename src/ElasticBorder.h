@@ -30,25 +30,39 @@ struct Ribbon {
 	bool vertical;
 };
 
+struct ElasticBorderSettings {
+	float Tension;
+	float Dampening;
+	float Spread;
+	int numX;
+	int numY;
+	float thickness;
+	ds::vec4 verticalTexture;
+	ds::vec4 horizontalTexture;
+	RID textureID;
+	float targetHeight;
+	float splashForce;
+	float length;
+};
 // ---------------------------------------------------
 // AbstractBorder
 // ---------------------------------------------------
 class ElasticBorder {
 
 public:
-	ElasticBorder(float length, float thickness, int numX, int numY, const ds::vec4& texture, RID textureID);// , const ds::AABBox& box);
+	ElasticBorder(ElasticBorderSettings* settings);
 	virtual ~ElasticBorder();
 	void tick(float dt);
 	void render();
-	void splash(int index, float speed);
 	bool collides(const ds::vec2& s, float r);
 private:
 	void splash(int ribbonIndex, int index, float speed);
 	RID createStateGroup(int numVertices, RID textureID);
-	float _length;
-	float _thickness;
-	ds::vec4 _texture;
-	RID _textureID;	
+	ElasticBorderSettings* _settings;
+	//float _length;
+	//float _thickness;
+	//ds::vec4 _texture;
+	//RID _textureID;	
 	CubeConstantBuffer _constantBuffer;
 	RID _vertexBufferID;
 	RID _drawItem;
@@ -57,68 +71,3 @@ private:
 	float _timer;
 	Ribbon _ribbons[4];
 };
-/*
-// ---------------------------------------------------
-// BottomBorder
-// ---------------------------------------------------
-class BottomBorder : public AbstractBorder {
-
-public:
-	BottomBorder(float target, int num);
-	virtual ~BottomBorder() {}
-	void buildColumn(int index, v3* positions);
-	int getIndex(const v3& pos) const;
-};
-
-// ---------------------------------------------------
-// TopBorder
-// ---------------------------------------------------
-class TopBorder : public AbstractBorder {
-
-public:
-	TopBorder(float target, int num);
-	virtual ~TopBorder() {}
-	void buildColumn(int index, v3* positions);
-	int getIndex(const v3& pos) const;
-};
-
-// ---------------------------------------------------
-// LeftBorder
-// ---------------------------------------------------
-class LeftBorder : public AbstractBorder {
-
-public:
-	LeftBorder(float target, int num);
-	virtual ~LeftBorder() {}
-	void buildColumn(int index, v3* positions);
-	int getIndex(const v3& pos) const;
-};
-
-// ---------------------------------------------------
-// RightBorder
-// ---------------------------------------------------
-class RightBorder : public AbstractBorder {
-
-public:
-	RightBorder(float target, int num);
-	virtual ~RightBorder() {}
-	void buildColumn(int index, v3* positions);
-	int getIndex(const v3& pos) const;
-};
-
-// ---------------------------------------------------
-// ElasticBorder
-// ---------------------------------------------------
-class ElasticBorder {
-
-public:
-	ElasticBorder();
-	~ElasticBorder();
-	void tick(float dt);
-	void render();
-	void splash(const v3& pos, float speed);
-	void splash(const v3& pos, float radius, float speed);
-private:
-	AbstractBorder* _borders[4];
-};
-*/

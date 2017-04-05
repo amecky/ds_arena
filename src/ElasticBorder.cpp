@@ -2,9 +2,9 @@
 #include "..\shaders\Border_PS_Main.inc"
 #include "..\shaders\Border_VS_Main.inc"
 
-const float Tension = 0.025f;
-const float Dampening = 0.025f;
-const float Spread = 0.15f;
+//const float Tension = 0.025f;
+//const float Dampening = 0.025f;
+//const float Spread = 0.15f;
 
 void initializeRibbon(Ribbon* ribbon, int num, const ds::vec2& startPos, const ds::vec2& dir, bool vertical, float size) {
 	ribbon->points = new LinePoint[num];
@@ -24,11 +24,11 @@ void initializeRibbon(Ribbon* ribbon, int num, const ds::vec2& startPos, const d
 	}
 }
 
-void updateRibbon(Ribbon* ribbon) {	
+void updateRibbon(Ribbon* ribbon, ElasticBorderSettings* settings) {	
 	for (int i = 1; i < ribbon->num - 1; ++i) {
 		LinePoint& lp = ribbon->points[i];
 		float x = lp.targetHeight - lp.height;
-		lp.speed += Tension * x - lp.speed * Dampening;
+		lp.speed += settings->Tension * x - lp.speed * settings->Dampening;
 		lp.height += lp.speed;
 	}
 
@@ -36,11 +36,11 @@ void updateRibbon(Ribbon* ribbon) {
 	for (int j = 0; j < 2; j++) {
 		for (int i = 0; i < ribbon->num; i++) {
 			if (i > 0) {
-				ribbon->lDeltas[i] = Spread * (ribbon->points[i].height - ribbon->points[i - 1].height);
+				ribbon->lDeltas[i] = settings->Spread * (ribbon->points[i].height - ribbon->points[i - 1].height);
 				ribbon->points[i - 1].speed += ribbon->lDeltas[i];
 			}
 			if (i < ribbon->num - 1) {
-				ribbon->rDeltas[i] = Spread * (ribbon->points[i].height - ribbon->points[i + 1].height);
+				ribbon->rDeltas[i] = settings->Spread * (ribbon->points[i].height - ribbon->points[i + 1].height);
 				ribbon->points[i + 1].speed += ribbon->rDeltas[i];
 			}
 		}
@@ -63,19 +63,17 @@ void updateRibbon(Ribbon* ribbon) {
 // AbstractBorder
 //
 // ---------------------------------------------------
-ElasticBorder::ElasticBorder(float length, float thickness, int numX, int numY, const ds::vec4& texture, RID textureID) //, const ds::AABBox& box) 
-	: _length(length) , _thickness(thickness), _texture(texture) , _textureID(textureID) {
-
+ElasticBorder::ElasticBorder(ElasticBorderSettings* settings) : _settings(settings) {
 	// bottom
-	initializeRibbon(&_ribbons[0], numX, ds::vec2(40, 0), ds::vec2(1, 0), true, _length);
+	initializeRibbon(&_ribbons[0], settings->numX, ds::vec2(40, 0), ds::vec2(1, 0), true, settings->length);
 	// top
-	initializeRibbon(&_ribbons[1], numX, ds::vec2(40, 615), ds::vec2(1, 0), true, _length);
+	initializeRibbon(&_ribbons[1], settings->numX, ds::vec2(40, 615), ds::vec2(1, 0), true, settings->length);
 	// left
-	initializeRibbon(&_ribbons[2], numY, ds::vec2(0, 35), ds::vec2(0, 1), false, _length);
+	initializeRibbon(&_ribbons[2], settings->numY, ds::vec2(0, 35), ds::vec2(0, 1), false, settings->length);
 	// right
-	initializeRibbon(&_ribbons[3], numY, ds::vec2(940, 35), ds::vec2(0, 1), false, _length);
+	initializeRibbon(&_ribbons[3], settings->numY, ds::vec2(940, 35), ds::vec2(0, 1), false, settings->length);
 
-	int total = numX * numY * 2;
+	int total = settings->numX * settings->numY * 2;
 	_vertices = new GridVertex[total * 4];
 
 	// create orthographic view
@@ -86,7 +84,7 @@ ElasticBorder::ElasticBorder(float length, float thickness, int numX, int numY, 
 	_constantBuffer.viewprojectionMatrix = ds::matTranspose(orthoView * orthoProjection);
 	_constantBuffer.worldMatrix = ds::matTranspose(ds::matIdentity());
 
-	RID stateGroup = createStateGroup(total * 4, textureID);
+	RID stateGroup = createStateGroup(total * 4, settings->textureID);
 	ds::DrawCommand drawCmd = { 100, ds::DrawType::DT_INDEXED, ds::PrimitiveTypes::TRIANGLE_LIST, 0 };
 
 	_drawItem = ds::compile(drawCmd, stateGroup);
@@ -149,7 +147,7 @@ void ElasticBorder::tick(float dt) {
 	if (_timer >= delta) {
 		_timer -= delta;
 		for (int i = 0; i < 4; ++i) {
-			updateRibbon(&_ribbons[i]);
+			updateRibbon(&_ribbons[i], _settings);
 		}
 	}
 }
@@ -176,32 +174,36 @@ void ElasticBorder::render() {
 				s += ribbon.points[i + 1].pos;				
 				_vertices[idx++] = { ds::vec3(f.x, f.y, 0.0f) , ds::vec2(40.0f,92.0f), fc };
 				_vertices[idx++] = { ds::vec3(s.x, s.y, 0.0f) , ds::vec2(60.0f,92.0f), sc };
-				_vertices[idx++] = { ds::vec3(s.x, s.y - _thickness, 0.0f) , ds::vec2(60.0f,112.0f), sc };
-				_vertices[idx++] = { ds::vec3(f.x, f.y - _thickness, 0.0f) , ds::vec2(40.0f,112.0f), fc };
+				_vertices[idx++] = { ds::vec3(s.x, s.y - _settings->thickness, 0.0f) , ds::vec2(60.0f,112.0f), sc };
+				_vertices[idx++] = { ds::vec3(f.x, f.y - _settings->thickness, 0.0f) , ds::vec2(40.0f,112.0f), fc };
 			}
 			else {
 				ds::vec2 f = ds::vec2(ribbon.points[i].height,0.0f);
 				f += ribbon.points[i].pos;
 				ds::vec2 s = ds::vec2(ribbon.points[i + 1].height,0.0f);
 				s += ribbon.points[i + 1].pos;
-				_vertices[idx++] = { ds::vec3(s.x - _thickness, s.y, 0.0f) , ds::vec2(260.0f,20.0f), sc };
+				_vertices[idx++] = { ds::vec3(s.x - _settings->thickness, s.y, 0.0f) , ds::vec2(260.0f,20.0f), sc };
 				_vertices[idx++] = { ds::vec3(s.x, s.y, 0.0f) , ds::vec2(280.0f,20.0f), sc };
 				_vertices[idx++] = { ds::vec3(f.x, f.y, 0.0f) , ds::vec2(280.0f,40.0f), fc };
-				_vertices[idx++] = { ds::vec3(f.x - _thickness, f.y, 0.0f) , ds::vec2(260.0f,40.0f), fc };
+				_vertices[idx++] = { ds::vec3(f.x - _settings->thickness, f.y, 0.0f) , ds::vec2(260.0f,40.0f), fc };
 			}
 		}
 	}
 	// corner dots
-	/*
-	v3 dp[] = { v3(-10, 10, 0), v3(10, 10, 0), v3(10, -10, 0), v3(-10, -10, 0) };
-	v3 cp[] = { v3(35, 35, 0), v3(35, 665, 0), v3(1235, 665, 0), v3(1235, 35, 0) };
+	
+	ds::vec3 dp[] = { ds::vec3(-10, 10, 0), ds::vec3(10, 10, 0), ds::vec3(10, -10, 0), ds::vec3(-10, -10, 0) };
+	ds::vec3 cp[] = { ds::vec3(35, 35, 0), ds::vec3(35, 650, 0), ds::vec3(975, 650, 0), ds::vec3(975, 35, 0) };
 	for (int i = 0; i < 4; ++i) {
 		for (int j = 0; j < 4; ++j) {
 			p[j] = cp[i] + dp[j];
 		}
-		squares->draw(p, math::buildTexture(40, 120, 20, 20), ds::Color(43, 221, 237, 255));
+		_vertices[idx++] = { p[0] , ds::vec2(120.0f,40.0f), ds::Color(192,0,0,255) };
+		_vertices[idx++] = { p[1] , ds::vec2(140.0f,40.0f), ds::Color(192,0,0,255) };
+		_vertices[idx++] = { p[2] , ds::vec2(140.0f,60.0f), ds::Color(192,0,0,255) };
+		_vertices[idx++] = { p[3] , ds::vec2(120.0f,60.0f), ds::Color(192,0,0,255) };
 	}
-	*/
+	
+
 	ds::mapBufferData(_vertexBufferID, _vertices, idx * sizeof(GridVertex));
 	ds::submit(_orthoPass, _drawItem, idx / 4 * 6);
 }
@@ -210,26 +212,26 @@ bool ElasticBorder::collides(const ds::vec2& s, float r) {
 	bool hit = false;
 	if (s.x < 40.0f) {
 		// left
-		int idx = (s.y - 40.0f) / _length;
-		splash(2, idx, 12.0f);
+		int idx = (s.y - 40.0f) / _settings->length;
+		splash(2, idx, _settings->splashForce);
 		hit = true;
 	}
 	if (s.y < 40.0f) {
 		// bottom
-		int idx = (s.x - 40.0f) / _length;
-		splash(0, idx, 12.0f);
+		int idx = (s.x - 40.0f) / _settings->length;
+		splash(0, idx, _settings->splashForce);
 		hit = true;
 	}
 	if (s.y > 670.0f) {
 		// top
-		int idx = (s.x - 40.0f) / _length;
-		splash(1, idx, 12.0f);
+		int idx = (s.x - 40.0f) / _settings->length;
+		splash(1, idx, _settings->splashForce);
 		hit = true;
 	}
 	if (s.x > 960.0f) {
 		// right
-		int idx = (s.y - 40.0f) / _length;
-		splash(3, idx, 12.0f);
+		int idx = (s.y - 40.0f) / _settings->length;
+		splash(3, idx, _settings->splashForce);
 		hit = true;
 	}
 	return hit;
@@ -243,17 +245,4 @@ void ElasticBorder::splash(int ribbonIndex, int index, float speed) {
 	if (index >= 0 && index < ribbon.num) {
 		ribbon.points[index].speed = speed;
 	}
-}
-
-
-// ---------------------------------------------------
-// splash
-// ---------------------------------------------------
-void ElasticBorder::splash(int index, float speed) {
-	//if (index >= 0 && index < _total) {
-		_ribbons[0].points[index].speed = speed;
-		_ribbons[1].points[index].speed = speed;
-		_ribbons[2].points[index].speed = speed;
-		_ribbons[3].points[index].speed = speed;
-	//}
 }
