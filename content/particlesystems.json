@@ -7,6 +7,15 @@ explosion {
 	end_color : 248, 213, 131, 0
 	texture_rect : 0, 0, 64, 64	
 }
+player_trail {
+    max_particles : 512
+	particle_dimension : 64, 64
+	scale : 0.1, 0.1
+	growth : 5.0, 5.0
+	start_color : 255, 0, 0, 255
+	end_color : 64, 0, 0, 0
+	texture_rect : 0, 0, 64, 64	
+}
 explosion_settings {
 	count : 128
 	angle_variance : 0.1
@@ -21,5 +30,13 @@ bullet_explosion_settings {
 	radius_variance : 5.0
 	ttl : 0.6, 0.9
 	velocity_variance : 100.0, 240.0
+	size_variance : 0.5, 2.0
+}
+player_trail_settings {
+	count : 8
+	angle_variance : 0.1
+	radius_variance : 10.0
+	ttl : 0.9, 1.5
+	velocity_variance : 0,0
 	size_variance : 0.5, 2.0
 }

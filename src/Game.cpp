@@ -28,6 +28,7 @@ void loadSettings(const SJSONReader& reader, const char* catName, ExplosionSetti
 
 Game::Game() {
 	_player.pos = ds::vec2(512, 384);
+	_player.previous = _player.pos;
 	_player.angle = 0.0f;
 	_player.energy = 100;
 	_shooting = false;
@@ -42,18 +43,15 @@ Game::Game() {
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
 	_particleManager = new ParticleManager(4096, textureID);
 
+	_enemyExplosion = _particleManager->load("explosion", textureID);
+	_playerTrail = _particleManager->load("player_trail", textureID);
+
 	SJSONReader reader;
 	reader.parse("content\\particlesystems.json");
 
-	ParticlesystemDescriptor descriptor;
-	loadSystem(reader, "explosion", &descriptor);
-	descriptor.textureID = textureID;
-
-	_enemyExplosion = new Particlesystem(descriptor);
-	_particleManager->add(_enemyExplosion);
-
 	loadSettings(reader, "explosion_settings", &_explosionSettings);
 	loadSettings(reader, "bullet_explosion_settings", &_bulletExplosionSettings);
+	loadSettings(reader, "player_trail_settings", &_playerTrailSettings);
 
 	SJSONReader settingsReader;
 	settingsReader.parse("content\\settings.json");
@@ -84,6 +82,21 @@ Game::~Game() {
 	delete _particleManager;
 }
 
+void Game::emittTrail(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius) {
+	for (int i = 0; i < settings.count; ++i) {
+		float angle = ds::TWO_PI * static_cast<float>(i) / static_cast<float>(settings.count);
+		float x = px + cos(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
+		float y = py + sin(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
+		float da = angle * settings.angleVariance;
+		angle += ds::random(-da, da);
+		ds::vec2 s = ds::vec2(0.2f, 0.15f);
+		float ds = ds::random(settings.sizeVariance.x, settings.sizeVariance.y);
+		s *= ds;
+		float ttl = ds::random(settings.ttl.x, settings.ttl.y);
+		float rotation = angle;
+		system->add(ds::vec2(x, y), ds::vec2(0.0f), ds::vec2(0.0f), ttl, rotation);
+	}
+}
 
 
 void Game::emittExplosion(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius) {
@@ -377,7 +390,16 @@ void Game::movePlayer(float dt) {
 	if (ds::isKeyPressed('S')) {
 		vel.y -= 1.0f;
 	}
-	_player.pos += vel * 250.0f * dt;
+	ds::vec2 pos = _player.pos + vel * 250.0f * dt;
+	if (pos.x > 60.0f && pos.x < 960.0f && pos.y > 80.0f && pos.y < 650.0f) {
+		_player.pos = pos;
+
+		ds::vec2 d = _player.pos - _player.previous;
+		if (sqr_length(d) > 100.0f) {
+			_player.previous = _player.pos;
+			emittTrail(_playerTrail, _playerTrailSettings, _player.previous.x, _player.previous.y, 10.0f);
+		}
+	}
 	ds::vec2 mp = ds::getMousePosition();
 	_player.angle = math::getAngle(_player.pos, mp);
 }
@@ -390,6 +412,7 @@ void Game::render() {
 	sprites::add(ds::vec2(512, 384), ds::vec4(512, 0, 512, 384), ds::vec2(2, 2));
 	sprites::flush();
 	_borders->render();
+	_particleManager->render();
 	sprites::begin();
 	_hud.render();
 	DataArray<Bullet>::iterator it = _bullets.begin();
@@ -405,5 +428,5 @@ void Game::render() {
 	sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
 	sprites::flush();
 
-	_particleManager->render();
+	
 }

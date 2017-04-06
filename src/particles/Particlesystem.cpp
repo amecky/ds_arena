@@ -2,6 +2,7 @@
 #include "Particles_GS_Main.inc"
 #include "Particles_VS_Main.inc"
 #include "Particles_PS_Main.inc"
+#include "..\utils\json.h"
 // ------------------------------------------------------ -
 // create new particlesystem
 // -------------------------------------------------------
@@ -51,6 +52,27 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	_orthoPass = ds::createRenderPass(orthoView, orthoProjection, ds::DepthBufferState::DISABLED, "ParticleOrthoPass");
 	//constantBuffer.wvp = ds::matTranspose(orthoView * orthoProjection);
 
+}
+
+static void loadSystem(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
+	reader.get("max_particles", &descriptor->maxParticles, catName);
+	reader.get("particle_dimension", &descriptor->particleDimension, catName);
+	reader.get("scale", &descriptor->scale, catName);
+	reader.get("growth", &descriptor->growth, catName);
+	reader.get("start_color", &descriptor->startColor, catName);
+	reader.get("end_color", &descriptor->endColor, catName);
+	reader.get("texture_rect", &descriptor->textureRect, catName);
+}
+
+Particlesystem* ParticleManager::load(const char* categoryName, RID textureID) {
+	SJSONReader reader;
+	reader.parse("content\\particlesystems.json");
+	ParticlesystemDescriptor descriptor;
+	loadSystem(reader, categoryName, &descriptor);
+	descriptor.textureID = textureID;
+	Particlesystem* system = new Particlesystem(descriptor);
+	_systems.push_back(system);
+	return system;
 }
 
 void ParticleManager::add(Particlesystem* system) {

@@ -138,6 +138,7 @@ class ParticleManager {
 
 public:
 	ParticleManager(int maxParticles, RID textureID);
+	Particlesystem* load(const char* categoryName, RID textureID);
 	void add(Particlesystem* system);
 	void tick(float dt);
 	void render();

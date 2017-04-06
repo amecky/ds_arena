@@ -12,6 +12,7 @@
 // ---------------------------------------------------------------
 struct Player {
 	ds::vec2 pos;
+	ds::vec2 previous;
 	float angle;
 	int energy;
 };
@@ -81,6 +82,7 @@ private:
 	void handleShooting();
 	bool handlePlayerCollision();
 	void emittExplosion(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius);
+	void emittTrail(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius);
 	Player _player;
 	DataArray<Bullet> _bullets;
 	DataArray<Enemy> _enemies;
@@ -91,8 +93,10 @@ private:
 	AbstractPath<float> _scalePath;
 	ParticleManager* _particleManager;
 	Particlesystem* _enemyExplosion;
+	Particlesystem* _playerTrail;
 	ExplosionSettings _explosionSettings;
 	ExplosionSettings _bulletExplosionSettings;
+	ExplosionSettings _playerTrailSettings;
 	std::stack<SpawnItem> _spawnItems;
 	GameSettings _gameSettings;
 	ElasticBorderSettings _borderSettings;
