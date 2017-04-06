@@ -387,8 +387,8 @@ bool SJSONReader::get(const char* name, ds::vec4* ret, const char* prefix) const
 	if (idx != -1) {
 		ret->x = get(_data_indices[idx]);
 		ret->y = get(_data_indices[idx] + 1);
-		ret->z = ret->x + get(_data_indices[idx] + 2);
-		ret->w = ret->y + get(_data_indices[idx] + 3);
+		ret->z = get(_data_indices[idx] + 2);
+		ret->w = get(_data_indices[idx] + 3);
 		return true;
 	}
 	return false;

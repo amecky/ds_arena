@@ -7,6 +7,17 @@
 #include "ElasticBorder.h"
 #include "utils\hud.h"
 #include <stack>
+
+// ---------------------------------------------------------------
+// Spawn item
+// ---------------------------------------------------------------
+struct SpawnItem {
+	int type;
+	ds::vec2 pos;
+};
+
+typedef void(*spawnFunction)(SpawnItem*, int, int);
+
 // ---------------------------------------------------------------
 // Player
 // ---------------------------------------------------------------
@@ -45,13 +56,12 @@ struct Enemy {
 	EnemyState state;
 	ds::vec2 scale;
 	int energy;
-};
-
-struct SpawnItem {
 	int type;
-	ds::vec2 pos;
 };
 
+// ---------------------------------------------------------------
+// explosion settings
+// ---------------------------------------------------------------
 struct ExplosionSettings {
 	int count;
 	ds::vec2 ttl;
@@ -61,10 +71,16 @@ struct ExplosionSettings {
 	ds::vec2 sizeVariance;
 };
 
+// ---------------------------------------------------------------
+// game settings
+// ---------------------------------------------------------------
 struct GameSettings {
 	int maxSpawnEnemies;
 };
 
+// ---------------------------------------------------------------
+// Game
+// ---------------------------------------------------------------
 class Game {
 
 public:
@@ -94,13 +110,16 @@ private:
 	ParticleManager* _particleManager;
 	Particlesystem* _enemyExplosion;
 	Particlesystem* _playerTrail;
+	Particlesystem* _wakeUpSystem;
 	ExplosionSettings _explosionSettings;
 	ExplosionSettings _bulletExplosionSettings;
 	ExplosionSettings _playerTrailSettings;
+	ExplosionSettings _wakeupSettings;
 	std::stack<SpawnItem> _spawnItems;
 	GameSettings _gameSettings;
 	ElasticBorderSettings _borderSettings;
 	ElasticBorder* _borders;
 	HUD _hud;
+	spawnFunction _spawnFunctions[8];
 };
 

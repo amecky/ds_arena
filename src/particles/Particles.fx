@@ -22,7 +22,7 @@ struct GSPS_INPUT {
 
 struct PS_Input {
 	float4 pos  : SV_POSITION;
-	float2 tex0 : TEXCOORD0;
+	float2 texcoord : TEXCOORD0;
 	float4 color : COLOR0;
 };
 
@@ -72,17 +72,19 @@ void GS_Main(point GSPS_INPUT gin[1], inout TriangleStream<PS_Input> triStream)
 		float yt = s * sx + c * sy;
 		gout.pos = mul(float4(xt + pos.x, yt + pos.y, 0.0f, 1.0f), wvp);
 		gout.pos.z = 1.0;
-		gout.tex0 = t[i];
+		gout.texcoord = t[i];
 		gout.color = color;
 		triStream.Append(gout);
 	}
 	triStream.RestartStrip();
 }
 
-Texture2D colorMap_ : register(t0);
-SamplerState colorSampler_ : register(s0);
+Texture2D colorMap : register(t0);
+SamplerState colorSampler : register(s0);
 
 float4 PS_Main(PS_Input frag) : SV_TARGET {
+	return colorMap.Sample(colorSampler, frag.texcoord) * frag.color;
+	/*	
 	float border_size = 0.2;
 	float disc_radius = 0.3;
 	float dx = 2 * frag.tex0.x - 1;
@@ -92,4 +94,5 @@ float4 PS_Main(PS_Input frag) : SV_TARGET {
 	float4 outColor = frag.color;
 	outColor.a = outColor.a * lerp(0.0, 1.0, t) * frag.tex0.x;
 	return pow(outColor, 1.0f / 2.2f); // gamma correction
+	*/
 }

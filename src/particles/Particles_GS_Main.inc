@@ -107,7 +107,6 @@ ret
 // Approximately 0 instruction slots used
 #endif
 
-
 const BYTE Particles_GS_Main[] =
 {
      68,  88,  66,  67, 186,  89, 

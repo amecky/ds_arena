@@ -20,7 +20,6 @@ RID loadImage(const char* name) {
 // main method
 // ---------------------------------------------------------------
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline, int iCmdshow) {
-//int main(int argc, char *argv[]) {
 	//
 	// prepare application
 	//
@@ -38,17 +37,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	Game game;
 
+	float timer = 0.0f;
+
 	ds::saveResourcesToFile("log.txt");
 	while (ds::isRunning()) {
 
 		ds::begin();
 
 		game.tick(static_cast<float>(ds::getElapsedSeconds()));
+
+		timer += static_cast<float>(ds::getElapsedSeconds());
 		
 		game.render();
 		
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
-
+		ds::dbgPrint(0, 1, "Time: %g", timer);
 		ds::end();
 	}
 	sprites::shutdown();

@@ -4,18 +4,85 @@
 #include "utils\json.h"
 
 const static float SHOOT_TTL = 0.2f;
-const static float SPAWN_QUEUE_TTL = 0.8f;
-const static float SPAWN_DELAY = 2.0f;
+const static float SPAWN_QUEUE_TTL = 0.2f;
+const static float SPAWN_DELAY = 5.0f;
 
-void loadSystem(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
-	reader.get("max_particles", &descriptor->maxParticles, catName);
-	reader.get("particle_dimension", &descriptor->particleDimension, catName);
-	reader.get("scale", &descriptor->scale, catName);
-	reader.get("growth", &descriptor->growth, catName);
-	reader.get("start_color", &descriptor->startColor, catName);
-	reader.get("end_color", &descriptor->endColor, catName);
-	reader.get("texture_rect", &descriptor->textureRect, catName);
+const static ds::vec4 ENEMY_TEXTURES[] = {
+	ds::vec4(120,0,32,32),
+	ds::vec4(160,0,32,32),
+};
+
+// ---------------------------------------------------------------
+// circle spawn function
+// ---------------------------------------------------------------
+void spawnCircle(SpawnItem* items, int count, int type) {
+	ds::vec2 p = ds::vec2(512, 354);
+	int start = ds::random(0, 18.0f);
+	float step = ds::TWO_PI / 18.0f;
+	float angle = start * step;
+	int cnt = 0;
+	for (int i = 0; i < count; ++i) {
+		SpawnItem item;
+		item.pos = ds::vec2(cos(angle), sin(angle)) * 270.0f + p;
+		item.type = type;
+		items[cnt++] = item;
+		angle += step;
+	}
 }
+
+// ---------------------------------------------------------------
+// left line spawn function
+// ---------------------------------------------------------------
+void spawnLeftLine(SpawnItem* items, int count, int type) {
+	int cnt = 0;
+	for (int i = 0; i < count; ++i) {
+		SpawnItem item;
+		item.pos = ds::vec2(100, 120 + i * 50);
+		item.type = type;
+		items[cnt++] = item;
+	}
+}
+
+// ---------------------------------------------------------------
+// right line spawn function
+// ---------------------------------------------------------------
+void spawnRightLine(SpawnItem* items, int count, int type) {
+	int cnt = 0;
+	for (int i = 0; i < count; ++i) {
+		SpawnItem item;
+		item.pos = ds::vec2(900, 120 + i * 50);
+		item.type = type;
+		items[cnt++] = item;
+	}
+}
+
+// ---------------------------------------------------------------
+// top line spawn function
+// ---------------------------------------------------------------
+void spawnTopLine(SpawnItem* items, int count, int type) {
+	int cnt = 0;
+	for (int i = 0; i < count; ++i) {
+		SpawnItem item;
+		item.pos = ds::vec2(120 + i * 50, 650);
+		item.type = type;
+		items[cnt++] = item;
+	}
+}
+
+// ---------------------------------------------------------------
+// bottom line spawn function
+// ---------------------------------------------------------------
+void spawnBottomLine(SpawnItem* items, int count, int type) {
+	int cnt = 0;
+	for (int i = 0; i < count; ++i) {
+		SpawnItem item;
+		item.pos = ds::vec2(120 + i * 50, 80);
+		item.type = type;
+		items[cnt++] = item;
+	}
+}
+
+
 
 void loadSettings(const SJSONReader& reader, const char* catName, ExplosionSettings* settings) {
 	reader.get("count", &settings->count,catName);
@@ -33,18 +100,25 @@ Game::Game() {
 	_player.energy = 100;
 	_shooting = false;
 	_shootingTimer = 0.0f;
-	_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.9f;
+	_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.1f;
 	_spawnQueueTimer = 0.0f;
 	_scalePath.add(0.0f, 0.2f);
 	_scalePath.add(0.5f, 1.5f);
 	_scalePath.add(0.75f, 0.6f);
 	_scalePath.add(1.0f, 1.0f);
 
+	_spawnFunctions[0] = spawnCircle;
+	_spawnFunctions[1] = spawnLeftLine;
+	_spawnFunctions[2] = spawnRightLine;
+	_spawnFunctions[3] = spawnTopLine;
+	_spawnFunctions[4] = spawnBottomLine;
+
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
 	_particleManager = new ParticleManager(4096, textureID);
 
 	_enemyExplosion = _particleManager->load("explosion", textureID);
 	_playerTrail = _particleManager->load("player_trail", textureID);
+	_wakeUpSystem = _particleManager->load("wake_up", textureID);
 
 	SJSONReader reader;
 	reader.parse("content\\particlesystems.json");
@@ -52,6 +126,7 @@ Game::Game() {
 	loadSettings(reader, "explosion_settings", &_explosionSettings);
 	loadSettings(reader, "bullet_explosion_settings", &_bulletExplosionSettings);
 	loadSettings(reader, "player_trail_settings", &_playerTrailSettings);
+	loadSettings(reader, "wake_up_settings", &_wakeupSettings);
 
 	SJSONReader settingsReader;
 	settingsReader.parse("content\\settings.json");
@@ -150,6 +225,14 @@ void Game::spawn(float dt) {
 	_spawnTimer += dt;
 	if (_spawnTimer >= SPAWN_DELAY) {
 		_spawnTimer -= SPAWN_DELAY;
+		SpawnItem items[32];
+		int f = ds::random(0.0f, 4.9f);
+		int t = ds::random(0.0f, 1.9f);
+		_spawnFunctions[f](items, 10, t);
+		for (int i = 0; i < 10; ++i) {
+			_spawnItems.push(items[i]);
+		}
+		/*
 		ds::vec2 p = ds::vec2(512, 354);// +ds::vec2(ds::random(-100.0f, 100.0f), ds::random(-100.0f, 100.0f));
 		int start = ds::random(0, _gameSettings.maxSpawnEnemies);
 		float step = ds::TWO_PI / static_cast<float>(_gameSettings.maxSpawnEnemies);
@@ -161,6 +244,7 @@ void Game::spawn(float dt) {
 			_spawnItems.push(item);
 			angle += step;
 		}
+		*/
 	}
 }
 
@@ -171,8 +255,9 @@ void Game::spawnEnemies(float dt) {
 	if ( !_spawnItems.empty()) {
 		_spawnQueueTimer += dt;
 		if (_spawnQueueTimer >= SPAWN_QUEUE_TTL) {
-			_spawnTimer -= SPAWN_QUEUE_TTL;
+			_spawnQueueTimer -= SPAWN_QUEUE_TTL;
 			ds::vec2 p = _spawnItems.top().pos;
+			int type = _spawnItems.top().type;
 			_spawnItems.pop();
 			ID id = _enemies.add();
 			Enemy& e = _enemies.get(id);
@@ -184,7 +269,9 @@ void Game::spawnEnemies(float dt) {
 			e.state = ES_STARTING;
 			e.timer = 0.0f;
 			e.scale = ds::vec2(1.0f);
-			e.energy = 4;
+			e.energy = 3;
+			e.type = type;
+			emittTrail(_wakeUpSystem, _wakeupSettings, p.x, p.y, 5.0f);
 		}
 	}
 }
@@ -256,13 +343,13 @@ void Game::handleCollisions() {
 			if (eit->state == ES_MOVING) {
 				if (math::checkCircleIntersection(it->pos, 5.0f, eit->pos, 20.0f, &dist, &pnv)) {
 					if (_bullets.contains(it->id)) {
-						emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+						emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);						
 						it = _bullets.remove(it->id);
 						hit = true;						
 					}
 					--eit->energy;
 					if (eit->energy <= 0) {
-						emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
+						emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);						
 						eit = _enemies.remove(eit->id);
 						_hud.addScore(50);
 					}
@@ -417,16 +504,16 @@ void Game::render() {
 	_hud.render();
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {
-		sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle);
+		sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42,202,236,255));
 		++it;
 	}
 	DataArray<Enemy>::iterator eit = _enemies.begin();
 	while (eit != _enemies.end()) {
-		sprites::add(eit->pos, ds::vec4(460,80,38,38), eit->scale, eit->angle);
+		sprites::add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
 		++eit;
 	}
 	sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
 	sprites::flush();
 
-	
+	ds::dbgPrint(0, 3, "Spawn timer: %g", _spawnTimer);
 }

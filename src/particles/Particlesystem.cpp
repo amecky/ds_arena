@@ -8,7 +8,7 @@
 // -------------------------------------------------------
 ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	_vertices = new ParticleVertex[maxParticles];
-	_constantBuffer.screenDimension = ds::vec4(1024.0f, 768.0f, 64.0f, 64.0f);
+	_constantBuffer.screenDimension = ds::vec4(1024.0f, 768.0f, 1024.0f, 1024.0f);
 	_constantBuffer.screenCenter = ds::vec4(512.0f, 384.0f, 0.0f, 0.0f);
 	ds::matrix viewMatrix = ds::matIdentity();
 	ds::matrix projectionMatrix = ds::matOrthoLH(1024.0f, 768.0f, 0.1f, 1.0f);
