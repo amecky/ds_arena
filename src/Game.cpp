@@ -35,9 +35,10 @@ void spawnCircle(SpawnItem* items, int count, int type) {
 // ---------------------------------------------------------------
 void spawnLeftLine(SpawnItem* items, int count, int type) {
 	int cnt = 0;
+	int step = 540 / count;
 	for (int i = 0; i < count; ++i) {
 		SpawnItem item;
-		item.pos = ds::vec2(100, 120 + i * 50);
+		item.pos = ds::vec2(100, 120 + i * step);
 		item.type = type;
 		items[cnt++] = item;
 	}
@@ -48,9 +49,10 @@ void spawnLeftLine(SpawnItem* items, int count, int type) {
 // ---------------------------------------------------------------
 void spawnRightLine(SpawnItem* items, int count, int type) {
 	int cnt = 0;
+	int step = 540 / count;
 	for (int i = 0; i < count; ++i) {
 		SpawnItem item;
-		item.pos = ds::vec2(900, 120 + i * 50);
+		item.pos = ds::vec2(900, 120 + i * step);
 		item.type = type;
 		items[cnt++] = item;
 	}
@@ -61,9 +63,10 @@ void spawnRightLine(SpawnItem* items, int count, int type) {
 // ---------------------------------------------------------------
 void spawnTopLine(SpawnItem* items, int count, int type) {
 	int cnt = 0;
+	int step = 880 / count;
 	for (int i = 0; i < count; ++i) {
 		SpawnItem item;
-		item.pos = ds::vec2(120 + i * 50, 650);
+		item.pos = ds::vec2(120 + i * step, 620);
 		item.type = type;
 		items[cnt++] = item;
 	}
@@ -74,9 +77,10 @@ void spawnTopLine(SpawnItem* items, int count, int type) {
 // ---------------------------------------------------------------
 void spawnBottomLine(SpawnItem* items, int count, int type) {
 	int cnt = 0;
+	int step = 880 / count;
 	for (int i = 0; i < count; ++i) {
 		SpawnItem item;
-		item.pos = ds::vec2(120 + i * 50, 80);
+		item.pos = ds::vec2(120 + i * step, 100);
 		item.type = type;
 		items[cnt++] = item;
 	}
@@ -93,6 +97,9 @@ void loadSettings(const SJSONReader& reader, const char* catName, ExplosionSetti
 	reader.get("size_variance", &settings->sizeVariance, catName);
 }
 
+// ---------------------------------------------------------------
+// Game
+// ---------------------------------------------------------------
 Game::Game() {
 	_player.pos = ds::vec2(512, 384);
 	_player.previous = _player.pos;
@@ -149,6 +156,8 @@ Game::Game() {
 	_borders = new ElasticBorder(&_borderSettings);
 	
 	_hud.reset();
+
+	_gameMode = GM_GAME_OVER;
 }
 
 
@@ -198,21 +207,16 @@ void Game::tick(float dt) {
 
 	_borders->tick(dt);
 
-	movePlayer(dt);
-
-	handleShooting();
-
-	moveBullets(dt);
-
-	moveEnemies(dt);
-
-	handleCollisions();
-
-	handlePlayerCollision();
-
-	spawn(dt);
-
-	spawnEnemies(dt);
+	if (_gameMode == GM_MAIN) {
+		movePlayer(dt);
+		handleShooting();
+		moveBullets(dt);
+		moveEnemies(dt);
+		handleCollisions();
+		handlePlayerCollision();
+		spawn(dt);
+		spawnEnemies(dt);
+	}
 
 	_particleManager->tick(dt);
 
@@ -228,23 +232,11 @@ void Game::spawn(float dt) {
 		SpawnItem items[32];
 		int f = ds::random(0.0f, 4.9f);
 		int t = ds::random(0.0f, 1.9f);
-		_spawnFunctions[f](items, 10, t);
-		for (int i = 0; i < 10; ++i) {
+		_spawnFunctions[f](items, 6, t);
+		for (int i = 0; i < 6; ++i) {
 			_spawnItems.push(items[i]);
 		}
-		/*
-		ds::vec2 p = ds::vec2(512, 354);// +ds::vec2(ds::random(-100.0f, 100.0f), ds::random(-100.0f, 100.0f));
-		int start = ds::random(0, _gameSettings.maxSpawnEnemies);
-		float step = ds::TWO_PI / static_cast<float>(_gameSettings.maxSpawnEnemies);
-		float angle = start * step;
-		for (int i = 0; i < 10; ++i) {
-			SpawnItem item;
-			item.pos = ds::vec2(cos(angle), sin(angle)) * 270.0f + p;
-			item.type = 1;
-			_spawnItems.push(item);
-			angle += step;
-		}
-		*/
+		
 	}
 }
 
@@ -496,24 +488,28 @@ void Game::movePlayer(float dt) {
 // ---------------------------------------------------------------
 void Game::render() {
 	sprites::begin();
+	// background
 	sprites::add(ds::vec2(512, 384), ds::vec4(512, 0, 512, 384), ds::vec2(2, 2));
 	sprites::flush();
+	// elastic borders
 	_borders->render();
+	// particles
 	_particleManager->render();
-	sprites::begin();
-	_hud.render();
-	DataArray<Bullet>::iterator it = _bullets.begin();
-	while (it != _bullets.end()) {
-		sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42,202,236,255));
-		++it;
+	if (_gameMode == GM_MAIN) {
+		sprites::begin();
+		_hud.render();
+		DataArray<Bullet>::iterator it = _bullets.begin();
+		while (it != _bullets.end()) {
+			sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42, 202, 236, 255));
+			++it;
+		}
+		DataArray<Enemy>::iterator eit = _enemies.begin();
+		while (eit != _enemies.end()) {
+			sprites::add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
+			++eit;
+		}
+		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
+		sprites::flush();
 	}
-	DataArray<Enemy>::iterator eit = _enemies.begin();
-	while (eit != _enemies.end()) {
-		sprites::add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
-		++eit;
-	}
-	sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
-	sprites::flush();
-
 	ds::dbgPrint(0, 3, "Spawn timer: %g", _spawnTimer);
 }

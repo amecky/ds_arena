@@ -78,6 +78,11 @@ struct GameSettings {
 	int maxSpawnEnemies;
 };
 
+enum GameMode {
+	GM_START,
+	GM_MAIN,
+	GM_GAME_OVER
+};
 // ---------------------------------------------------------------
 // Game
 // ---------------------------------------------------------------
@@ -121,5 +126,6 @@ private:
 	ElasticBorder* _borders;
 	HUD _hud;
 	spawnFunction _spawnFunctions[8];
+	GameMode _gameMode;
 };
 
