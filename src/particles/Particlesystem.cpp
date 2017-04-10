@@ -54,6 +54,12 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 
 }
 
+ParticleManager::~ParticleManager() {
+	for (size_t i = 0; i < _systems.size(); ++i) {
+		delete _systems[i];
+	}
+}
+
 static void loadSystem(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
 	reader.get("max_particles", &descriptor->maxParticles, catName);
 	reader.get("particle_dimension", &descriptor->particleDimension, catName);
@@ -64,7 +70,7 @@ static void loadSystem(const SJSONReader& reader, const char* catName, Particles
 	reader.get("texture_rect", &descriptor->textureRect, catName);
 }
 
-Particlesystem* ParticleManager::load(const char* categoryName, RID textureID) {
+PSUID ParticleManager::load(const char* categoryName, RID textureID) {
 	SJSONReader reader;
 	reader.parse("content\\particlesystems.json");
 	ParticlesystemDescriptor descriptor;
@@ -72,11 +78,7 @@ Particlesystem* ParticleManager::load(const char* categoryName, RID textureID) {
 	descriptor.textureID = textureID;
 	Particlesystem* system = new Particlesystem(descriptor);
 	_systems.push_back(system);
-	return system;
-}
-
-void ParticleManager::add(Particlesystem* system) {
-	_systems.push_back(system);
+	return _systems.size() - 1;
 }
 
 void ParticleManager::tick(float dt) {
@@ -100,6 +102,25 @@ void ParticleManager::render() {
 	}
 }
 
+void ParticleManager::emitt(PSUID systemID, const ParticlesystemInstanceSettings& settings, float px, float py, float radius) {
+	Particlesystem* system = _systems[systemID];
+	for (int i = 0; i < settings.count; ++i) {
+		float angle = ds::TWO_PI * static_cast<float>(i) / static_cast<float>(settings.count);
+		float x = px + cos(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
+		float y = py + sin(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
+		float da = angle * settings.angleVariance;
+		angle += ds::random(-da, da);
+		ds::vec2 s = ds::vec2(0.2f, 0.15f);
+		float ds = ds::random(settings.sizeVariance.x, settings.sizeVariance.y);
+		s *= ds;
+		float ttl = ds::random(settings.ttl.x, settings.ttl.y);
+		float rotation = angle;
+		ds::vec2 velocity = ds::random(settings.velocityVariance.x, settings.velocityVariance.y) * ds::vec2(cos(angle), sin(angle));
+		ds::vec2 acc = velocity * ds::random(settings.accelerationVariance.x, settings.accelerationVariance.y);
+		system->add(ds::vec2(x, y), velocity, acc, ttl, rotation);
+	}
+}
+
 // -------------------------------------------------------
 // create new particlesystem
 // -------------------------------------------------------
@@ -117,7 +138,6 @@ void Particlesystem::add(const ds::vec2& pos, const ds::vec2& velocity, const ds
 		_array.timers[start] = ds::vec3(0.0f, ttl, 1);
 		_array.velocities[start] = ds::vec3(velocity);
 		_array.positions[start] = ds::vec3(pos);
-		//_array.accelerations[start] = ds::vec3(velocity) * -0.8f;
 		_array.accelerations[start] = ds::vec3(acceleration);
 		_array.wake(start);
 	}

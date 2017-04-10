@@ -1,5 +1,7 @@
 #include "HexGrid.h"
 
+const static ds::Color HEX_BASE_COLOR = ds::Color(12, 12, 12, 255);
+
 bool operator == (Hex a, Hex b) {
 	return a.q == b.q && a.r == b.r && a.s == b.s;
 }
@@ -11,6 +13,17 @@ bool operator != (Hex a, Hex b) {
 const Hex HEX_DIRECTIONS[] = {
 	Hex(1, 0), Hex(1, -1), Hex(0, -1), Hex(-1, 0), Hex(-1, 1), Hex(0, 1)
 };
+
+ds::Color lerp(const ds::Color& lhs, const ds::Color& rhs, float t) {
+	if (t <= 0.0f) {
+		return lhs;
+	}
+	if (t >= 1.0f) {
+		return rhs;
+	}
+	float invT = 1.0f - t;
+	return ds::Color(lhs.r * invT + rhs.r * t, lhs.g * invT + rhs.g * t, lhs.b * invT + rhs.b * t, lhs.a * invT + rhs.a * t);
+}
 
 namespace hex_math {
 
@@ -61,7 +74,7 @@ namespace hex_math {
 	}
 }
 
-HexGrid::HexGrid() : _qMax(0), _rMax(0), _items(0), _layout(layout_pointy, ds::vec2(24.0f, 24.0f), ds::vec2(100, 130)) {
+HexGrid::HexGrid() : _qMax(0), _rMax(0), _items(0), _layout(layout_pointy, ds::vec2(24.0f, 24.0f), ds::vec2(0, 60)) {
 }
 
 HexGrid::~HexGrid() {
@@ -79,7 +92,8 @@ void HexGrid::resize(int qMax, int rMax) {
 	}
 	_qMax = qMax;
 	_rMax = rMax;
-	_items = new GridItem[qMax * rMax];
+	_total = _qMax * _rMax;
+	_items = new GridItem[_total];
 	fill();
 }
 
@@ -94,17 +108,30 @@ void HexGrid::fill() {
 			GridItem item;
 			item.hex = Hex(q, r);
 			item.position = hex_math::hex_to_pixel(_layout, item.hex);
-			item.state = GIS_CLOSED;
-			item.bomb = false;
-			item.adjacentBombs = 0;
-			item.wiggle = false;
 			item.timer = 0.0f;
-			item.scale = ds::vec2(1, 1);
+			item.color = HEX_BASE_COLOR;
 			int idx = (q + q_offset) + r * _qMax;
 			_items[idx] = item;
 		}
 	}
 	_hover = -1;
+}
+
+void HexGrid::tick(float dt) {
+	for (int i = 0; i < _total; ++i) {
+		GridItem& item = _items[i];
+		if (item.timer > 0.0f) {
+			item.timer -= dt;
+			float n = 1.0f - item.timer / 1.2f;
+			item.color = lerp(item.highlightColor, HEX_BASE_COLOR, n);
+			if (n >= 1.0f) {
+				item.timer = 0.0f;
+			}
+		}
+		else {
+			item.color = HEX_BASE_COLOR;
+		}
+	}
 }
 
 const GridItem& HexGrid::get(const Hex& hex) const {
@@ -128,6 +155,21 @@ int HexGrid::neighbors(const Hex& hex, Hex* ret) {
 		}
 	}
 	return cnt;
+}
+
+Hex HexGrid::convert(const ds::vec2& p) {
+	return hex_math::hex_round(hex_math::pixel_to_hex(_layout, p));
+}
+
+void HexGrid::highlight(const ds::vec2& p, const ds::Color& clr) {
+	Hex h = convert(p);
+	GridItem& item = get(h);
+	item.highlightColor = clr;
+	item.timer = 1.2f;
+}
+
+ds::vec2 HexGrid::convert(const Hex & h) {
+	return hex_math::hex_to_pixel(_layout, h);
 }
 
 Hex HexGrid::convertFromMousePos() {
@@ -199,12 +241,6 @@ bool HexGrid::isValid(int q, int r) const {
 // -------------------------------------------------------
 bool HexGrid::isValid(const Hex& hex) const {
 	return isValid(hex.q, hex.r);
-}
-
-void HexGrid::markAsBomb(const Hex& hex) {
-	int q_offset = hex.r >> 1;
-	int idx = (hex.q + q_offset) + hex.r * _qMax;
-	_items[idx].bomb = true;
 }
 
 void HexGrid::setOrigin(const ds::vec2& origin) {

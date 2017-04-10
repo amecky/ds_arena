@@ -27,7 +27,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	rs.width = 1024;
 	rs.height = 768;
 	rs.title = "Dodger";
-	rs.clearColor = ds::Color(0.1f, 0.1f, 0.1f, 1.0f);
+	rs.clearColor = ds::Color(0.0f, 0.0f, 0.0f, 1.0f);
 	rs.multisampling = 4;
 	rs.useGPUProfiling = false;
 	ds::init(rs);

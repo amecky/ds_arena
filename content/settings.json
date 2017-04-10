@@ -1,5 +1,7 @@
 settings {
     max_spawn_enemies : 18
+	player_highlight : 48, 0, 0, 255
+	wake_up_hightlight : 236, 200, 130, 255
 }
 border_settings {
     Tension : 0.025

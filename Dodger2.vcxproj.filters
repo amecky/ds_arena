@@ -19,6 +19,9 @@
     <ClCompile Include="src\utils\hud.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\HexGrid.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sprites.h" />
@@ -42,6 +45,9 @@
     </ClInclude>
     <ClInclude Include="src\ElasticBorder.h" />
     <ClInclude Include="src\utils\hud.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\HexGrid.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,7 +7,7 @@
 #include "ElasticBorder.h"
 #include "utils\hud.h"
 #include <stack>
-
+#include "utils\HexGrid.h"
 // ---------------------------------------------------------------
 // Spawn item
 // ---------------------------------------------------------------
@@ -60,26 +60,28 @@ struct Enemy {
 };
 
 // ---------------------------------------------------------------
-// explosion settings
-// ---------------------------------------------------------------
-struct ExplosionSettings {
-	int count;
-	ds::vec2 ttl;
-	float angleVariance;
-	float radiusVariance;
-	ds::vec2 velocityVariance;
-	ds::vec2 sizeVariance;
-};
-
-// ---------------------------------------------------------------
 // game settings
 // ---------------------------------------------------------------
 struct GameSettings {
 	int maxSpawnEnemies;
+	ds::Color playerHightlightColor;
+	ds::Color wakeUpHightlightColor;
+};
+
+enum GameLayers {
+	GL_NONE,
+	GL_BACKGROUND,
+	GL_PREPARE,
+	GL_PLAYER,
+	GL_ENEMIES,
+	GL_BULLETS,
+	GL_HUD,
+	GL_GAME_OVER
 };
 
 enum GameMode {
 	GM_START,
+	GM_PREPARE,
 	GM_MAIN,
 	GM_GAME_OVER
 };
@@ -102,8 +104,6 @@ private:
 	void handleCollisions();
 	void handleShooting();
 	bool handlePlayerCollision();
-	void emittExplosion(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius);
-	void emittTrail(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius);
 	Player _player;
 	DataArray<Bullet> _bullets;
 	DataArray<Enemy> _enemies;
@@ -113,13 +113,13 @@ private:
 	float _spawnQueueTimer;
 	AbstractPath<float> _scalePath;
 	ParticleManager* _particleManager;
-	Particlesystem* _enemyExplosion;
-	Particlesystem* _playerTrail;
-	Particlesystem* _wakeUpSystem;
-	ExplosionSettings _explosionSettings;
-	ExplosionSettings _bulletExplosionSettings;
-	ExplosionSettings _playerTrailSettings;
-	ExplosionSettings _wakeupSettings;
+	PSUID _enemyExplosion;
+	PSUID _playerTrail;
+	PSUID _wakeUpSystem;
+	ParticlesystemInstanceSettings _explosionSettings;
+	ParticlesystemInstanceSettings _bulletExplosionSettings;
+	ParticlesystemInstanceSettings _playerTrailSettings;
+	ParticlesystemInstanceSettings _wakeupSettings;
 	std::stack<SpawnItem> _spawnItems;
 	GameSettings _gameSettings;
 	ElasticBorderSettings _borderSettings;
@@ -127,5 +127,11 @@ private:
 	HUD _hud;
 	spawnFunction _spawnFunctions[8];
 	GameMode _gameMode;
+	HexGrid _grid;
+	int _height;
+	int _width;
+	float _prepareTimer;
+	uint16_t _updateMask;
+	uint16_t _renderMask;
 };
 

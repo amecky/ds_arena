@@ -32,6 +32,7 @@ explosion_settings {
 	ttl : 0.6, 0.9
 	velocity_variance : 100.0, 240.0
 	size_variance : 0.5, 2.0
+	acceleration_variance : -0.5,-0.3
 }
 bullet_explosion_settings {
 	count : 16
@@ -40,6 +41,7 @@ bullet_explosion_settings {
 	ttl : 0.6, 0.9
 	velocity_variance : 100.0, 240.0
 	size_variance : 0.5, 2.0
+	acceleration_variance : -0.5,-0.3
 }
 player_trail_settings {
 	count : 8
@@ -48,6 +50,7 @@ player_trail_settings {
 	ttl : 0.9, 1.5
 	velocity_variance : 0,0
 	size_variance : 0.5, 2.0
+	acceleration_variance : 0.0,0.0
 }
 wake_up_settings {
 	count : 4
@@ -56,4 +59,5 @@ wake_up_settings {
 	ttl : 0.9, 1.5
 	velocity_variance : 10,30
 	size_variance : 0.5, 0.8
+	acceleration_variance : 0.0,0.0
 }

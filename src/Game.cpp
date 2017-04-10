@@ -88,13 +88,14 @@ void spawnBottomLine(SpawnItem* items, int count, int type) {
 
 
 
-void loadSettings(const SJSONReader& reader, const char* catName, ExplosionSettings* settings) {
+void loadSettings(const SJSONReader& reader, const char* catName, ParticlesystemInstanceSettings* settings) {
 	reader.get("count", &settings->count,catName);
 	reader.get("angle_variance", &settings->angleVariance, catName);
 	reader.get("radius_variance", &settings->radiusVariance, catName);
 	reader.get("ttl", &settings->ttl, catName);
 	reader.get("velocity_variance", &settings->velocityVariance, catName);
 	reader.get("size_variance", &settings->sizeVariance, catName);
+	reader.get("acceleration_variance", &settings->accelerationVariance, catName);
 }
 
 // ---------------------------------------------------------------
@@ -138,6 +139,8 @@ Game::Game() {
 	SJSONReader settingsReader;
 	settingsReader.parse("content\\settings.json");
 	settingsReader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
+	settingsReader.get("player_highlight", &_gameSettings.playerHightlightColor, "settings");
+	settingsReader.get("wake_up_hightlight", &_gameSettings.wakeUpHightlightColor, "settings");
 
 	
 	settingsReader.get("Tension", &_borderSettings.Tension, "border_settings");
@@ -157,67 +160,52 @@ Game::Game() {
 	
 	_hud.reset();
 
-	_gameMode = GM_GAME_OVER;
+	_width = 26;
+	_height = 18;
+	_grid.resize(_width, _height);
+
+	_gameMode = GM_MAIN;
+	_prepareTimer = 0.0f;
+	_renderMask = 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS;
+	_updateMask = 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS;
 }
 
 
 Game::~Game() {
-	delete _enemyExplosion;
 	delete _particleManager;
 }
 
-void Game::emittTrail(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius) {
-	for (int i = 0; i < settings.count; ++i) {
-		float angle = ds::TWO_PI * static_cast<float>(i) / static_cast<float>(settings.count);
-		float x = px + cos(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
-		float y = py + sin(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
-		float da = angle * settings.angleVariance;
-		angle += ds::random(-da, da);
-		ds::vec2 s = ds::vec2(0.2f, 0.15f);
-		float ds = ds::random(settings.sizeVariance.x, settings.sizeVariance.y);
-		s *= ds;
-		float ttl = ds::random(settings.ttl.x, settings.ttl.y);
-		float rotation = angle;
-		system->add(ds::vec2(x, y), ds::vec2(0.0f), ds::vec2(0.0f), ttl, rotation);
-	}
-}
-
-
-void Game::emittExplosion(Particlesystem* system, const ExplosionSettings& settings, float px, float py, float radius) {
-	for (int i = 0; i < settings.count; ++i) {
-		float angle = ds::TWO_PI * static_cast<float>(i) / static_cast<float>(settings.count);
-		float x = px + cos(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
-		float y = py + sin(angle) * (radius + ds::random(-settings.radiusVariance, settings.radiusVariance));
-		float da = angle * settings.angleVariance;
-		angle += ds::random(-da, da);
-		ds::vec2 s = ds::vec2(0.2f, 0.15f);
-		float ds = ds::random(settings.sizeVariance.x, settings.sizeVariance.y);
-		s *= ds;
-		float ttl = ds::random(settings.ttl.x, settings.ttl.y);
-		float rotation = angle;
-		ds::vec2 velocity = ds::random(settings.velocityVariance.x, settings.velocityVariance.y) * ds::vec2(cos(angle), sin(angle));
-		ds::vec2 acc = velocity * -0.5f;
-		system->add(ds::vec2(x, y), velocity, acc, ttl, rotation);
-	}
-}
 // ---------------------------------------------------------------
 // tick
 // ---------------------------------------------------------------
 void Game::tick(float dt) {
 
-	_borders->tick(dt);
+	if (bit::is_set(_updateMask, GL_BACKGROUND)) {
+		_borders->tick(dt);
+	}
 
-	if (_gameMode == GM_MAIN) {
+	if (bit::is_set(_updateMask, GL_PLAYER)) {
 		movePlayer(dt);
+		_grid.tick(dt);
+	}
+	if (bit::is_set(_updateMask, GL_BULLETS)) {
 		handleShooting();
 		moveBullets(dt);
+	}
+	if (bit::is_set(_updateMask, GL_ENEMIES)) {
 		moveEnemies(dt);
 		handleCollisions();
 		handlePlayerCollision();
 		spawn(dt);
 		spawnEnemies(dt);
 	}
-
+	if (bit::is_set(_updateMask, GL_PREPARE)) {
+		_prepareTimer += dt;
+		if (_prepareTimer >= 5.0f) {
+			bit::clear(&_updateMask, GL_PREPARE);
+			bit::clear(&_renderMask, GL_PREPARE);
+		}
+	}
 	_particleManager->tick(dt);
 
 }
@@ -249,11 +237,13 @@ void Game::spawnEnemies(float dt) {
 		if (_spawnQueueTimer >= SPAWN_QUEUE_TTL) {
 			_spawnQueueTimer -= SPAWN_QUEUE_TTL;
 			ds::vec2 p = _spawnItems.top().pos;
+			Hex h = _grid.convert(p);
+			ds::vec2 np = _grid.convert(h);
 			int type = _spawnItems.top().type;
 			_spawnItems.pop();
 			ID id = _enemies.add();
 			Enemy& e = _enemies.get(id);
-			e.pos = p;
+			e.pos = np;
 			e.id = id;
 			e.angle = 0.0f;
 			e.force = ds::vec2(0.0f);
@@ -263,7 +253,8 @@ void Game::spawnEnemies(float dt) {
 			e.scale = ds::vec2(1.0f);
 			e.energy = 3;
 			e.type = type;
-			emittTrail(_wakeUpSystem, _wakeupSettings, p.x, p.y, 5.0f);
+			_particleManager->emitt(_wakeUpSystem, _wakeupSettings, np.x, np.y, 5.0f);
+			_grid.highlight(np, _gameSettings.wakeUpHightlightColor);
 		}
 	}
 }
@@ -303,7 +294,7 @@ bool Game::handlePlayerCollision() {
 	while (eit != _enemies.end()) {
 		if (eit->state == ES_MOVING) {
 			if (math::checkCircleIntersection(_player.pos, 20.0f, eit->pos, 20.0f, &dist, &pnv)) {
-				emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
+				_particleManager->emitt(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
 				_hud.decreaseHealth(10);
@@ -335,13 +326,13 @@ void Game::handleCollisions() {
 			if (eit->state == ES_MOVING) {
 				if (math::checkCircleIntersection(it->pos, 5.0f, eit->pos, 20.0f, &dist, &pnv)) {
 					if (_bullets.contains(it->id)) {
-						emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);						
+						_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 						it = _bullets.remove(it->id);
 						hit = true;						
 					}
 					--eit->energy;
 					if (eit->energy <= 0) {
-						emittExplosion(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);						
+						_particleManager->emitt(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
 						eit = _enemies.remove(eit->id);
 						_hud.addScore(50);
 					}
@@ -370,11 +361,11 @@ void Game::moveBullets(float dt) {
 	while (it != _bullets.end()) {
 		it->pos += it->velocity * static_cast<float>(ds::getElapsedSeconds());
 		if (it->pos.x < 0.0f || it->pos.x > 1024.0f || it->pos.y < 0.0f || it->pos.y > 768.0f) {
-			emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+			_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 			it = _bullets.remove(it->id);
 		}
 		else if (_borders->collides(it->pos, 4.0f)) {
-			emittExplosion(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+			_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 			it = _bullets.remove(it->id);
 		}
 		else {
@@ -476,11 +467,12 @@ void Game::movePlayer(float dt) {
 		ds::vec2 d = _player.pos - _player.previous;
 		if (sqr_length(d) > 100.0f) {
 			_player.previous = _player.pos;
-			emittTrail(_playerTrail, _playerTrailSettings, _player.previous.x, _player.previous.y, 10.0f);
+			_particleManager->emitt(_playerTrail, _playerTrailSettings, _player.previous.x, _player.previous.y, 10.0f);
 		}
 	}
 	ds::vec2 mp = ds::getMousePosition();
 	_player.angle = math::getAngle(_player.pos, mp);
+	_grid.highlight(_player.pos, _gameSettings.playerHightlightColor);
 }
 
 // ---------------------------------------------------------------
@@ -488,28 +480,53 @@ void Game::movePlayer(float dt) {
 // ---------------------------------------------------------------
 void Game::render() {
 	sprites::begin();
-	// background
-	sprites::add(ds::vec2(512, 384), ds::vec4(512, 0, 512, 384), ds::vec2(2, 2));
-	sprites::flush();
-	// elastic borders
-	_borders->render();
+	if (bit::is_set(_renderMask, GL_BACKGROUND)) {
+		// background
+		for (int r = 0; r < _height; r++) {
+			int q_offset = r >> 1;
+			for (int q = -q_offset; q < _width - q_offset; q++) {
+				Hex h = Hex(q, r);
+				if (_grid.isValid(h)) {
+					GridItem& current = _grid.get(h);
+					if (current.timer > 0.0f) {
+						sprites::add(current.position, ds::vec4(320, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
+					}
+					else {
+						sprites::add(current.position, ds::vec4(380, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
+					}
+				}
+			}
+		}
+		sprites::flush();
+		// elastic borders
+		_borders->render();
+	}
 	// particles
 	_particleManager->render();
-	if (_gameMode == GM_MAIN) {
-		sprites::begin();
+	sprites::begin();
+	if (bit::is_set(_renderMask, GL_HUD)) {
 		_hud.render();
+	}
+	if (bit::is_set(_renderMask, GL_BULLETS)) {
 		DataArray<Bullet>::iterator it = _bullets.begin();
 		while (it != _bullets.end()) {
 			sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42, 202, 236, 255));
 			++it;
 		}
+	}
+	if (bit::is_set(_renderMask, GL_ENEMIES)) {
 		DataArray<Enemy>::iterator eit = _enemies.begin();
 		while (eit != _enemies.end()) {
 			sprites::add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
 			++eit;
 		}
-		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
-		sprites::flush();
 	}
-	ds::dbgPrint(0, 3, "Spawn timer: %g", _spawnTimer);
+	if (bit::is_set(_renderMask, GL_PREPARE)) {
+		sprites::add(ds::vec2(512,384), ds::vec4(80, 160, 340, 60));
+	}
+	if (bit::is_set(_renderMask, GL_PLAYER)) {
+		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
+	}
+	sprites::flush();
+	
 }

@@ -76,15 +76,11 @@ enum GridItemState {
 
 struct GridItem {
 
-	ID id;
 	Hex hex;
 	ds::vec2 position;
-	bool bomb;
-	int adjacentBombs;
-	GridItemState state; 
-	bool wiggle;
 	float timer;
-	ds::vec2 scale;
+	ds::Color color;
+	ds::Color highlightColor;
 };
 
 class HexGrid {
@@ -94,6 +90,7 @@ public:
 	~HexGrid();
 	void resize(int qMax, int rMax);
 	void fill();
+	void tick(float dt);
 	const GridItem& get(int index) const;
 	GridItem& get(int index);
 	const GridItem& get(const Hex& hex) const;
@@ -102,15 +99,18 @@ public:
 	int select(int x, int y);
 	bool isValid(int q, int r) const;
 	bool isValid(const Hex& hex) const;
-	void markAsBomb(const Hex& hex);
 	int neighbors(const Hex& hex,Hex* ret);
 	Hex convertFromMousePos();
+	Hex convert(const ds::vec2& p);
+	ds::vec2 convert(const Hex& h);
+	void highlight(const ds::vec2& p, const ds::Color& clr);
 	void setOrigin(const ds::vec2& origin);
 	int getIndex(const Hex& h)const;
 	ds::vec2 convert(int q, int r) const;
 private:
 	int _qMax;
 	int _rMax;
+	int _total;
 	GridItem* _items;
 	Layout _layout;
 	int _hover;

@@ -4,6 +4,8 @@
 #include <vector>
 
 typedef uint8_t BYTE;
+
+typedef uint32_t PSUID;
 // ---------------------------------------------------------------
 // The particle vertex
 // ---------------------------------------------------------------
@@ -102,6 +104,19 @@ struct ParticlesystemDescriptor {
 	ds::vec4 textureRect;
 };
 
+// ---------------------------------------------------------------
+// explosion settings
+// ---------------------------------------------------------------
+struct ParticlesystemInstanceSettings {
+	int count;
+	ds::vec2 ttl;
+	float angleVariance;
+	float radiusVariance;
+	ds::vec2 velocityVariance;
+	ds::vec2 sizeVariance;
+	ds::vec2 accelerationVariance;
+};
+
 // -------------------------------------------------------
 // Particlesystem
 // -------------------------------------------------------
@@ -138,10 +153,12 @@ class ParticleManager {
 
 public:
 	ParticleManager(int maxParticles, RID textureID);
-	Particlesystem* load(const char* categoryName, RID textureID);
-	void add(Particlesystem* system);
+	~ParticleManager();
+	PSUID load(const char* categoryName, RID textureID);
+	//void add(Particlesystem* system);
 	void tick(float dt);
 	void render();
+	void emitt(PSUID system, const ParticlesystemInstanceSettings& settings, float px, float py, float radius);
 private:
 	std::vector<Particlesystem*> _systems;
 	ParticleConstantBuffer _constantBuffer;
