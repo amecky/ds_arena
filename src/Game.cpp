@@ -204,6 +204,10 @@ void Game::tick(float dt) {
 		if (_prepareTimer >= 5.0f) {
 			bit::clear(&_updateMask, GL_PREPARE);
 			bit::clear(&_renderMask, GL_PREPARE);
+			_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.1f;
+			_spawnQueueTimer = 0.0f;
+			bit::set(&_updateMask, GL_ENEMIES);
+			bit::set(&_renderMask, GL_ENEMIES);
 		}
 	}
 	_particleManager->tick(dt);
@@ -522,7 +526,7 @@ void Game::render() {
 		}
 	}
 	if (bit::is_set(_renderMask, GL_PREPARE)) {
-		sprites::add(ds::vec2(512,384), ds::vec4(80, 160, 340, 60));
+		sprites::add(ds::vec2(512,384), ds::vec4(80, 160, 370, 60));
 	}
 	if (bit::is_set(_renderMask, GL_PLAYER)) {
 		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
