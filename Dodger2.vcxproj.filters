@@ -4,7 +4,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="src\sprites.cpp" />
     <ClCompile Include="src\math.cpp" />
-    <ClCompile Include="src\Game.cpp" />
     <ClCompile Include="src\tweening.cpp" />
     <ClCompile Include="src\particles\Particlesystem.cpp">
       <Filter>particles</Filter>
@@ -26,12 +25,14 @@
       <Filter>utils</Filter>
     </ClCompile>
     <ClCompile Include="src\GameState.cpp" />
+    <ClCompile Include="src\states\StateMachine.cpp">
+      <Filter>states</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\sprites.h" />
     <ClInclude Include="src\math.h" />
     <ClInclude Include="src\DataArray.h" />
-    <ClInclude Include="src\Game.h" />
     <ClInclude Include="src\FloatArray.h" />
     <ClInclude Include="src\tweening.h" />
     <ClInclude Include="src\particles\Particlesystem.h">
@@ -58,6 +59,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="src\GameState.h" />
+    <ClInclude Include="src\states\StateMachine.h">
+      <Filter>states</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="particles">
@@ -68,6 +72,9 @@
     </Filter>
     <Filter Include="shaders">
       <UniqueIdentifier>{0e0bfeba-f7f9-4d3b-896d-33a5482fc3b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="states">
+      <UniqueIdentifier>{2e969e4a-cb7a-4366-8c6b-16e681b85f33}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

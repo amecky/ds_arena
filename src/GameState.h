@@ -1,37 +1,23 @@
 #pragma once
 #include "utils\Stack.h"
-#include "utils\EventStream.h"
+#include "states\StateMachine.h"
 #include "utils\HexGrid.h"
 #include "ElasticBorder.h"
+#include "sprites.h"
+#include "DataArray.h"
+#include "math.h"
+#include "FloatArray.h"
+#include "particles\Particlesystem.h"
+#include "ElasticBorder.h"
+#include "utils\hud.h"
+#include <stack>
+#include "utils\HexGrid.h"
 
 enum EventTypes {
 	ET_NONE,
-	ET_PREPARE_ELAPSED
-};
-
-// ---------------------------------------------------------------
-// GameState
-// ---------------------------------------------------------------
-class GameState {
-
-public:
-	GameState(const char* name) : _active(false) {
-		_hash = ds::StaticHash(name);
-	}
-	virtual ~GameState() {}
-	virtual int tick(float dt, EventStream* stream) = 0;
-	virtual void render() = 0;
-	virtual void activate() = 0;
-	virtual void deactivate() = 0;
-	const ds::StaticHash& getHash() const {
-		return _hash;
-	}
-	const bool isActive() const {
-		return _active;
-	}
-protected:
-	bool _active;
-	ds::StaticHash _hash;
+	ET_PREPARE_ELAPSED,
+	ET_MAIN_MENU_PLAY,
+	ET_MAIN_MENU_EXIT
 };
 
 // ---------------------------------------------------------------
@@ -56,6 +42,23 @@ class GameOverState : public GameState {
 
 public:
 	GameOverState() : GameState("GameOverState") {}
+	int tick(float dt, EventStream* stream);
+	void render();
+	void activate() {
+		_active = true;
+	}
+	void deactivate() {
+		_active = false;
+	}
+};
+
+// ---------------------------------------------------------------
+// MainMenuState
+// ---------------------------------------------------------------
+class MainMenuState : public GameState {
+
+public:
+	MainMenuState() : GameState("MainMenuState") {}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate() {
@@ -100,26 +103,113 @@ private:
 };
 
 // ---------------------------------------------------------------
-// GameStateManager
+// Spawn item
 // ---------------------------------------------------------------
-class GameStateManager {
+struct SpawnItem {
+	int type;
+	ds::vec2 pos;
+};
+
+typedef void(*spawnFunction)(SpawnItem*, int, int);
+
+// ---------------------------------------------------------------
+// Player
+// ---------------------------------------------------------------
+struct Player {
+	ds::vec2 pos;
+	ds::vec2 previous;
+	float angle;
+	int energy;
+};
+
+// ---------------------------------------------------------------
+// Bullet
+// ---------------------------------------------------------------
+struct Bullet {
+	ID id;
+	ds::vec2 pos;
+	ds::vec2 velocity;
+	float angle;
+};
+
+enum EnemyState {
+	ES_STARTING,
+	ES_MOVING
+};
+
+// ---------------------------------------------------------------
+// Enemy
+// ---------------------------------------------------------------
+struct Enemy {
+	ID id;
+	ds::vec2 pos;
+	ds::vec2 velocity;
+	ds::vec2 force;
+	float angle;
+	float timer;
+	EnemyState state;
+	ds::vec2 scale;
+	int energy;
+	int type;
+};
+
+// ---------------------------------------------------------------
+// game settings
+// ---------------------------------------------------------------
+struct GameSettings {
+	int maxSpawnEnemies;
+	ds::Color playerHightlightColor;
+	ds::Color wakeUpHightlightColor;
+};
+
+// ---------------------------------------------------------------
+// MainState
+// ---------------------------------------------------------------
+class MainState : public GameState {
 
 public:
-	GameStateManager();
-	~GameStateManager();
-	void add(GameState* state);
-	void activate(const char* name);
-	void deactivate(const char* name);
-	void connect(const char* first, const char* second, int outcome);
-	void tick(float dt);
+	MainState(BackgroundState* backgroundState);
+	virtual ~MainState();
+	int tick(float dt, EventStream* stream);
 	void render();
-	bool hasEvents() const;
-	uint32_t numEvents() const;
-	const bool getEvent(uint32_t index, void* p) const;
-	const int getEventType(uint32_t index) const;
-	const bool containsEventType(uint32_t type) const;
+	void startSpawning();
+	void stopSpawning();
+	void activate() {
+		_active = true;
+	}
+	void deactivate() {
+		_active = false;
+	}
 private:
-	GameState* find(const char* name);
-	std::vector<GameState*> _states;
-	EventStream _stream;
+	void movePlayer(float dt);
+	void moveBullets(float dt);
+	void moveEnemies(float dt);
+	void spawnEnemies(float dt);
+	void spawn(float dt);
+	void handleCollisions();
+	void handleShooting();
+	bool handlePlayerCollision();
+	void startGame();
+	Player _player;
+	DataArray<Bullet> _bullets;
+	DataArray<Enemy> _enemies;
+	bool _shooting;
+	float _shootingTimer;
+	float _spawnTimer;
+	float _spawnQueueTimer;
+	AbstractPath<float> _scalePath;
+	ParticleManager* _particleManager;
+	PSUID _enemyExplosion;
+	PSUID _playerTrail;
+	PSUID _wakeUpSystem;
+	ParticlesystemInstanceSettings _explosionSettings;
+	ParticlesystemInstanceSettings _bulletExplosionSettings;
+	ParticlesystemInstanceSettings _playerTrailSettings;
+	ParticlesystemInstanceSettings _wakeupSettings;
+	std::stack<SpawnItem> _spawnItems;
+	GameSettings _gameSettings;
+	BackgroundState* _backgroundState;
+	HUD _hud;
+	spawnFunction _spawnFunctions[8];
+	bool _spawning;
 };
