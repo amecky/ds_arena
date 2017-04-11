@@ -174,9 +174,7 @@ public:
 	void render();
 	void startSpawning();
 	void stopSpawning();
-	void activate() {
-		_active = true;
-	}
+	void activate();
 	void deactivate() {
 		_active = false;
 	}
