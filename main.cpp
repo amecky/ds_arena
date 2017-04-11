@@ -26,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	ds::RenderSettings rs;
 	rs.width = 1024;
 	rs.height = 768;
-	rs.title = "Dodger";
+	rs.title = "ds_arena";
 	rs.clearColor = ds::Color(0.0f, 0.0f, 0.0f, 1.0f);
 	rs.multisampling = 4;
 	rs.useGPUProfiling = false;
@@ -37,21 +37,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	Game game;
 
-	float timer = 0.0f;
-
-	ds::saveResourcesToFile("log.txt");
 	while (ds::isRunning()) {
 
 		ds::begin();
 
 		game.tick(static_cast<float>(ds::getElapsedSeconds()));
 
-		timer += static_cast<float>(ds::getElapsedSeconds());
-		
 		game.render();
 		
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
-		ds::dbgPrint(0, 1, "Time: %g", timer);
+
 		ds::end();
 	}
 	sprites::shutdown();

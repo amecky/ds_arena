@@ -8,6 +8,8 @@
 #include "utils\hud.h"
 #include <stack>
 #include "utils\HexGrid.h"
+#include "GameState.h"
+
 // ---------------------------------------------------------------
 // Spawn item
 // ---------------------------------------------------------------
@@ -76,7 +78,8 @@ enum GameLayers {
 	GL_ENEMIES,
 	GL_BULLETS,
 	GL_HUD,
-	GL_GAME_OVER
+	GL_GAME_OVER,
+	GL_START
 };
 
 enum GameMode {
@@ -84,6 +87,19 @@ enum GameMode {
 	GM_PREPARE,
 	GM_MAIN,
 	GM_GAME_OVER
+};
+
+struct GameLayerDefinition {
+	GameMode mode;
+	int renderMask;
+	int updateMask;
+};
+
+const static GameLayerDefinition GAME_MODES[] = {
+	{ GM_START, 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS , 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS },
+	{ GM_PREPARE, 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS , 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS },
+	{ GM_MAIN, 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS , 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS },
+	{ GM_GAME_OVER, 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS , 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS }
 };
 // ---------------------------------------------------------------
 // Game
@@ -104,6 +120,7 @@ private:
 	void handleCollisions();
 	void handleShooting();
 	bool handlePlayerCollision();
+	void startGame();
 	Player _player;
 	DataArray<Bullet> _bullets;
 	DataArray<Enemy> _enemies;
@@ -122,16 +139,17 @@ private:
 	ParticlesystemInstanceSettings _wakeupSettings;
 	std::stack<SpawnItem> _spawnItems;
 	GameSettings _gameSettings;
-	ElasticBorderSettings _borderSettings;
-	ElasticBorder* _borders;
+	
 	HUD _hud;
 	spawnFunction _spawnFunctions[8];
-	GameMode _gameMode;
-	HexGrid _grid;
-	int _height;
-	int _width;
-	float _prepareTimer;
+	
+	
 	uint16_t _updateMask;
 	uint16_t _renderMask;
+
+	GameStateManager _gameStates;
+	PrepareState* _prepareState;
+	BackgroundState* _backgroundState;
+	GameOverState* _gameOverState;
 };
 

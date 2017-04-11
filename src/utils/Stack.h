@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 
 template <typename TYPE> void Construct(void* dest) {
 	new ((TYPE*)dest) TYPE;

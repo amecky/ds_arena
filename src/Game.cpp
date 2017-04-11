@@ -12,6 +12,11 @@ const static ds::vec4 ENEMY_TEXTURES[] = {
 	ds::vec4(160,0,32,32),
 };
 
+bool renderButton(const ds::vec2& p, const ds::vec4& t) {
+	sprites::add(p, t);
+	return false;
+}
+
 // ---------------------------------------------------------------
 // circle spawn function
 // ---------------------------------------------------------------
@@ -141,33 +146,21 @@ Game::Game() {
 	settingsReader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
 	settingsReader.get("player_highlight", &_gameSettings.playerHightlightColor, "settings");
 	settingsReader.get("wake_up_hightlight", &_gameSettings.wakeUpHightlightColor, "settings");
-
-	
-	settingsReader.get("Tension", &_borderSettings.Tension, "border_settings");
-	settingsReader.get("Dampening", &_borderSettings.Dampening, "border_settings");
-	settingsReader.get("Spread", &_borderSettings.Spread, "border_settings");
-	settingsReader.get("numX", &_borderSettings.numX, "border_settings");
-	settingsReader.get("numY", &_borderSettings.numY, "border_settings");
-	settingsReader.get("thickness", &_borderSettings.thickness, "border_settings");
-	settingsReader.get("verticalTexture", &_borderSettings.verticalTexture, "border_settings");
-	settingsReader.get("horizontalTexture", &_borderSettings.horizontalTexture, "border_settings");
-	settingsReader.get("targetHeight", &_borderSettings.targetHeight, "border_settings");
-	settingsReader.get("splashForce", &_borderSettings.splashForce, "border_settings");
-	settingsReader.get("length", &_borderSettings.length, "border_settings");
-
-	_borderSettings.textureID = textureID;
-	_borders = new ElasticBorder(&_borderSettings);
 	
 	_hud.reset();
-
-	_width = 26;
-	_height = 18;
-	_grid.resize(_width, _height);
-
-	_gameMode = GM_MAIN;
-	_prepareTimer = 0.0f;
+	
 	_renderMask = 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS;
 	_updateMask = 1 << GL_BACKGROUND | 1 << GL_PREPARE | 1 << GL_PLAYER | 1 << GL_BULLETS;
+
+	_backgroundState = new BackgroundState;
+	_gameStates.add(_backgroundState);
+	_prepareState = new PrepareState;
+	_gameStates.add(_prepareState);
+	
+	_gameOverState = new GameOverState;
+	_gameStates.add(_gameOverState);
+
+	_gameStates.activate("GameOverState");
 }
 
 
@@ -176,17 +169,27 @@ Game::~Game() {
 }
 
 // ---------------------------------------------------------------
+// after the prepare phase start a new game
+// ---------------------------------------------------------------
+void Game::startGame() {
+	bit::clear(&_updateMask, GL_PREPARE);
+	bit::clear(&_renderMask, GL_PREPARE);
+	_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.1f;
+	_spawnQueueTimer = 0.0f;
+	bit::set(&_updateMask, GL_ENEMIES);
+	bit::set(&_renderMask, GL_ENEMIES);
+	bit::set(&_renderMask, GL_HUD);
+	// reset HUD
+	_hud.reset();
+}
+// ---------------------------------------------------------------
 // tick
 // ---------------------------------------------------------------
 void Game::tick(float dt) {
 
-	if (bit::is_set(_updateMask, GL_BACKGROUND)) {
-		_borders->tick(dt);
-	}
-
 	if (bit::is_set(_updateMask, GL_PLAYER)) {
 		movePlayer(dt);
-		_grid.tick(dt);
+		
 	}
 	if (bit::is_set(_updateMask, GL_BULLETS)) {
 		handleShooting();
@@ -199,17 +202,16 @@ void Game::tick(float dt) {
 		spawn(dt);
 		spawnEnemies(dt);
 	}
-	if (bit::is_set(_updateMask, GL_PREPARE)) {
-		_prepareTimer += dt;
-		if (_prepareTimer >= 5.0f) {
-			bit::clear(&_updateMask, GL_PREPARE);
-			bit::clear(&_renderMask, GL_PREPARE);
-			_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.1f;
-			_spawnQueueTimer = 0.0f;
-			bit::set(&_updateMask, GL_ENEMIES);
-			bit::set(&_renderMask, GL_ENEMIES);
+	
+	_gameStates.tick(dt);
+	uint32_t num = _gameStates.numEvents();
+	for (uint32_t i = 0; i < num; ++i) {
+		// handle events
+		if (_gameStates.getEventType(i) == ET_PREPARE_ELAPSED) {
+			_gameStates.deactivate("PrepareState");
 		}
 	}
+
 	_particleManager->tick(dt);
 
 }
@@ -241,8 +243,8 @@ void Game::spawnEnemies(float dt) {
 		if (_spawnQueueTimer >= SPAWN_QUEUE_TTL) {
 			_spawnQueueTimer -= SPAWN_QUEUE_TTL;
 			ds::vec2 p = _spawnItems.top().pos;
-			Hex h = _grid.convert(p);
-			ds::vec2 np = _grid.convert(h);
+			Hex h = _backgroundState->convert(p);
+			ds::vec2 np = _backgroundState->convert(h);
 			int type = _spawnItems.top().type;
 			_spawnItems.pop();
 			ID id = _enemies.add();
@@ -258,7 +260,7 @@ void Game::spawnEnemies(float dt) {
 			e.energy = 3;
 			e.type = type;
 			_particleManager->emitt(_wakeUpSystem, _wakeupSettings, np.x, np.y, 5.0f);
-			_grid.highlight(np, _gameSettings.wakeUpHightlightColor);
+			_backgroundState->highlight(np, _gameSettings.wakeUpHightlightColor);
 		}
 	}
 }
@@ -368,7 +370,7 @@ void Game::moveBullets(float dt) {
 			_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 			it = _bullets.remove(it->id);
 		}
-		else if (_borders->collides(it->pos, 4.0f)) {
+		else if (_backgroundState->borderCollision(it->pos, 4.0f)) {
 			_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
 			it = _bullets.remove(it->id);
 		}
@@ -476,41 +478,29 @@ void Game::movePlayer(float dt) {
 	}
 	ds::vec2 mp = ds::getMousePosition();
 	_player.angle = math::getAngle(_player.pos, mp);
-	_grid.highlight(_player.pos, _gameSettings.playerHightlightColor);
+	_backgroundState->highlight(_player.pos, _gameSettings.playerHightlightColor);
 }
 
 // ---------------------------------------------------------------
 // render
 // ---------------------------------------------------------------
 void Game::render() {
-	sprites::begin();
-	if (bit::is_set(_renderMask, GL_BACKGROUND)) {
-		// background
-		for (int r = 0; r < _height; r++) {
-			int q_offset = r >> 1;
-			for (int q = -q_offset; q < _width - q_offset; q++) {
-				Hex h = Hex(q, r);
-				if (_grid.isValid(h)) {
-					GridItem& current = _grid.get(h);
-					if (current.timer > 0.0f) {
-						sprites::add(current.position, ds::vec4(320, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
-					}
-					else {
-						sprites::add(current.position, ds::vec4(380, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
-					}
-				}
-			}
-		}
-		sprites::flush();
-		// elastic borders
-		_borders->render();
-	}
+
 	// particles
 	_particleManager->render();
+	
+
+	_gameStates.render();
+
 	sprites::begin();
+	if (bit::is_set(_renderMask, GL_GAME_OVER)) {
+		sprites::add(ds::vec2(512,384), ds::vec4(0, 480, 390, 40));
+	}
+
 	if (bit::is_set(_renderMask, GL_HUD)) {
 		_hud.render();
 	}
+
 	if (bit::is_set(_renderMask, GL_BULLETS)) {
 		DataArray<Bullet>::iterator it = _bullets.begin();
 		while (it != _bullets.end()) {
@@ -518,6 +508,7 @@ void Game::render() {
 			++it;
 		}
 	}
+
 	if (bit::is_set(_renderMask, GL_ENEMIES)) {
 		DataArray<Enemy>::iterator eit = _enemies.begin();
 		while (eit != _enemies.end()) {
@@ -525,9 +516,7 @@ void Game::render() {
 			++eit;
 		}
 	}
-	if (bit::is_set(_renderMask, GL_PREPARE)) {
-		sprites::add(ds::vec2(512,384), ds::vec4(80, 160, 370, 60));
-	}
+
 	if (bit::is_set(_renderMask, GL_PLAYER)) {
 		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
 	}
