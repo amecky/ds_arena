@@ -2,6 +2,15 @@
 #include <stdint.h>
 #include <vector>
 
+// ---------------------------------------------------------------
+// EventStream
+// This is a simple Blob that stores events. Usually events
+// are just simple numbers. But you can also add additional 
+// data. 
+// This stream is used in the StateMachine and passed along
+// to every active state. It is reset at the beginning of every
+// frame.
+// ---------------------------------------------------------------
 const int EVENT_HEADER_SIZE = 12;
 
 class EventStream {

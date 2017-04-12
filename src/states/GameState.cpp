@@ -2,14 +2,6 @@
 #include "..\utils\sprites.h"
 #include "..\utils\json.h"
 
-
-bool renderButton(const ds::vec2& p, const ds::vec4& t) {
-	sprites::add(p, t);
-	return false;
-}
-
-
-
 // -------------------------------------------------------
 // check if mouse cursor is inside box
 // -------------------------------------------------------
@@ -59,7 +51,7 @@ void PrepareState::deactivate() {
 // Game over state
 // ---------------------------------------------------------------
 int GameOverState::tick(float dt, EventStream* stream) {
-	if (ds::isMouseButtonPressed(0)) {
+	if (ds::isMouseButtonClicked(0)) {
 		if (isCursorInside(ds::vec2(512, 300), ds::vec2(300, 56))) {
 			stream->add(ET_GAME_OVER_PLAY);
 			return 1;
@@ -82,7 +74,7 @@ void GameOverState::render() {
 // MainMenuState
 // ---------------------------------------------------------------
 int MainMenuState::tick(float dt, EventStream* stream) {
-	if (ds::isMouseButtonPressed(0)) {
+	if (ds::isMouseButtonClicked(0)) {
 		if (isCursorInside(ds::vec2(512, 300), ds::vec2(300, 56))) {
 			stream->add(ET_MAIN_MENU_PLAY);
 			return 1;

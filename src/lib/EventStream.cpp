@@ -1,6 +1,9 @@
 #include "EventStream.h"
 #include <string.h>
 
+// ---------------------------------------------------------------
+// EventStream
+// ---------------------------------------------------------------
 EventStream::EventStream() {
 	m_Data = new char[4096];
 	reset();
@@ -43,7 +46,6 @@ void EventStream::add(uint32_t type) {
 // add header
 // -------------------------------------------------------
 void EventStream::addHeader(uint32_t type, size_t size) {
-	//LOG << "creating event - type: " << type << " size: " << size;
 	EventHeader header;
 	header.id = _mappings.size();;
 	header.size = size;
