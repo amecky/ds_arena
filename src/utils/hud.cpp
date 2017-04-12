@@ -3,17 +3,43 @@
 #include "sprites.h"
 
 const ds::vec4 NUMBERS[] = {
-	ds::vec4(0,120,41,40),
-	ds::vec4(41,120,28,40),
-	ds::vec4(69,120,38,40),
-	ds::vec4(107,120,40,40),
-	ds::vec4(147,120,38,40),
-	ds::vec4(185,120,40,40),
-	ds::vec4(225,120,38,40),
-	ds::vec4(263,120,40,40),
-	ds::vec4(303,120,38,40),
-	ds::vec4(341,120,40,40)
+	ds::vec4(0,120,40,40),
+	ds::vec4(40,120,32,40),
+	ds::vec4(72,120,38,40),
+	ds::vec4(111,120,40,40),
+	ds::vec4(151,120,38,40),
+	ds::vec4(189,120,40,40),
+	ds::vec4(229,120,38,40),
+	ds::vec4(267,120,40,40),
+	ds::vec4(307,120,38,40),
+	ds::vec4(345,120,40,40)
 };
+
+namespace numbers {
+
+	void draw(const ds::vec2& pos, int value, int num, bool leadingZeros) {
+		ds::vec2 hp = pos;
+		int idx = 0;
+		int tmp = value;
+		int div = 1;
+		for (int i = 0; i < num; ++i) {
+			if (i > 0) {
+				div *= 10;
+			}
+		}
+		for (int i = 0; i < num; ++i) {
+			int r = tmp / div;
+			tmp = tmp - r * div;
+			div /= 10;
+			const ds::vec4& t = NUMBERS[r];
+			if (r >= 0 && r < 10) {
+				sprites::add(hp, t);
+				hp.x += t.z + 2.0f;
+			}
+		}
+	}
+
+}
 
 void HUD::reset() {
 	_health = 100;

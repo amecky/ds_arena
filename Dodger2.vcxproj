@@ -31,6 +31,7 @@
     <ClCompile Include="src\states\MainState.cpp" />
     <ClCompile Include="src\states\StateMachine.cpp" />
     <ClCompile Include="src\utils\ElasticBorder.cpp" />
+    <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
     <ClCompile Include="src\utils\json.cpp" />
     <ClCompile Include="src\utils\sprites.cpp" />
@@ -49,6 +50,8 @@
     <ClInclude Include="src\states\MainState.h" />
     <ClInclude Include="src\states\StateMachine.h" />
     <ClInclude Include="src\utils\ElasticBorder.h" />
+    <ClInclude Include="src\utils\GameContext.h" />
+    <ClInclude Include="src\utils\highscores.h" />
     <ClInclude Include="src\utils\hud.h" />
     <ClInclude Include="src\utils\json.h" />
     <ClInclude Include="src\utils\sprites.h" />

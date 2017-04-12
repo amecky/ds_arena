@@ -3,19 +3,14 @@
 #include "..\lib\HexGrid.h"
 #include "..\utils\ElasticBorder.h"
 #include "..\utils\sprites.h"
-//#include "..\lib\DataArray.h"
-//#include "..\lib\math.h"
-//#include "..\lib\FloatArray.h"
-//#include "..\particles\Particlesystem.h"
-//#include "..\utils\hud.h"
-//#include <stack>
-//#include "..\lib\HexGrid.h"
+#include "..\utils\GameContext.h"
 
 enum EventTypes {
 	ET_NONE,
 	ET_PREPARE_ELAPSED,
 	ET_MAIN_MENU_PLAY,
 	ET_MAIN_MENU_EXIT,
+	ET_MAIN_MENU_HIGHSCORES,
 	ET_GAME_OVER_PLAY,
 	ET_GAME_OVER_EXIT,
 	ET_PLAYER_KILLED
@@ -42,7 +37,25 @@ private:
 class GameOverState : public GameState {
 
 public:
-	GameOverState() : GameState("GameOverState") {}
+	GameOverState(GameContext* ctx) : GameState("GameOverState"), _ctx(ctx) {}
+	int tick(float dt, EventStream* stream);
+	void render();
+	void activate();
+	void deactivate() {
+		_active = false;
+	}
+private:
+	int _rank;
+	GameContext* _ctx;
+};
+
+// ---------------------------------------------------------------
+// HighscoreState
+// ---------------------------------------------------------------
+class HighscoreState : public GameState {
+
+public:
+	HighscoreState(GameContext* ctx) : GameState("HighscoreState"), _ctx(ctx) {}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate() {
@@ -51,8 +64,9 @@ public:
 	void deactivate() {
 		_active = false;
 	}
+private:
+	GameContext* _ctx;
 };
-
 // ---------------------------------------------------------------
 // MainMenuState
 // ---------------------------------------------------------------

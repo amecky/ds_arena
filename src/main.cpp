@@ -4,7 +4,8 @@
 #include "..\..\diesel\examples\common\stb_image.h"
 #include "states\GameState.h"
 #include "states\MainState.h"
-
+#include "utils\GameContext.h"
+#include "utils\highscores.h"
 // ---------------------------------------------------------------
 // load image using stb_image
 // ---------------------------------------------------------------
@@ -36,75 +37,94 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	//
 	RID textureID = loadImage("content\\TextureArray.png");
 	sprites::init(2048, textureID);
+
+	GameContext ctx;
+	highscore::load("scores.scr", &ctx);
+	ctx.score = 125634;
 	//
 	// create the state machine and add all the game states
 	//
-	StateMachine stateMachine;
-	PrepareState prepareState;
-	BackgroundState backgroundState;
-	GameOverState gameOverState;
-	MainMenuState mainMenuState;
-	MainState mainState(&backgroundState);
+	StateMachine* stateMachine = new StateMachine;
+	PrepareState* prepareState = new PrepareState;
+	BackgroundState* backgroundState = new BackgroundState;
+	GameOverState* gameOverState = new GameOverState(&ctx);
+	HighscoreState* highscoreState = new HighscoreState(&ctx);
+	MainMenuState* mainMenuState = new MainMenuState;
+	MainState* mainState = new MainState(backgroundState);
 	// just add all of them in the right order
-	stateMachine.add(&backgroundState);
-	stateMachine.add(&mainState);
-	stateMachine.add(&prepareState);
-	stateMachine.add(&mainMenuState);
-	stateMachine.add(&gameOverState);	
+	stateMachine->add(backgroundState);
+	stateMachine->add(mainState);
+	stateMachine->add(prepareState);
+	stateMachine->add(mainMenuState);
+	stateMachine->add(gameOverState);
+	stateMachine->add(highscoreState);
 	// and activate the main menu state
-	stateMachine.activate("MainMenuState");
+	stateMachine->activate("HighscoreState");
 	bool rendering = true;
 	while (ds::isRunning() && rendering) {
 
 		ds::begin();
 
-		stateMachine.tick(static_cast<float>(ds::getElapsedSeconds()));
+		stateMachine->tick(static_cast<float>(ds::getElapsedSeconds()));
 		//
 		// handle all the events that might have occured in one frame
 		//
-		uint32_t num = stateMachine.numEvents();
+		uint32_t num = stateMachine->numEvents();
 		for (uint32_t i = 0; i < num; ++i) {
 			// the "get ready" message has elapsed so deacvivate the state
-			if (stateMachine.getEventType(i) == ET_PREPARE_ELAPSED) {
-				stateMachine.deactivate("PrepareState");				
-				mainState.startSpawning();
+			if (stateMachine->getEventType(i) == ET_PREPARE_ELAPSED) {
+				stateMachine->deactivate("PrepareState");
+				mainState->startSpawning();
 			}
 			// user clicked "play" in main menu
-			else if (stateMachine.getEventType(i) == ET_MAIN_MENU_PLAY) {
-				stateMachine.deactivate("MainMenuState");
-				stateMachine.activate("PrepareState");
-				stateMachine.activate("MainState");
+			else if (stateMachine->getEventType(i) == ET_MAIN_MENU_PLAY) {
+				stateMachine->deactivate("MainMenuState");
+				stateMachine->activate("PrepareState");
+				stateMachine->activate("MainState");
 			}
 			// user wants to leave
-			else if (stateMachine.getEventType(i) == ET_MAIN_MENU_EXIT) {
+			else if (stateMachine->getEventType(i) == ET_MAIN_MENU_EXIT) {
 				rendering = false;
 			}
+			// highscores
+			else if (stateMachine->getEventType(i) == ET_MAIN_MENU_HIGHSCORES) {
+				stateMachine->deactivate("MainMenuState");
+				stateMachine->activate("HighscoreState");
+			}
 			// user clicked exit on game over menu
-			else if (stateMachine.getEventType(i) == ET_GAME_OVER_EXIT) {
-				stateMachine.deactivate("GameOverState");
-				stateMachine.deactivate("MainState");
-				stateMachine.activate("MainMenuState");
+			else if (stateMachine->getEventType(i) == ET_GAME_OVER_EXIT) {
+				stateMachine->deactivate("GameOverState");
+				stateMachine->deactivate("MainState");
+				stateMachine->activate("MainMenuState");
 			}
 			// player pressed restart on game over menu
-			else if (stateMachine.getEventType(i) == ET_GAME_OVER_PLAY) {
-				stateMachine.deactivate("GameOverState");
-				stateMachine.activate("PrepareState");
-				stateMachine.activate("MainState");
+			else if (stateMachine->getEventType(i) == ET_GAME_OVER_PLAY) {
+				stateMachine->deactivate("GameOverState");
+				stateMachine->activate("PrepareState");
+				stateMachine->activate("MainState");
 			}
 			// player died
-			else if (stateMachine.getEventType(i) == ET_PLAYER_KILLED) {
-				stateMachine.activate("GameOverState");
-				mainState.stopSpawning();
-				mainState.startKilling();
+			else if (stateMachine->getEventType(i) == ET_PLAYER_KILLED) {
+				stateMachine->activate("GameOverState");
+				mainState->stopSpawning();
+				mainState->startKilling();
 			}
 		}
 		// now render all active states
-		stateMachine.render();
+		stateMachine->render();
 		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
 
 		ds::end();
-	}
+	}	
+	highscore::save("scores.scr", &ctx);
 	sprites::shutdown();
+	delete mainState;
+	delete mainMenuState;
+	delete highscoreState;
+	delete gameOverState;
+	delete prepareState;
+	delete backgroundState;
+	delete stateMachine;
 	ds::shutdown();
 }

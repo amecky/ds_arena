@@ -409,7 +409,6 @@ bool SJSONReader::parse(const char* fileName) {
 	loadFile(fileName, &f);
 	Tokenizer tokenizer;
 	tokenizer.parse(f.data);
-	//tokenizer.saveTokens("tokens.log");
 	char name[128];
 	char fullName[256];
 	int n = 0;

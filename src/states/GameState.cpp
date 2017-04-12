@@ -1,6 +1,8 @@
 #include "GameState.h"
 #include "..\utils\sprites.h"
 #include "..\utils\json.h"
+#include "..\utils\hud.h"
+#include "..\utils\highscores.h"
 
 // -------------------------------------------------------
 // check if mouse cursor is inside box
@@ -50,13 +52,18 @@ void PrepareState::deactivate() {
 // ---------------------------------------------------------------
 // Game over state
 // ---------------------------------------------------------------
+void GameOverState::activate() {
+	_active = true;
+	_rank = highscore::rank(_ctx, _ctx->score);
+}
+
 int GameOverState::tick(float dt, EventStream* stream) {
 	if (ds::isMouseButtonClicked(0)) {
-		if (isCursorInside(ds::vec2(512, 300), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 220), ds::vec2(300, 56))) {
 			stream->add(ET_GAME_OVER_PLAY);
 			return 1;
 		}
-		if (isCursorInside(ds::vec2(512, 200), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 120), ds::vec2(300, 56))) {
 			stream->add(ET_GAME_OVER_EXIT);
 			return 2;
 		}
@@ -65,9 +72,40 @@ int GameOverState::tick(float dt, EventStream* stream) {
 }
 
 void GameOverState::render() {
-	sprites::add(ds::vec2(512, 500), ds::vec4(0, 480, 395, 60));
-	sprites::add(ds::vec2(512, 300), ds::vec4(0, 360, 300, 56));
-	sprites::add(ds::vec2(512, 200), ds::vec4(0, 300, 300, 56));
+	sprites::add(ds::vec2(512, 580), ds::vec4(0, 480, 395, 60));
+	sprites::add(ds::vec2(512, 220), ds::vec4(0, 360, 300, 56));
+	sprites::add(ds::vec2(512, 120), ds::vec4(0, 300, 300, 56));
+	// score
+	sprites::add(ds::vec2(512, 480), ds::vec4(0, 620, 140, 40));
+	numbers::draw(ds::vec2(420, 420), _ctx->score, 6);
+	// rank
+	sprites::add(ds::vec2(512, 360), ds::vec4(145, 620, 125, 40));
+	if (_rank >= 0) {
+		numbers::draw(ds::vec2(500, 300), _rank + 1, 2);
+	}
+}
+
+// ---------------------------------------------------------------
+// highscore state
+// ---------------------------------------------------------------
+int HighscoreState::tick(float dt, EventStream* stream) {
+	if (ds::isMouseButtonClicked(0)) {
+		if (isCursorInside(ds::vec2(512, 120), ds::vec2(300, 56))) {
+			stream->add(ET_GAME_OVER_EXIT);
+			return 2;
+		}
+	}
+	return 0;
+}
+
+void HighscoreState::render() {
+	sprites::add(ds::vec2(512, 580), ds::vec4(0, 480, 395, 60));
+	sprites::add(ds::vec2(512, 120), ds::vec4(0, 300, 300, 56));
+	for (int i = 0; i < 10; ++i) {
+		numbers::draw(ds::vec2(320, 520 - i * 40), i + 1, 2);
+		// score
+		numbers::draw(ds::vec2(420, 520 - i * 40), _ctx->highscores[i], 6);
+	}
 }
 
 // ---------------------------------------------------------------
@@ -75,12 +113,16 @@ void GameOverState::render() {
 // ---------------------------------------------------------------
 int MainMenuState::tick(float dt, EventStream* stream) {
 	if (ds::isMouseButtonClicked(0)) {
-		if (isCursorInside(ds::vec2(512, 300), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 350), ds::vec2(300, 56))) {
 			stream->add(ET_MAIN_MENU_PLAY);
 			return 1;
 		}
-		if (isCursorInside(ds::vec2(512, 200), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 220), ds::vec2(300, 56))) {
 			stream->add(ET_MAIN_MENU_EXIT);
+			return 2;
+		}
+		if (isCursorInside(ds::vec2(512, 120), ds::vec2(300, 56))) {
+			stream->add(ET_MAIN_MENU_HIGHSCORES);
 			return 2;
 		}
 	}
@@ -88,9 +130,10 @@ int MainMenuState::tick(float dt, EventStream* stream) {
 }
 
 void MainMenuState::render() {
-	sprites::add(ds::vec2(512, 500), ds::vec4(0, 560, 346, 60));
-	sprites::add(ds::vec2(512, 300), ds::vec4(0, 240, 300, 56));
-	sprites::add(ds::vec2(512, 200), ds::vec4(0, 300, 300, 56));
+	sprites::add(ds::vec2(512, 550), ds::vec4(0, 560, 346, 60));
+	sprites::add(ds::vec2(512, 350), ds::vec4(0, 240, 300, 56));
+	sprites::add(ds::vec2(512, 220), ds::vec4(0, 300, 300, 56));
+	sprites::add(ds::vec2(512, 120), ds::vec4(0, 420, 300, 56));
 }
 
 // ---------------------------------------------------------------
