@@ -1,6 +1,6 @@
 #include "ElasticBorder.h"
-#include "..\shaders\Border_PS_Main.inc"
-#include "..\shaders\Border_VS_Main.inc"
+#include "..\..\shaders\Border_PS_Main.inc"
+#include "..\..\shaders\Border_VS_Main.inc"
 
 //const float Tension = 0.025f;
 //const float Dampening = 0.025f;

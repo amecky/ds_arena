@@ -1,7 +1,5 @@
-#include "GameState.h"
-#include "sprites.h"
-#include "utils\HexGrid.h"
-#include "utils\json.h"
+#include "MainState.h"
+#include "..\utils\json.h"
 
 const static float SHOOT_TTL = 0.2f;
 const static float SPAWN_QUEUE_TTL = 0.2f;
@@ -12,10 +10,6 @@ const static ds::vec4 ENEMY_TEXTURES[] = {
 	ds::vec4(160,0,32,32),
 };
 
-bool renderButton(const ds::vec2& p, const ds::vec4& t) {
-	sprites::add(p, t);
-	return false;
-}
 
 // ---------------------------------------------------------------
 // circle spawn function
@@ -92,155 +86,6 @@ void spawnBottomLine(SpawnItem* items, int count, int type) {
 }
 
 
-// -------------------------------------------------------
-// check if mouse cursor is inside box
-// -------------------------------------------------------
-static bool isCursorInside(const ds::vec2& p, const ds::vec2& dim) {
-	ds::vec2 mp = ds::getMousePosition();
-	if (mp.x < (p.x - dim.x * 0.5f)) {
-		return false;
-	}
-	if (mp.x >(p.x + dim.x * 0.5f)) {
-		return false;
-	}
-	if (mp.y < (p.y - dim.y * 0.5f)) {
-		return false;
-	}
-	if (mp.y >(p.y + dim.y * 0.5f)) {
-		return false;
-	}
-	return true;
-}
-
-// ---------------------------------------------------------------
-// Prepare state
-// ---------------------------------------------------------------
-int PrepareState::tick(float dt, EventStream* stream) {
-	_prepareTimer += dt;
-	if (_prepareTimer >= 5.0f) {
-		stream->add(ET_PREPARE_ELAPSED);
-	}
-	return 0;
-}
-
-void PrepareState::render() {
-	sprites::add(ds::vec2(512, 384), ds::vec4(80, 160, 370, 60));
-}
-
-void PrepareState::activate() {
-	_prepareTimer = 0.0f;
-	_active = true;
-}
-
-void PrepareState::deactivate() {
-	_prepareTimer = 0.0f;
-	_active = false;
-}
-
-// ---------------------------------------------------------------
-// Game over state
-// ---------------------------------------------------------------
-int GameOverState::tick(float dt, EventStream* stream) {
-	return 0;
-}
-
-void GameOverState::render() {
-	sprites::add(ds::vec2(512, 500), ds::vec4(0, 480, 395, 60));
-	sprites::add(ds::vec2(512, 300), ds::vec4(0, 360, 300, 56));
-	sprites::add(ds::vec2(512, 200), ds::vec4(0, 300, 300, 56));
-}
-
-// ---------------------------------------------------------------
-// MainMenuState
-// ---------------------------------------------------------------
-int MainMenuState::tick(float dt, EventStream* stream) {
-	if (ds::isMouseButtonPressed(0)) {
-		if (isCursorInside(ds::vec2(512, 300), ds::vec2(300, 56))) {
-			stream->add(ET_MAIN_MENU_PLAY);
-			return 1;
-		}
-		if (isCursorInside(ds::vec2(512, 200), ds::vec2(300, 56))) {
-			stream->add(ET_MAIN_MENU_EXIT);
-			return 2;
-		}
-	}
-	return 0;
-}
-
-void MainMenuState::render() {
-	sprites::add(ds::vec2(512, 500), ds::vec4(0, 560, 346, 60));
-	sprites::add(ds::vec2(512, 300), ds::vec4(0, 240, 300, 56));
-	sprites::add(ds::vec2(512, 200), ds::vec4(0, 300, 300, 56));
-}
-// ---------------------------------------------------------------
-// Background state
-// ---------------------------------------------------------------
-BackgroundState::BackgroundState() : GameState("BackgroundState") {
-	_width = 26;
-	_height = 18;
-	_grid.resize(_width, _height);
-
-	SJSONReader settingsReader;
-	settingsReader.parse("content\\settings.json");
-	settingsReader.get("Tension", &_borderSettings.Tension, "border_settings");
-	settingsReader.get("Dampening", &_borderSettings.Dampening, "border_settings");
-	settingsReader.get("Spread", &_borderSettings.Spread, "border_settings");
-	settingsReader.get("numX", &_borderSettings.numX, "border_settings");
-	settingsReader.get("numY", &_borderSettings.numY, "border_settings");
-	settingsReader.get("thickness", &_borderSettings.thickness, "border_settings");
-	settingsReader.get("verticalTexture", &_borderSettings.verticalTexture, "border_settings");
-	settingsReader.get("horizontalTexture", &_borderSettings.horizontalTexture, "border_settings");
-	settingsReader.get("targetHeight", &_borderSettings.targetHeight, "border_settings");
-	settingsReader.get("splashForce", &_borderSettings.splashForce, "border_settings");
-	settingsReader.get("length", &_borderSettings.length, "border_settings");
-	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
-	_borderSettings.textureID = textureID;
-	_borders = new ElasticBorder(&_borderSettings);
-	_active = true;
-}
-
-BackgroundState::~BackgroundState() {
-	delete _borders;
-}
-
-int BackgroundState::tick(float dt, EventStream* stream) {
-	_grid.tick(dt);
-	_borders->tick(dt);
-	return 0;
-}
-
-void BackgroundState::highlight(const ds::vec2& p, const ds::Color& color) {
-	_grid.highlight(p, color);
-}
-
-bool BackgroundState::borderCollision(const ds::vec2& p, float radius) {
-	return _borders->collides(p, radius);
-}
-
-void BackgroundState::render() {
-	sprites::begin();
-	// background
-	for (int r = 0; r < _height; r++) {
-		int q_offset = r >> 1;
-		for (int q = -q_offset; q < _width - q_offset; q++) {
-			Hex h = Hex(q, r);
-			if (_grid.isValid(h)) {
-				GridItem& current = _grid.get(h);
-				if (current.timer > 0.0f) {
-					sprites::add(current.position, ds::vec4(320, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
-				}
-				else {
-					sprites::add(current.position, ds::vec4(380, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
-				}
-			}
-		}
-	}
-	sprites::flush();
-	// elastic borders
-	_borders->render();
-	sprites::begin();
-}
-
 void loadSettings(const SJSONReader& reader, const char* catName, ParticlesystemInstanceSettings* settings) {
 	reader.get("count", &settings->count, catName);
 	reader.get("angle_variance", &settings->angleVariance, catName);
@@ -254,7 +99,7 @@ void loadSettings(const SJSONReader& reader, const char* catName, Particlesystem
 // ---------------------------------------------------------------
 // MainState
 // ---------------------------------------------------------------
-MainState::MainState(BackgroundState* backgroundState) : GameState("MainState") , _backgroundState(backgroundState) {
+MainState::MainState(BackgroundState* backgroundState) : GameState("MainState"), _backgroundState(backgroundState) {
 	_player.pos = ds::vec2(512, 384);
 	_player.previous = _player.pos;
 	_player.angle = 0.0f;
@@ -304,18 +149,36 @@ MainState::~MainState() {
 }
 
 int MainState::tick(float dt, EventStream* stream) {
-	movePlayer(dt);
-	handleShooting();
+	if (_running) {
+		movePlayer(dt);
+		handleShooting();
+	}
 	moveBullets(dt);
 	if (_spawning) {
 		moveEnemies(dt);
 		handleCollisions();
-		handlePlayerCollision();
+		handlePlayerCollision(stream);
 		spawn(dt);
 		spawnEnemies(dt);
 	}
+	if (!_running) {
+		_killTimer += dt;
+		if (_killTimer >= 0.4f) {
+			_killTimer -= 0.4f;
+			if (_enemies.numObjects > 0) {
+				Enemy& e = _enemies.objects[_enemies.numObjects - 1];
+				_particleManager->emitt(_enemyExplosion, _explosionSettings, e.pos.x, e.pos.y, 10.0f);
+				--_enemies.numObjects;
+			}
+		}
+	}
 	_particleManager->tick(dt);
 	return 0;
+}
+
+void MainState::startKilling() {
+	_running = false;
+	_killTimer = 0.0f;
 }
 
 void MainState::startSpawning() {
@@ -330,6 +193,9 @@ void MainState::stopSpawning() {
 
 void MainState::activate() {
 	_hud.reset();
+	_player.energy = 10;
+	_active = true;
+	_running = true;
 }
 
 void MainState::render() {
@@ -337,8 +203,9 @@ void MainState::render() {
 	_particleManager->render();
 
 	sprites::begin();
-	_hud.render();
-
+	if (_running) {
+		_hud.render();
+	}
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {
 		sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42, 202, 236, 255));
@@ -350,9 +217,9 @@ void MainState::render() {
 		sprites::add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
 		++eit;
 	}
-
-	sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
-
+	if (_running) {
+		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
+	}
 	sprites::flush();
 }
 
@@ -442,7 +309,7 @@ void MainState::handleShooting() {
 // ---------------------------------------------------------------
 // handle player collisions
 // ---------------------------------------------------------------
-bool MainState::handlePlayerCollision() {
+bool MainState::handlePlayerCollision(EventStream* stream) {
 	float dist = 0.0f;
 	ds::vec2 pnv;
 	bool hit = false;
@@ -454,6 +321,10 @@ bool MainState::handlePlayerCollision() {
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
 				_hud.decreaseHealth(10);
+				if (_player.energy <= 0) {
+					_particleManager->emitt(_enemyExplosion, _explosionSettings, _player.pos.x, _player.pos.y, 10.0f);
+					stream->add(ET_PLAYER_KILLED);
+				}
 				hit = true;
 			}
 			else {

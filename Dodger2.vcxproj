@@ -20,36 +20,38 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\ElasticBorder.cpp" />
-    <ClCompile Include="src\GameState.cpp" />
-    <ClCompile Include="src\math.cpp" />
+    <ClCompile Include="src\lib\BlockArray.cpp" />
+    <ClCompile Include="src\lib\EventStream.cpp" />
+    <ClCompile Include="src\lib\HexGrid.cpp" />
+    <ClCompile Include="src\lib\math.cpp" />
+    <ClCompile Include="src\lib\tweening.cpp" />
+    <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\particles\Particlesystem.cpp" />
-    <ClCompile Include="src\sprites.cpp" />
+    <ClCompile Include="src\states\GameState.cpp" />
+    <ClCompile Include="src\states\MainState.cpp" />
     <ClCompile Include="src\states\StateMachine.cpp" />
-    <ClCompile Include="src\tweening.cpp" />
-    <ClCompile Include="src\utils\BlockArray.cpp" />
-    <ClCompile Include="src\utils\EventStream.cpp" />
-    <ClCompile Include="src\utils\HexGrid.cpp" />
+    <ClCompile Include="src\utils\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
     <ClCompile Include="src\utils\json.cpp" />
+    <ClCompile Include="src\utils\sprites.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\DataArray.h" />
-    <ClInclude Include="src\ElasticBorder.h" />
-    <ClInclude Include="src\FloatArray.h" />
-    <ClInclude Include="src\GameState.h" />
-    <ClInclude Include="src\math.h" />
+    <ClInclude Include="src\lib\BlockArray.h" />
+    <ClInclude Include="src\lib\DataArray.h" />
+    <ClInclude Include="src\lib\DynamicArray.h" />
+    <ClInclude Include="src\lib\EventStream.h" />
+    <ClInclude Include="src\lib\FloatArray.h" />
+    <ClInclude Include="src\lib\HexGrid.h" />
+    <ClInclude Include="src\lib\math.h" />
+    <ClInclude Include="src\lib\tweening.h" />
     <ClInclude Include="src\particles\Particlesystem.h" />
-    <ClInclude Include="src\sprites.h" />
+    <ClInclude Include="src\states\GameState.h" />
+    <ClInclude Include="src\states\MainState.h" />
     <ClInclude Include="src\states\StateMachine.h" />
-    <ClInclude Include="src\tweening.h" />
-    <ClInclude Include="src\utils\BlockArray.h" />
-    <ClInclude Include="src\utils\DynamicArray.h" />
-    <ClInclude Include="src\utils\EventStream.h" />
-    <ClInclude Include="src\utils\HexGrid.h" />
+    <ClInclude Include="src\utils\ElasticBorder.h" />
     <ClInclude Include="src\utils\hud.h" />
     <ClInclude Include="src\utils\json.h" />
+    <ClInclude Include="src\utils\sprites.h" />
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>

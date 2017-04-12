@@ -1,6 +1,6 @@
 #include "sprites.h"
 #include <stdint.h>
-#include "..\..\diesel\diesel.h"
+#include "..\..\..\diesel\diesel.h"
 
 typedef uint8_t BYTE;
 

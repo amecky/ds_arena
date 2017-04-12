@@ -2,9 +2,9 @@
 #include <string.h>
 #include <vector>
 #include "..\..\..\diesel\diesel.h"
-#include "Stack.h"
-#include "DynamicArray.h"
-#include "BlockArray.h"
+#include "..\lib\Stack.h"
+#include "..\lib\DynamicArray.h"
+#include "..\lib\BlockArray.h"
 
 struct File {
 

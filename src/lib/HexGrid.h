@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "..\..\..\diesel\diesel.h"
 #include <cmath>
-#include "..\DataArray.h"
+#include "DataArray.h"
 
 struct Hex {
 

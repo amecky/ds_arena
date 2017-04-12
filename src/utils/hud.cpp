@@ -1,6 +1,6 @@
 #include "hud.h"
 #include "..\..\..\diesel\diesel.h"
-#include "..\sprites.h"
+#include "sprites.h"
 
 const ds::vec4 NUMBERS[] = {
 	ds::vec4(0,120,41,40),

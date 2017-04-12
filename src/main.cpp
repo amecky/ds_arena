@@ -1,8 +1,9 @@
 #define DS_IMPLEMENTATION
-#include "..\diesel\diesel.h"
+#include "..\..\diesel\diesel.h"
 #define STB_IMAGE_IMPLEMENTATION
-#include "..\diesel\examples\common\stb_image.h"
-#include "src\GameState.h"
+#include "..\..\diesel\examples\common\stb_image.h"
+#include "states\GameState.h"
+#include "states\MainState.h"
 
 // ---------------------------------------------------------------
 // load image using stb_image
@@ -46,14 +47,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	MainState mainState(&backgroundState);
 	// just add all of them in the right order
 	stateMachine.add(&backgroundState);
+	stateMachine.add(&mainState);
 	stateMachine.add(&prepareState);
 	stateMachine.add(&mainMenuState);
-	stateMachine.add(&gameOverState);
-	stateMachine.add(&mainState);
+	stateMachine.add(&gameOverState);	
 	// and activate the main menu state
 	stateMachine.activate("MainMenuState");
-
-	while (ds::isRunning()) {
+	bool rendering = true;
+	while (ds::isRunning() && rendering) {
 
 		ds::begin();
 
@@ -65,22 +66,41 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		for (uint32_t i = 0; i < num; ++i) {
 			// the "get ready" message has elapsed so deacvivate the state
 			if (stateMachine.getEventType(i) == ET_PREPARE_ELAPSED) {
-				stateMachine.deactivate("PrepareState");
+				stateMachine.deactivate("PrepareState");				
 				mainState.startSpawning();
 			}
 			// user clicked "play" in main menu
 			else if (stateMachine.getEventType(i) == ET_MAIN_MENU_PLAY) {
 				stateMachine.deactivate("MainMenuState");
 				stateMachine.activate("PrepareState");
+				stateMachine.activate("MainState");
 			}
 			// user wants to leave
 			else if (stateMachine.getEventType(i) == ET_MAIN_MENU_EXIT) {
-				ds::stopRendering();
+				rendering = false;
+			}
+			// user clicked exit on game over menu
+			else if (stateMachine.getEventType(i) == ET_GAME_OVER_EXIT) {
+				stateMachine.deactivate("GameOverState");
+				stateMachine.deactivate("MainState");
+				stateMachine.activate("MainMenuState");
+			}
+			// player pressed restart on game over menu
+			else if (stateMachine.getEventType(i) == ET_GAME_OVER_PLAY) {
+				stateMachine.deactivate("GameOverState");
+				stateMachine.activate("PrepareState");
+				stateMachine.activate("MainState");
+			}
+			// player died
+			else if (stateMachine.getEventType(i) == ET_PLAYER_KILLED) {
+				stateMachine.activate("GameOverState");
+				mainState.stopSpawning();
+				mainState.startKilling();
 			}
 		}
 		// now render all active states
 		stateMachine.render();
-		// yeah, let us see how we are doing
+		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
 
 		ds::end();

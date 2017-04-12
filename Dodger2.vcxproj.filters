@@ -1,65 +1,97 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="src\sprites.cpp" />
-    <ClCompile Include="src\math.cpp" />
-    <ClCompile Include="src\tweening.cpp" />
     <ClCompile Include="src\particles\Particlesystem.cpp">
       <Filter>particles</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\json.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\BlockArray.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\hud.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\HexGrid.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\utils\EventStream.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="src\GameState.cpp" />
     <ClCompile Include="src\states\StateMachine.cpp">
+      <Filter>states</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\math.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\tweening.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\states\GameState.cpp">
+      <Filter>states</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\ElasticBorder.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\sprites.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\HexGrid.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\BlockArray.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\lib\EventStream.cpp">
+      <Filter>lib</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\MainState.cpp">
       <Filter>states</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\sprites.h" />
-    <ClInclude Include="src\math.h" />
-    <ClInclude Include="src\DataArray.h" />
-    <ClInclude Include="src\FloatArray.h" />
-    <ClInclude Include="src\tweening.h" />
     <ClInclude Include="src\particles\Particlesystem.h">
       <Filter>particles</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\json.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\Stack.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\DynamicArray.h" />
-    <ClInclude Include="src\utils\BlockArray.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ElasticBorder.h" />
     <ClInclude Include="src\utils\hud.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\HexGrid.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\EventStream.h">
-      <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\GameState.h" />
     <ClInclude Include="src\states\StateMachine.h">
+      <Filter>states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Stack.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\DataArray.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\DynamicArray.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\FloatArray.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\math.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\tweening.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\GameState.h">
+      <Filter>states</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\sprites.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\ElasticBorder.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\HexGrid.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\BlockArray.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\lib\EventStream.h">
+      <Filter>lib</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\MainState.h">
       <Filter>states</Filter>
     </ClInclude>
   </ItemGroup>
@@ -75,6 +107,9 @@
     </Filter>
     <Filter Include="states">
       <UniqueIdentifier>{2e969e4a-cb7a-4366-8c6b-16e681b85f33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib">
+      <UniqueIdentifier>{2c006d86-9641-4fdb-bb2a-c94ca41ae283}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

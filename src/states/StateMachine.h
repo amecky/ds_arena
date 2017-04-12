@@ -1,5 +1,5 @@
 #include "..\..\..\diesel\diesel.h"
-#include "..\utils\EventStream.h"
+#include "..\lib\EventStream.h"
 
 // ---------------------------------------------------------------
 // GameState
@@ -37,7 +37,6 @@ public:
 	void add(GameState* state);
 	void activate(const char* name);
 	void deactivate(const char* name);
-	//void connect(const char* first, const char* second, int outcome);
 	void tick(float dt);
 	void render();
 	bool hasEvents() const;
