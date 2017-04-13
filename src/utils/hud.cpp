@@ -27,14 +27,36 @@ namespace numbers {
 				div *= 10;
 			}
 		}
+		bool printed = false;
 		for (int i = 0; i < num; ++i) {
 			int r = tmp / div;
 			tmp = tmp - r * div;
 			div /= 10;
-			const ds::vec4& t = NUMBERS[r];
-			if (r >= 0 && r < 10) {
-				sprites::add(hp, t);
-				hp.x += t.z + 2.0f;
+			if (leadingZeros) {
+				const ds::vec4& t = NUMBERS[r];
+				if (r >= 0 && r < 10) {
+					sprites::add(hp, t);
+					hp.x += t.z + 2.0f;
+				}
+			}
+			else {
+				if (printed) {
+					const ds::vec4& t = NUMBERS[r];
+					if (r >= 0 && r < 10) {
+						sprites::add(hp, t);
+						hp.x += t.z + 2.0f;
+					}
+				}
+				else {
+					if (r > 0) {
+						const ds::vec4& t = NUMBERS[r];
+						if (r >= 0 && r < 10) {
+							sprites::add(hp, t);
+							hp.x += t.z + 2.0f;
+						}
+						printed = true;
+					}
+				}
 			}
 		}
 	}

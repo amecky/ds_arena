@@ -109,6 +109,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 				mainState->stopSpawning();
 				mainState->startKilling();
 			}
+			else if (stateMachine->getEventType(i) == ET_HIGHSCORES_EXIT) {
+				stateMachine->deactivate("HighscoreState");
+				stateMachine->activate("MainMenuState");
+			}
 		}
 		// now render all active states
 		stateMachine->render();

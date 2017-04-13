@@ -89,9 +89,15 @@ void GameOverState::render() {
 // highscore state
 // ---------------------------------------------------------------
 int HighscoreState::tick(float dt, EventStream* stream) {
+	_timer += dt;
+	if (_timer >= 2.0f) {
+		_timer -= 2.0f;
+		_index += 5;
+		_index = _index & 5;
+	}
 	if (ds::isMouseButtonClicked(0)) {
 		if (isCursorInside(ds::vec2(512, 120), ds::vec2(300, 56))) {
-			stream->add(ET_GAME_OVER_EXIT);
+			stream->add(ET_HIGHSCORES_EXIT);
 			return 2;
 		}
 	}
@@ -99,12 +105,14 @@ int HighscoreState::tick(float dt, EventStream* stream) {
 }
 
 void HighscoreState::render() {
-	sprites::add(ds::vec2(512, 580), ds::vec4(0, 480, 395, 60));
+	sprites::add(ds::vec2(512, 580), ds::vec4(602, 320, 390, 110));
 	sprites::add(ds::vec2(512, 120), ds::vec4(0, 300, 300, 56));
-	for (int i = 0; i < 10; ++i) {
-		numbers::draw(ds::vec2(320, 520 - i * 40), i + 1, 2);
+	int cnt = 0;
+	for (int i = _index; i < (_index + 5); ++i) {
+		numbers::draw(ds::vec2(350, 500 - cnt * 70), i + 1, 2, false);
 		// score
-		numbers::draw(ds::vec2(420, 520 - i * 40), _ctx->highscores[i], 6);
+		numbers::draw(ds::vec2(450, 500 - cnt * 70), _ctx->highscores[i], 6);
+		++cnt;
 	}
 }
 
@@ -113,15 +121,15 @@ void HighscoreState::render() {
 // ---------------------------------------------------------------
 int MainMenuState::tick(float dt, EventStream* stream) {
 	if (ds::isMouseButtonClicked(0)) {
-		if (isCursorInside(ds::vec2(512, 350), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 400), ds::vec2(300, 56))) {
 			stream->add(ET_MAIN_MENU_PLAY);
 			return 1;
 		}
-		if (isCursorInside(ds::vec2(512, 220), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 200), ds::vec2(300, 56))) {
 			stream->add(ET_MAIN_MENU_EXIT);
 			return 2;
 		}
-		if (isCursorInside(ds::vec2(512, 120), ds::vec2(300, 56))) {
+		if (isCursorInside(ds::vec2(512, 300), ds::vec2(300, 56))) {
 			stream->add(ET_MAIN_MENU_HIGHSCORES);
 			return 2;
 		}
@@ -131,9 +139,9 @@ int MainMenuState::tick(float dt, EventStream* stream) {
 
 void MainMenuState::render() {
 	sprites::add(ds::vec2(512, 550), ds::vec4(0, 560, 346, 60));
-	sprites::add(ds::vec2(512, 350), ds::vec4(0, 240, 300, 56));
-	sprites::add(ds::vec2(512, 220), ds::vec4(0, 300, 300, 56));
-	sprites::add(ds::vec2(512, 120), ds::vec4(0, 420, 300, 56));
+	sprites::add(ds::vec2(512, 400), ds::vec4(0, 240, 300, 56));
+	sprites::add(ds::vec2(512, 200), ds::vec4(0, 300, 300, 56));
+	sprites::add(ds::vec2(512, 300), ds::vec4(0, 420, 300, 56));
 }
 
 // ---------------------------------------------------------------

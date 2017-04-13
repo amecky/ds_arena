@@ -13,6 +13,7 @@ enum EventTypes {
 	ET_MAIN_MENU_HIGHSCORES,
 	ET_GAME_OVER_PLAY,
 	ET_GAME_OVER_EXIT,
+	ET_HIGHSCORES_EXIT,
 	ET_PLAYER_KILLED
 };
 
@@ -59,12 +60,16 @@ public:
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate() {
+		_index = 0;
+		_timer = 0.0f;
 		_active = true;
 	}
 	void deactivate() {
 		_active = false;
 	}
 private:
+	float _timer;
+	int _index;
 	GameContext* _ctx;
 };
 // ---------------------------------------------------------------
