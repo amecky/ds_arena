@@ -105,7 +105,7 @@ int HighscoreState::tick(float dt, EventStream* stream) {
 }
 
 void HighscoreState::render() {
-	sprites::add(ds::vec2(512, 580), ds::vec4(602, 320, 390, 110));
+	sprites::add(ds::vec2(512, 580), ds::vec4(518, 185, 420, 84),ds::vec2(1.0f),0.0f,ds::Color(182,255,134,255));
 	sprites::add(ds::vec2(512, 120), ds::vec4(0, 300, 300, 56));
 	int cnt = 0;
 	for (int i = _index; i < (_index + 5); ++i) {
@@ -138,7 +138,7 @@ int MainMenuState::tick(float dt, EventStream* stream) {
 }
 
 void MainMenuState::render() {
-	sprites::add(ds::vec2(512, 550), ds::vec4(0, 560, 346, 60));
+	sprites::add(ds::vec2(512, 580), ds::vec4(550, 104, 365, 84),ds::vec2(1.0f),0.0f,ds::Color(5,248,205,255));
 	sprites::add(ds::vec2(512, 400), ds::vec4(0, 240, 300, 56));
 	sprites::add(ds::vec2(512, 200), ds::vec4(0, 300, 300, 56));
 	sprites::add(ds::vec2(512, 300), ds::vec4(0, 420, 300, 56));
