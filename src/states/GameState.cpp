@@ -108,10 +108,18 @@ void HighscoreState::render() {
 	sprites::add(ds::vec2(512, 580), ds::vec4(518, 185, 420, 84),ds::vec2(1.0f),0.0f,ds::Color(182,255,134,255));
 	sprites::add(ds::vec2(512, 120), ds::vec4(0, 300, 300, 56));
 	int cnt = 0;
+	float norm = _timer / 2.0f;
+	float a = 1.0f;
+	if (norm < 0.25f) {
+		a = norm / 0.25f;
+	}
+	if (norm > 0.75f) {
+		a = 1.0f - norm / 0.75f;
+	}
 	for (int i = _index; i < (_index + 5); ++i) {
-		numbers::draw(ds::vec2(350, 500 - cnt * 70), i + 1, 2, false);
+		numbers::draw(ds::vec2(380, 500 - cnt * 70), i + 1, 2, false, ds::Color(1.0f,1.0f,1.0f,a));
 		// score
-		numbers::draw(ds::vec2(450, 500 - cnt * 70), _ctx->highscores[i], 6);
+		numbers::draw(ds::vec2(470, 500 - cnt * 70), _ctx->highscores[i], 6, true, ds::Color(1.0f, 1.0f, 1.0f, a));
 		++cnt;
 	}
 }
@@ -147,7 +155,7 @@ void MainMenuState::render() {
 // ---------------------------------------------------------------
 // Background state
 // ---------------------------------------------------------------
-BackgroundState::BackgroundState() : GameState("BackgroundState") {
+BackgroundState::BackgroundState(GameContext* ctx) : GameState(ctx, "BackgroundState") {
 	_width = 26;
 	_height = 18;
 	_grid.resize(_width, _height);

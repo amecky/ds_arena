@@ -1,13 +1,13 @@
 #include "..\..\..\diesel\diesel.h"
 #include "..\lib\EventStream.h"
-
+#include "..\utils\GameContext.h"
 // ---------------------------------------------------------------
 // GameState
 // ---------------------------------------------------------------
 class GameState {
 
 public:
-	GameState(const char* name) : _active(false) {
+	GameState(GameContext* ctx, const char* name) : _ctx(ctx), _active(false) {
 		_hash = ds::StaticHash(name);
 	}
 	virtual ~GameState() {}
@@ -22,6 +22,7 @@ public:
 		return _active;
 	}
 protected:
+	GameContext* _ctx;
 	bool _active;
 	ds::StaticHash _hash;
 };

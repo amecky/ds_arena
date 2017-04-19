@@ -99,7 +99,7 @@ void loadSettings(const SJSONReader& reader, const char* catName, Particlesystem
 // ---------------------------------------------------------------
 // MainState
 // ---------------------------------------------------------------
-MainState::MainState(BackgroundState* backgroundState) : GameState("MainState"), _backgroundState(backgroundState) {
+MainState::MainState(GameContext* ctx, BackgroundState* backgroundState) : GameState(ctx, "MainState"), _backgroundState(backgroundState) {
 	_player.pos = ds::vec2(512, 384);
 	_player.previous = _player.pos;
 	_player.angle = 0.0f;
@@ -134,13 +134,7 @@ MainState::MainState(BackgroundState* backgroundState) : GameState("MainState"),
 	loadSettings(reader, "player_trail_settings", &_playerTrailSettings);
 	loadSettings(reader, "wake_up_settings", &_wakeupSettings);
 
-	SJSONReader settingsReader;
-	settingsReader.parse("content\\settings.json");
-	settingsReader.get("max_spawn_enemies", &_gameSettings.maxSpawnEnemies, "settings");
-	settingsReader.get("player_highlight", &_gameSettings.playerHightlightColor, "settings");
-	settingsReader.get("wake_up_hightlight", &_gameSettings.wakeUpHightlightColor, "settings");
-
-	_hud.reset();
+	_ctx->score = 0;
 
 }
 
@@ -192,7 +186,7 @@ void MainState::stopSpawning() {
 }
 
 void MainState::activate() {
-	_hud.reset();
+	_ctx->score = 0;
 	_player.energy = 10;
 	_active = true;
 	_running = true;
@@ -204,7 +198,8 @@ void MainState::render() {
 
 	sprites::begin();
 	if (_running) {
-		_hud.render();
+		numbers::draw(ds::vec2(80, 720),_player.energy,3,false);
+		numbers::draw(ds::vec2(700, 720), _ctx->score, 6, true);		
 	}
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {
@@ -228,9 +223,8 @@ void MainState::render() {
 // ---------------------------------------------------------------
 void MainState::startGame() {
 	_spawnTimer = SPAWN_DELAY - SPAWN_DELAY * 0.1f;
-	_spawnQueueTimer = 0.0f;
-	// reset HUD
-	_hud.reset();
+	_spawnQueueTimer = 0.0f;	
+	_ctx->score = 0;
 }
 
 // ---------------------------------------------------------------
@@ -277,7 +271,7 @@ void MainState::spawnEnemies(float dt) {
 			e.energy = 3;
 			e.type = type;
 			_particleManager->emitt(_wakeUpSystem, _wakeupSettings, np.x, np.y, 5.0f);
-			_backgroundState->highlight(np, _gameSettings.wakeUpHightlightColor);
+			_backgroundState->highlight(np, _ctx->settings.wakeUpHightlightColor);
 		}
 	}
 }
@@ -320,7 +314,6 @@ bool MainState::handlePlayerCollision(EventStream* stream) {
 				_particleManager->emitt(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
-				_hud.decreaseHealth(10);
 				if (_player.energy <= 0) {
 					_particleManager->emitt(_enemyExplosion, _explosionSettings, _player.pos.x, _player.pos.y, 10.0f);
 					stream->add(ET_PLAYER_KILLED);
@@ -361,7 +354,7 @@ void MainState::handleCollisions() {
 					if (eit->energy <= 0) {
 						_particleManager->emitt(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
 						eit = _enemies.remove(eit->id);
-						_hud.addScore(50);
+						_ctx->score += 50;
 					}
 					else {
 						++eit;
@@ -499,7 +492,7 @@ void MainState::movePlayer(float dt) {
 	}
 	ds::vec2 mp = ds::getMousePosition();
 	_player.angle = math::getAngle(_player.pos, mp);
-	_backgroundState->highlight(_player.pos, _gameSettings.playerHightlightColor);
+	_backgroundState->highlight(_player.pos, _ctx->settings.playerHightlightColor);
 }
 
 

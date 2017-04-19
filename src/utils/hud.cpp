@@ -31,7 +31,7 @@ const ds::vec4 NUMBERS[] = {
 
 namespace numbers {
 
-	void draw(const ds::vec2& pos, int value, int num, bool leadingZeros) {
+	void draw(const ds::vec2& pos, int value, int num, bool leadingZeros, const ds::Color& color) {
 		ds::vec2 hp = pos;
 		int idx = 0;
 		int tmp = value;
@@ -49,7 +49,7 @@ namespace numbers {
 			if (leadingZeros) {
 				const ds::vec4& t = NUMBERS[r];
 				if (r >= 0 && r < 10) {
-					sprites::add(hp, t);
+					sprites::add(hp, t, ds::vec2_ONE,0.0f,color);
 					hp.x += t.z + 2.0f;
 				}
 			}
@@ -57,7 +57,7 @@ namespace numbers {
 				if (printed) {
 					const ds::vec4& t = NUMBERS[r];
 					if (r >= 0 && r < 10) {
-						sprites::add(hp, t);
+						sprites::add(hp, t, ds::vec2_ONE, 0.0f, color);
 						hp.x += t.z + 2.0f;
 					}
 				}
@@ -65,7 +65,7 @@ namespace numbers {
 					if (r > 0) {
 						const ds::vec4& t = NUMBERS[r];
 						if (r >= 0 && r < 10) {
-							sprites::add(hp, t);
+							sprites::add(hp, t, ds::vec2_ONE, 0.0f, color);
 							hp.x += t.z + 2.0f;
 						}
 						printed = true;

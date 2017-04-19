@@ -4,7 +4,7 @@
 
 namespace numbers {
 
-	void draw(const ds::vec2& pos, int value, int num, bool leadingZeros = true);
+	void draw(const ds::vec2& pos, int value, int num, bool leadingZeros = true, const ds::Color& color = ds::Color(255,255,255,255));
 
 }
 class HUD {

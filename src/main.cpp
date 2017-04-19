@@ -6,6 +6,7 @@
 #include "states\MainState.h"
 #include "utils\GameContext.h"
 #include "utils\highscores.h"
+#include "utils\json.h"
 // ---------------------------------------------------------------
 // load image using stb_image
 // ---------------------------------------------------------------
@@ -41,16 +42,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	GameContext ctx;
 	highscore::load("scores.scr", &ctx);
 	ctx.score = 125634;
+
+	SJSONReader settingsReader;
+	settingsReader.parse("content\\settings.json");
+	settingsReader.get("max_spawn_enemies", &ctx.settings.maxSpawnEnemies, "settings");
+	settingsReader.get("player_highlight", &ctx.settings.playerHightlightColor, "settings");
+	settingsReader.get("wake_up_hightlight", &ctx.settings.wakeUpHightlightColor, "settings");
 	//
 	// create the state machine and add all the game states
 	//
 	StateMachine* stateMachine = new StateMachine;
-	PrepareState* prepareState = new PrepareState;
-	BackgroundState* backgroundState = new BackgroundState;
+	PrepareState* prepareState = new PrepareState(&ctx);
+	BackgroundState* backgroundState = new BackgroundState(&ctx);
 	GameOverState* gameOverState = new GameOverState(&ctx);
 	HighscoreState* highscoreState = new HighscoreState(&ctx);
-	MainMenuState* mainMenuState = new MainMenuState;
-	MainState* mainState = new MainState(backgroundState);
+	MainMenuState* mainMenuState = new MainMenuState(&ctx);
+	MainState* mainState = new MainState(&ctx, backgroundState);
 	// just add all of them in the right order
 	stateMachine->add(backgroundState);
 	stateMachine->add(mainState);
@@ -59,7 +66,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	stateMachine->add(gameOverState);
 	stateMachine->add(highscoreState);
 	// and activate the main menu state
-	stateMachine->activate("HighscoreState");
+	stateMachine->activate("MainState");
 	bool rendering = true;
 	while (ds::isRunning() && rendering) {
 

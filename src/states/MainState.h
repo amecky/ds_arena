@@ -61,21 +61,12 @@ struct Enemy {
 };
 
 // ---------------------------------------------------------------
-// game settings
-// ---------------------------------------------------------------
-struct GameSettings {
-	int maxSpawnEnemies;
-	ds::Color playerHightlightColor;
-	ds::Color wakeUpHightlightColor;
-};
-
-// ---------------------------------------------------------------
 // MainState
 // ---------------------------------------------------------------
 class MainState : public GameState {
 
 public:
-	MainState(BackgroundState* backgroundState);
+	MainState(GameContext* ctx, BackgroundState* backgroundState);
 	virtual ~MainState();
 	int tick(float dt, EventStream* stream);
 	void render();
@@ -113,9 +104,7 @@ private:
 	ParticlesystemInstanceSettings _playerTrailSettings;
 	ParticlesystemInstanceSettings _wakeupSettings;
 	std::stack<SpawnItem> _spawnItems;
-	GameSettings _gameSettings;
 	BackgroundState* _backgroundState;
-	HUD _hud;
 	spawnFunction _spawnFunctions[8];
 	bool _spawning;
 	bool _running;

@@ -23,7 +23,7 @@ enum EventTypes {
 class PrepareState : public GameState {
 
 public:
-	PrepareState() : GameState("PrepareState") {}
+	PrepareState(GameContext* ctx) : GameState(ctx, "PrepareState") {}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate();
@@ -38,7 +38,7 @@ private:
 class GameOverState : public GameState {
 
 public:
-	GameOverState(GameContext* ctx) : GameState("GameOverState"), _ctx(ctx) {}
+	GameOverState(GameContext* ctx) : GameState(ctx, "GameOverState") {}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate();
@@ -47,7 +47,6 @@ public:
 	}
 private:
 	int _rank;
-	GameContext* _ctx;
 };
 
 // ---------------------------------------------------------------
@@ -56,7 +55,7 @@ private:
 class HighscoreState : public GameState {
 
 public:
-	HighscoreState(GameContext* ctx) : GameState("HighscoreState"), _ctx(ctx) {}
+	HighscoreState(GameContext* ctx) : GameState(ctx, "HighscoreState") {}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate() {
@@ -70,7 +69,6 @@ public:
 private:
 	float _timer;
 	int _index;
-	GameContext* _ctx;
 };
 // ---------------------------------------------------------------
 // MainMenuState
@@ -78,7 +76,7 @@ private:
 class MainMenuState : public GameState {
 
 public:
-	MainMenuState() : GameState("MainMenuState") {}
+	MainMenuState(GameContext* ctx) : GameState(ctx, "MainMenuState") {}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate() {
@@ -96,7 +94,7 @@ class HexGrid;
 class BackgroundState : public GameState {
 
 public:
-	BackgroundState();
+	BackgroundState(GameContext* ctx);
 	~BackgroundState();
 	int tick(float dt, EventStream* stream);
 	void render();
