@@ -116,6 +116,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 				mainState->stopSpawning();
 				mainState->startKilling();
 			}
+			// user clicked exit in the highscore screen
 			else if (stateMachine->getEventType(i) == ET_HIGHSCORES_EXIT) {
 				stateMachine->deactivate("HighscoreState");
 				stateMachine->activate("MainMenuState");

@@ -61,3 +61,12 @@ wake_up_settings {
 	size_variance : 0.5, 0.8
 	acceleration_variance : 0.0,0.0
 }
+death_settings {
+	count : 256
+	angle_variance : 0.1
+	radius_variance : 4.0
+	ttl : 0.6, 1.5
+	velocity_variance : 100.0, 240.0
+	size_variance : 0.5, 2.0
+	acceleration_variance : -0.5,-0.3
+}

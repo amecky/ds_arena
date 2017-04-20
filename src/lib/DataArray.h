@@ -117,6 +117,11 @@ struct DataArray {
 		return objects[index];
 	}
 
+	const U& first() const {
+		assert(numObjects > 0);
+		return objects[0];
+	}
+
 	ID add() {
 		assert(numObjects != MAX_FLOW_OBJECTS);
 		Index &in = indices[free_dequeue];

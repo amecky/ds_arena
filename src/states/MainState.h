@@ -100,6 +100,7 @@ private:
 	PSUID _playerTrail;
 	PSUID _wakeUpSystem;
 	ParticlesystemInstanceSettings _explosionSettings;
+	ParticlesystemInstanceSettings _deathSettings;
 	ParticlesystemInstanceSettings _bulletExplosionSettings;
 	ParticlesystemInstanceSettings _playerTrailSettings;
 	ParticlesystemInstanceSettings _wakeupSettings;

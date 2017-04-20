@@ -133,6 +133,7 @@ MainState::MainState(GameContext* ctx, BackgroundState* backgroundState) : GameS
 	loadSettings(reader, "bullet_explosion_settings", &_bulletExplosionSettings);
 	loadSettings(reader, "player_trail_settings", &_playerTrailSettings);
 	loadSettings(reader, "wake_up_settings", &_wakeupSettings);
+	loadSettings(reader, "death_settings", &_deathSettings);
 
 	_ctx->score = 0;
 
@@ -160,9 +161,9 @@ int MainState::tick(float dt, EventStream* stream) {
 		if (_killTimer >= 0.4f) {
 			_killTimer -= 0.4f;
 			if (_enemies.numObjects > 0) {
-				Enemy& e = _enemies.objects[_enemies.numObjects - 1];
+				const Enemy& e = _enemies.first();
 				_particleManager->emitt(_enemyExplosion, _explosionSettings, e.pos.x, e.pos.y, 10.0f);
-				--_enemies.numObjects;
+				_enemies.remove(e.id);
 			}
 		}
 	}
@@ -199,7 +200,7 @@ void MainState::render() {
 	sprites::begin();
 	if (_running) {
 		numbers::draw(ds::vec2(80, 720),_player.energy,3,false);
-		numbers::draw(ds::vec2(700, 720), _ctx->score, 6, true);		
+		numbers::draw(ds::vec2(750, 720), _ctx->score, 6, true);		
 	}
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {
@@ -315,7 +316,7 @@ bool MainState::handlePlayerCollision(EventStream* stream) {
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
 				if (_player.energy <= 0) {
-					_particleManager->emitt(_enemyExplosion, _explosionSettings, _player.pos.x, _player.pos.y, 10.0f);
+					_particleManager->emitt(_enemyExplosion, _deathSettings, _player.pos.x, _player.pos.y, 10.0f);
 					stream->add(ET_PLAYER_KILLED);
 				}
 				hit = true;
