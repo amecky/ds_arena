@@ -107,6 +107,9 @@ public:
 	void setOrigin(const ds::vec2& origin);
 	int getIndex(const Hex& h)const;
 	ds::vec2 convert(int q, int r) const;
+	void setBaseColor(const ds::Color& bc) {
+		_baseColor = bc;
+	}
 private:
 	int _qMax;
 	int _rMax;
@@ -114,4 +117,5 @@ private:
 	GridItem* _items;
 	Layout _layout;
 	int _hover;
+	ds::Color _baseColor;
 };

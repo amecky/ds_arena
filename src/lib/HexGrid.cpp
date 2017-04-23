@@ -1,6 +1,6 @@
 #include "HexGrid.h"
 
-const static ds::Color HEX_BASE_COLOR = ds::Color(12, 12, 12, 255);
+//const static ds::Color HEX_BASE_COLOR = ds::Color(12, 12, 12, 255);
 
 bool operator == (Hex a, Hex b) {
 	return a.q == b.q && a.r == b.r && a.s == b.s;
@@ -109,7 +109,7 @@ void HexGrid::fill() {
 			item.hex = Hex(q, r);
 			item.position = hex_math::hex_to_pixel(_layout, item.hex);
 			item.timer = 0.0f;
-			item.color = HEX_BASE_COLOR;
+			item.color = _baseColor;
 			int idx = (q + q_offset) + r * _qMax;
 			_items[idx] = item;
 		}
@@ -123,13 +123,13 @@ void HexGrid::tick(float dt) {
 		if (item.timer > 0.0f) {
 			item.timer -= dt;
 			float n = 1.0f - item.timer / 1.2f;
-			item.color = lerp(item.highlightColor, HEX_BASE_COLOR, n);
+			item.color = lerp(item.highlightColor, _baseColor, n);
 			if (n >= 1.0f) {
 				item.timer = 0.0f;
 			}
 		}
 		else {
-			item.color = HEX_BASE_COLOR;
+			item.color = _baseColor;
 		}
 	}
 }

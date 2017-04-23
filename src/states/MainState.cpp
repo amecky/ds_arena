@@ -191,6 +191,7 @@ void MainState::activate() {
 	_player.energy = 10;
 	_active = true;
 	_running = true;
+	_spawning = false;
 }
 
 void MainState::render() {

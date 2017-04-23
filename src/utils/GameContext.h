@@ -9,7 +9,9 @@ struct GameSettings {
 	int maxSpawnEnemies;
 	ds::Color playerHightlightColor;
 	ds::Color wakeUpHightlightColor;
-
+	ds::Color gridBaseColor;
+	float prepareTTL;
+	float prepareFlashingTTL;
 };
 
 // ---------------------------------------------------------------

@@ -4,6 +4,7 @@
 #include "..\utils\ElasticBorder.h"
 #include "..\utils\sprites.h"
 #include "..\utils\GameContext.h"
+#include "..\lib\FloatArray.h"
 
 enum EventTypes {
 	ET_NONE,
@@ -23,13 +24,21 @@ enum EventTypes {
 class PrepareState : public GameState {
 
 public:
-	PrepareState(GameContext* ctx) : GameState(ctx, "PrepareState") {}
+	PrepareState(GameContext* ctx) : GameState(ctx, "PrepareState") {
+		_scalePath.add(0.0f, 0.2f);
+		_scalePath.add(0.2f, 1.2f);
+		_scalePath.add(0.4f, 0.8f);
+		_scalePath.add(0.6f, 1.1f);
+		_scalePath.add(0.8f, 0.9f);
+		_scalePath.add(1.0f, 1.0f);
+	}
 	int tick(float dt, EventStream* stream);
 	void render();
 	void activate();
 	void deactivate();
 private:
 	float _prepareTimer;
+	AbstractPath<float> _scalePath;
 };
 
 // ---------------------------------------------------------------

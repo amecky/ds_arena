@@ -29,14 +29,19 @@ static bool isCursorInside(const ds::vec2& p, const ds::vec2& dim) {
 // ---------------------------------------------------------------
 int PrepareState::tick(float dt, EventStream* stream) {
 	_prepareTimer += dt;
-	if (_prepareTimer >= 5.0f) {
+	if (_prepareTimer >= _ctx->settings.prepareTTL) {
 		stream->add(ET_PREPARE_ELAPSED);
 	}
 	return 0;
 }
 
-void PrepareState::render() {
-	sprites::add(ds::vec2(512, 384), ds::vec4(80, 160, 370, 60));
+void PrepareState::render() {	
+	float s = 1.0f;
+	if (_prepareTimer <= _ctx->settings.prepareFlashingTTL) {
+		float norm = _prepareTimer / _ctx->settings.prepareFlashingTTL;
+		s = _scalePath.get(norm);
+	}
+	sprites::add(ds::vec2(512, 384), ds::vec4(544, 274, 380, 70),ds::vec2(s,s),0.0f,ds::Color(17,236,228,255));
 }
 
 void PrepareState::activate() {
@@ -72,14 +77,14 @@ int GameOverState::tick(float dt, EventStream* stream) {
 }
 
 void GameOverState::render() {
-	sprites::add(ds::vec2(512, 580), ds::vec4(0, 480, 395, 60));
+	sprites::add(ds::vec2(512, 580), ds::vec4(532, 28, 400, 70),ds::vec2(1.0f),0.0f,ds::Color(255,0,0,255));
 	sprites::add(ds::vec2(512, 220), ds::vec4(0, 360, 300, 56));
 	sprites::add(ds::vec2(512, 120), ds::vec4(0, 300, 300, 56));
 	// score
-	sprites::add(ds::vec2(512, 480), ds::vec4(0, 620, 140, 40));
-	numbers::draw(ds::vec2(420, 420), _ctx->score, 6);
+	sprites::add(ds::vec2(512, 470), ds::vec4(80, 120, 124, 40));
+	numbers::draw(ds::vec2(440, 420), _ctx->score, 6);
 	// rank
-	sprites::add(ds::vec2(512, 360), ds::vec4(145, 620, 125, 40));
+	sprites::add(ds::vec2(512, 350), ds::vec4(212, 120, 110, 40));
 	if (_rank >= 0) {
 		numbers::draw(ds::vec2(500, 300), _rank + 1, 2);
 	}
@@ -159,7 +164,7 @@ BackgroundState::BackgroundState(GameContext* ctx) : GameState(ctx, "BackgroundS
 	_width = 26;
 	_height = 18;
 	_grid.resize(_width, _height);
-
+	_grid.setBaseColor(ctx->settings.gridBaseColor);
 	SJSONReader settingsReader;
 	settingsReader.parse("content\\settings.json");
 	settingsReader.get("Tension", &_borderSettings.Tension, "border_settings");

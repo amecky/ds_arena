@@ -77,7 +77,7 @@ public:
 				_lastIndex = i;
 				_lastTime = time;
 				float t = (normTime - current->time) / (next->time - current->time);
-				return tweening::interpolate(_tweening, current->value, next->value, t);
+				return tweening::interpolate(_tweening, current->value, next->value, t , 1.0f);
 			}
 		}
 		return 0.0f;

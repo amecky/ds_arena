@@ -48,6 +48,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	settingsReader.get("max_spawn_enemies", &ctx.settings.maxSpawnEnemies, "settings");
 	settingsReader.get("player_highlight", &ctx.settings.playerHightlightColor, "settings");
 	settingsReader.get("wake_up_hightlight", &ctx.settings.wakeUpHightlightColor, "settings");
+	settingsReader.get("grid_base_color", &ctx.settings.gridBaseColor, "settings");
+	settingsReader.get("prepare_ttl", &ctx.settings.prepareTTL, "settings");
+	settingsReader.get("prepare_flashing_ttl", &ctx.settings.prepareFlashingTTL, "settings");
 	//
 	// create the state machine and add all the game states
 	//
@@ -66,7 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	stateMachine->add(gameOverState);
 	stateMachine->add(highscoreState);
 	// and activate the main menu state
-	stateMachine->activate("MainState");
+	stateMachine->activate("GameOverState");
 	bool rendering = true;
 	while (ds::isRunning() && rendering) {
 
