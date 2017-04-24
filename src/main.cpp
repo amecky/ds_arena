@@ -42,7 +42,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	GameContext ctx;
 	highscore::load("scores.scr", &ctx);
 	ctx.score = 125634;
-
+	//
+	// read game settings from json
+	//
 	SJSONReader settingsReader;
 	settingsReader.parse("content\\settings.json");
 	settingsReader.get("max_spawn_enemies", &ctx.settings.maxSpawnEnemies, "settings");
@@ -71,11 +73,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// and activate the main menu state
 	stateMachine->activate("GameOverState");
 	bool rendering = true;
+	bool update = true;
+	bool pressed = false;
+
 	while (ds::isRunning() && rendering) {
 
 		ds::begin();
 
-		stateMachine->tick(static_cast<float>(ds::getElapsedSeconds()));
+		if (ds::isKeyPressed('U') ) {
+			if (!pressed) {
+				update = !update;
+				pressed = true;
+			}
+		}
+		else {
+			pressed = false;
+		}
+
+		if (update) {
+			stateMachine->tick(static_cast<float>(ds::getElapsedSeconds()));
+		}
 		//
 		// handle all the events that might have occured in one frame
 		//
@@ -129,7 +146,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		stateMachine->render();
 		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
-
+		ds::dbgPrint(0, 1, "Running: %s", update ? "YES" : "NO");
 		ds::end();
 	}	
 	highscore::save("scores.scr", &ctx);

@@ -192,6 +192,9 @@ void MainState::activate() {
 	_active = true;
 	_running = true;
 	_spawning = false;
+	_enemies.clear();
+	_player.pos = ds::vec2(512, 300);
+	_player.previous = ds::vec2(512, 300);
 }
 
 void MainState::render() {
