@@ -528,6 +528,7 @@ namespace sprites {
 		RID item;
 		RID textureID;
 		RID orthoPass;
+		ds::Camera orthoCamera;
 		SpriteBufferVertex* vertices;
 	};
 
@@ -578,8 +579,21 @@ namespace sprites {
 
 		ds::matrix orthoView = ds::matIdentity();
 		ds::matrix orthoProjection = ds::matOrthoLH(ds::getScreenWidth(), ds::getScreenHeight(), 0.1f, 1.0f);
-		_spritesCtx->orthoPass = ds::createRenderPass(orthoView, orthoProjection, ds::DepthBufferState::DISABLED, "SpriteOrthoPass");
-		_spritesCtx->constantBuffer.wvp = ds::matTranspose(orthoView * orthoProjection);
+		_spritesCtx->orthoCamera = {
+			orthoView,
+			orthoProjection,
+			orthoView * orthoProjection,
+			ds::vec3(0,0,0),
+			ds::vec3(0,0,0),
+			ds::vec3(0,1,0),
+			ds::vec3(1,0,0),
+			0.0f,
+			0.0f,
+			0.0f
+		};
+		ds::RenderPassInfo rpInfo = { &_spritesCtx->orthoCamera, ds::DepthBufferState::DISABLED, 0, 0 };
+		_spritesCtx->orthoPass = ds::createRenderPass(rpInfo);
+		_spritesCtx->constantBuffer.wvp = ds::matTranspose(_spritesCtx->orthoCamera.viewProjectionMatrix);
 
 		_spritesCtx->current = 0;
 	}

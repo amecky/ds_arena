@@ -79,7 +79,20 @@ ElasticBorder::ElasticBorder(ElasticBorderSettings* settings) : _settings(settin
 	// create orthographic view
 	ds::matrix orthoView = ds::matIdentity();
 	ds::matrix orthoProjection = ds::matOrthoLH(ds::getScreenWidth(), ds::getScreenHeight(), 0.1f, 1.0f);
-	_orthoPass = ds::createRenderPass(orthoView, orthoProjection, ds::DepthBufferState::DISABLED);
+	_orthoCamera = {
+		orthoView,
+		orthoProjection,
+		orthoView * orthoProjection,
+		ds::vec3(0,0,0),
+		ds::vec3(0,0,0),
+		ds::vec3(0,1,0),
+		ds::vec3(1,0,0),
+		0.0f,
+		0.0f,
+		0.0f
+	};
+	ds::RenderPassInfo rpInfo = { &_orthoCamera, ds::DepthBufferState::DISABLED, 0, 0 };
+	_orthoPass = ds::createRenderPass(rpInfo);
 
 	_constantBuffer.viewprojectionMatrix = ds::matTranspose(orthoView * orthoProjection);
 	_constantBuffer.worldMatrix = ds::matTranspose(ds::matIdentity());
@@ -93,8 +106,8 @@ ElasticBorder::ElasticBorder(ElasticBorderSettings* settings) : _settings(settin
 }
 
 RID ElasticBorder::createStateGroup(int numVertices, RID textureID) {
-
-	RID bs_id = ds::createBlendState(ds::BlendStates::SRC_ALPHA, ds::BlendStates::SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, true);
+	ds::BlendStateInfo myBlendState = { ds::BlendStates::SRC_ALPHA, ds::BlendStates::SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, true };
+	RID bs_id = ds::createBlendState(myBlendState);
 
 	RID vertexShader = ds::createVertexShader(Border_VS_Main, sizeof(Border_VS_Main), "Border_VS");
 	RID pixelShader = ds::createPixelShader(Border_PS_Main, sizeof(Border_PS_Main), "Border_PS");

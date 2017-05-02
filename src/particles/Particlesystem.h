@@ -164,8 +164,8 @@ private:
 	ParticleConstantBuffer _constantBuffer;
 	
 	ParticleVertex* _vertices;
-	ds::matrix _viewprojectionMatrix;
 	RID _drawItem;
 	RID _vertexBuffer;
 	RID _orthoPass;
+	ds::Camera _orthoCamera;
 };

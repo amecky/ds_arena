@@ -70,4 +70,5 @@ private:
 	GridVertex* _vertices;
 	float _timer;
 	Ribbon _ribbons[4];
+	ds::Camera _orthoCamera;
 };

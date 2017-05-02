@@ -10,9 +10,22 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	_vertices = new ParticleVertex[maxParticles];
 	_constantBuffer.screenDimension = ds::vec4(1024.0f, 768.0f, 1024.0f, 1024.0f);
 	_constantBuffer.screenCenter = ds::vec4(512.0f, 384.0f, 0.0f, 0.0f);
-	ds::matrix viewMatrix = ds::matIdentity();
-	ds::matrix projectionMatrix = ds::matOrthoLH(1024.0f, 768.0f, 0.1f, 1.0f);
-	_viewprojectionMatrix = viewMatrix * projectionMatrix;
+	ds::matrix orthoView = ds::matIdentity();
+	ds::matrix orthoProjection = ds::matOrthoLH(ds::getScreenWidth(), ds::getScreenHeight(), 0.1f, 1.0f);
+	_orthoCamera = {
+		orthoView,
+		orthoProjection,
+		orthoView * orthoProjection,
+		ds::vec3(0,0,0),
+		ds::vec3(0,0,0),
+		ds::vec3(0,1,0),
+		ds::vec3(1,0,0),
+		0.0f,
+		0.0f,
+		0.0f
+	};
+	ds::RenderPassInfo rpInfo = { &_orthoCamera, ds::DepthBufferState::DISABLED, 0, 0 };
+	_orthoPass = ds::createRenderPass(rpInfo, "ParticleOrthoPass");
 
 	RID vertexShader = ds::createVertexShader(Particles_VS_Main, sizeof(Particles_VS_Main), "ParticlesVS");
 	RID pixelShader = ds::createPixelShader(Particles_PS_Main, sizeof(Particles_PS_Main), "ParticlesPS");
@@ -27,7 +40,8 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	};
 	RID vertexDeclaration = ds::createVertexDeclaration(decl, 4, vertexShader, "ParticleLayout");
 
-	RID bs_id = ds::createBlendState(ds::BlendStates::SRC_ALPHA, ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, true);
+	ds::BlendStateInfo psBlendState = { ds::BlendStates::SRC_ALPHA, ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, true };
+	RID bs_id = ds::createBlendState(psBlendState);
 	RID constantBuffer = ds::createConstantBuffer(sizeof(ParticleConstantBuffer), &_constantBuffer);
 	_vertexBuffer = ds::createVertexBuffer(ds::BufferType::DYNAMIC, maxParticles, sizeof(ParticleVertex));
 
@@ -45,12 +59,6 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	ds::DrawCommand drawCmd = { 100, ds::DrawType::DT_VERTICES, ds::PrimitiveTypes::POINT_LIST };
 
 	_drawItem = ds::compile(drawCmd, basicGroup, "ParticleDrawItem");
-
-	// create orthographic view
-	ds::matrix orthoView = ds::matIdentity();
-	ds::matrix orthoProjection = ds::matOrthoLH(ds::getScreenWidth(), ds::getScreenHeight(), 0.1f, 1.0f);
-	_orthoPass = ds::createRenderPass(orthoView, orthoProjection, ds::DepthBufferState::DISABLED, "ParticleOrthoPass");
-	//constantBuffer.wvp = ds::matTranspose(orthoView * orthoProjection);
 
 }
 
@@ -89,7 +97,7 @@ void ParticleManager::tick(float dt) {
 
 void ParticleManager::render() {
 	ds::matrix w = ds::matIdentity();
-	_constantBuffer.wvp = ds::matTranspose(_viewprojectionMatrix);
+	_constantBuffer.wvp = ds::matTranspose(_orthoCamera.viewProjectionMatrix);
 	for (size_t p = 0; p < _systems.size(); ++p) {
 		_systems[p]->preapreBuffer(&_constantBuffer);
 		const ParticleArray* array = _systems[p]->getArray();
