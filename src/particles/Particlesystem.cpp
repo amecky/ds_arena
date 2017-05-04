@@ -32,18 +32,20 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	RID geoShader = ds::createGeometryShader(Particles_GS_Main, sizeof(Particles_GS_Main), "ParticlesGS");
 
 	// very special buffer layout 
-	ds::VertexDeclaration decl[] = {
+	ds::InputLayoutDefinition decl[] = {
 		{ ds::BufferAttribute::POSITION, ds::BufferAttributeType::FLOAT,3 },
 		{ ds::BufferAttribute::NORMAL, ds::BufferAttributeType::FLOAT,3 },
 		{ ds::BufferAttribute::TANGENT ,ds::BufferAttributeType::FLOAT,3 },
 		{ ds::BufferAttribute::COLOR, ds::BufferAttributeType::FLOAT,4 }
 	};
-	RID vertexDeclaration = ds::createVertexDeclaration(decl, 4, vertexShader, "ParticleLayout");
+	ds::InputLayoutInfo layoutInfo = { decl, 4, vertexShader };
+	RID vertexDeclaration = ds::createInputLayout(layoutInfo, "ParticleLayout");
 
 	ds::BlendStateInfo psBlendState = { ds::BlendStates::SRC_ALPHA, ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, true };
 	RID bs_id = ds::createBlendState(psBlendState);
 	RID constantBuffer = ds::createConstantBuffer(sizeof(ParticleConstantBuffer), &_constantBuffer);
-	_vertexBuffer = ds::createVertexBuffer(ds::BufferType::DYNAMIC, maxParticles, sizeof(ParticleVertex));
+	ds::VertexBufferInfo vbInfo = { ds::BufferType::DYNAMIC, maxParticles, sizeof(ParticleVertex) };
+	_vertexBuffer = ds::createVertexBuffer(vbInfo);
 
 	RID basicGroup = ds::StateGroupBuilder()
 		.inputLayout(vertexDeclaration)

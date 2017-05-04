@@ -112,19 +112,21 @@ RID ElasticBorder::createStateGroup(int numVertices, RID textureID) {
 	RID vertexShader = ds::createVertexShader(Border_VS_Main, sizeof(Border_VS_Main), "Border_VS");
 	RID pixelShader = ds::createPixelShader(Border_PS_Main, sizeof(Border_PS_Main), "Border_PS");
 
-	ds::VertexDeclaration decl[] = {
+	ds::InputLayoutDefinition decl[] = {
 		{ ds::BufferAttribute::POSITION,ds::BufferAttributeType::FLOAT,3 },
 		{ ds::BufferAttribute::TEXCOORD,ds::BufferAttributeType::FLOAT,2 },
 		{ ds::BufferAttribute::COLOR,ds::BufferAttributeType::FLOAT,4 }
 	};
 
 	int q = numVertices / 4 * 6;
-
-	RID rid = ds::createVertexDeclaration(decl, 3, vertexShader);
+	ds::InputLayoutInfo layoutInfo = { decl, 3, vertexShader };
+	RID rid = ds::createInputLayout(layoutInfo);
 	RID cbid = ds::createConstantBuffer(sizeof(CubeConstantBuffer), &_constantBuffer);
 	RID indexBufferID = ds::createQuadIndexBuffer(numVertices / 4);
-	_vertexBufferID = ds::createVertexBuffer(ds::BufferType::DYNAMIC, numVertices, sizeof(GridVertex));
-	RID ssid = ds::createSamplerState(ds::TextureAddressModes::CLAMP, ds::TextureFilters::LINEAR);
+	ds::VertexBufferInfo vbInfo = { ds::BufferType::DYNAMIC, numVertices, sizeof(GridVertex) };
+	_vertexBufferID = ds::createVertexBuffer(vbInfo);
+	ds::SamplerStateInfo samplerInfo = { ds::TextureAddressModes::CLAMP, ds::TextureFilters::LINEAR };
+	RID ssid = ds::createSamplerState(samplerInfo);
 
 
 	RID stateGroup = ds::StateGroupBuilder()

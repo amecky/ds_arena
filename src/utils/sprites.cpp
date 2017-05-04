@@ -545,19 +545,21 @@ namespace sprites {
 		RID geoShader = ds::createGeometryShader(Sprite_GS_Main, sizeof(Sprite_GS_Main), "SpriteGS");
 
 		// very special buffer layout 
-		ds::VertexDeclaration decl[] = {
+		ds::InputLayoutDefinition decl[] = {
 			{ ds::BufferAttribute::POSITION,ds::BufferAttributeType::FLOAT,3 },
 			{ ds::BufferAttribute::COLOR,ds::BufferAttributeType::FLOAT,4 },
 			{ ds::BufferAttribute::NORMAL,ds::BufferAttributeType::FLOAT,3 },
 			{ ds::BufferAttribute::COLOR,ds::BufferAttributeType::FLOAT,4 }
 		};
-
-		RID vertexDeclId = ds::createVertexDeclaration(decl, 4, vertexShader, "PCNC_Layout");
+		ds::InputLayoutInfo layoutInfo = { decl, 4, vertexShader };
+		RID vertexDeclId = ds::createInputLayout(layoutInfo, "PCNC_Layout");
 
 		RID cbid = ds::createConstantBuffer(sizeof(SpriteBufferConstantBuffer), &_spritesCtx->constantBuffer, "SpriteBufferConstantBuffer");
-		_spritesCtx->vertexBufferID = ds::createVertexBuffer(ds::BufferType::DYNAMIC, maxSprites, sizeof(SpriteBufferVertex), "SpriteBufferVertex");
+		ds::VertexBufferInfo vbInfo = { ds::BufferType::DYNAMIC, maxSprites, sizeof(SpriteBufferVertex) };
+		_spritesCtx->vertexBufferID = ds::createVertexBuffer(vbInfo, "SpriteBufferVertex");
 
-		RID ssid = ds::createSamplerState(ds::TextureAddressModes::CLAMP, ds::TextureFilters::LINEAR);
+		ds::SamplerStateInfo samplerInfo = { ds::TextureAddressModes::CLAMP, ds::TextureFilters::LINEAR };
+		RID ssid = ds::createSamplerState(samplerInfo);
 
 		RID spriteStateGroup = ds::StateGroupBuilder()
 			.inputLayout(vertexDeclId)
