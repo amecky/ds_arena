@@ -1,7 +1,9 @@
 #define DS_IMPLEMENTATION
-#include "..\..\diesel\diesel.h"
+#include <diesel.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "..\..\diesel\examples\common\stb_image.h"
+#include <examples\common\stb_image.h>
+#define SPRITE_IMPLEMENTATION
+#include "utils\SpriteBatchBuffer.h"
 #include "states\GameState.h"
 #include "states\MainState.h"
 #include "utils\GameContext.h"
@@ -38,7 +40,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// load the one and only texture
 	//
 	RID textureID = loadImage("content\\TextureArray.png");
-	sprites::init(2048, textureID);
+	SpriteBatchBufferInfo sbbInfo = { 2048, textureID };
+	SpriteBatchBuffer spriteBuffer(sbbInfo);
 
 	GameContext ctx;
 	highscore::load("scores.scr", &ctx);
@@ -57,7 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	//
 	// create the state machine and add all the game states
 	//
-	StateMachine* stateMachine = new StateMachine;
+	StateMachine* stateMachine = new StateMachine(&spriteBuffer);
 	PrepareState* prepareState = new PrepareState(&ctx);
 	BackgroundState* backgroundState = new BackgroundState(&ctx);
 	GameOverState* gameOverState = new GameOverState(&ctx);
@@ -151,7 +154,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		ds::end();
 	}	
 	highscore::save("scores.scr", &ctx);
-	sprites::shutdown();
 	delete mainState;
 	delete mainMenuState;
 	delete highscoreState;

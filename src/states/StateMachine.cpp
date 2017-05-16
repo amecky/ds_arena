@@ -1,9 +1,9 @@
 #include "StateMachine.h"
-#include "..\utils\sprites.h"
+
 // ---------------------------------------------------------------
 // GameStateManager
 // ---------------------------------------------------------------
-StateMachine::StateMachine() {
+StateMachine::StateMachine(SpriteBatchBuffer* buffer) : _buffer(buffer) {
 	_stream.reset();
 }
 
@@ -46,13 +46,13 @@ void StateMachine::deactivate(const char* name) {
 }
 
 void StateMachine::render() {
-	sprites::begin();
+	_buffer->begin();
 	for (size_t i = 0; i < _states.size(); ++i) {
 		if (_states[i]->isActive()) {
-			_states.at(i)->render();
+			_states.at(i)->render(_buffer);
 		}
 	}
-	sprites::flush();
+	_buffer->flush();
 }
 
 void StateMachine::add(GameState* state) {

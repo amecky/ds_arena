@@ -45,8 +45,8 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
-Dodger2.VC.db
+ds_arena.VC.db
 *.opendb
 x64/Debug/
-Dodger2.sdf
-Dodger2.opensdf
+ds_arena.sdf
+ds_arena.opensdf

@@ -197,30 +197,27 @@ void MainState::activate() {
 	_player.previous = ds::vec2(512, 300);
 }
 
-void MainState::render() {
+void MainState::render(SpriteBatchBuffer* buffer) {
 	// particles
 	_particleManager->render();
-
-	sprites::begin();
 	if (_running) {
-		numbers::draw(ds::vec2(80, 720),_player.energy,3,false);
-		numbers::draw(ds::vec2(750, 720), _ctx->score, 6, true);		
+		numbers::draw(buffer, ds::vec2(80, 720),_player.energy,3,false);
+		numbers::draw(buffer, ds::vec2(750, 720), _ctx->score, 6, true);		
 	}
 	DataArray<Bullet>::iterator it = _bullets.begin();
 	while (it != _bullets.end()) {
-		sprites::add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42, 202, 236, 255));
+		buffer->add(it->pos, ds::vec4(120, 60, 8, 8), ds::vec2(3.0f, 0.5f), it->angle, ds::Color(42, 202, 236, 255));
 		++it;
 	}
 
 	DataArray<Enemy>::iterator eit = _enemies.begin();
 	while (eit != _enemies.end()) {
-		sprites::add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
+		buffer->add(eit->pos, ENEMY_TEXTURES[eit->type], eit->scale, eit->angle);
 		++eit;
 	}
 	if (_running) {
-		sprites::add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
+		buffer->add(_player.pos, ds::vec4(0, 40, 40, 40), ds::vec2(1, 1), _player.angle);
 	}
-	sprites::flush();
 }
 
 // ---------------------------------------------------------------

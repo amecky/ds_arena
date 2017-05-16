@@ -1,6 +1,7 @@
-#include "..\..\..\diesel\diesel.h"
+#include <diesel.h>
 #include "..\lib\EventStream.h"
 #include "..\utils\GameContext.h"
+#include "..\utils\SpriteBatchBuffer.h"
 // ---------------------------------------------------------------
 // GameState
 // ---------------------------------------------------------------
@@ -12,7 +13,7 @@ public:
 	}
 	virtual ~GameState() {}
 	virtual int tick(float dt, EventStream* stream) = 0;
-	virtual void render() = 0;
+	virtual void render(SpriteBatchBuffer* buffer) = 0;
 	virtual void activate() = 0;
 	virtual void deactivate() = 0;
 	const ds::StaticHash& getHash() const {
@@ -33,7 +34,7 @@ protected:
 class StateMachine {
 
 public:
-	StateMachine();
+	StateMachine(SpriteBatchBuffer* buffer);
 	~StateMachine();
 	void add(GameState* state);
 	void activate(const char* name);
@@ -49,4 +50,5 @@ private:
 	GameState* find(const char* name);
 	std::vector<GameState*> _states;
 	EventStream _stream;
+	SpriteBatchBuffer* _buffer;
 };

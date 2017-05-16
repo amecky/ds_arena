@@ -27,9 +27,12 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 	ds::RenderPassInfo rpInfo = { &_orthoCamera, ds::DepthBufferState::DISABLED, 0, 0 };
 	_orthoPass = ds::createRenderPass(rpInfo, "ParticleOrthoPass");
 
-	RID vertexShader = ds::createVertexShader(Particles_VS_Main, sizeof(Particles_VS_Main), "ParticlesVS");
-	RID pixelShader = ds::createPixelShader(Particles_PS_Main, sizeof(Particles_PS_Main), "ParticlesPS");
-	RID geoShader = ds::createGeometryShader(Particles_GS_Main, sizeof(Particles_GS_Main), "ParticlesGS");
+	ds::ShaderInfo vsInfo = { 0 , Particles_VS_Main, sizeof(Particles_VS_Main), ds::ShaderType::ST_VERTEX_SHADER };
+	RID vertexShader = ds::createShader(vsInfo, "ParticlesVS");
+	ds::ShaderInfo psInfo = { 0 , Particles_PS_Main, sizeof(Particles_PS_Main), ds::ShaderType::ST_PIXEL_SHADER };
+	RID pixelShader = ds::createShader(psInfo, "ParticlesPS");	
+	ds::ShaderInfo gsInfo = { 0 , Particles_GS_Main, sizeof(Particles_GS_Main), ds::ShaderType::ST_GEOMETRY_SHADER };
+	RID geoShader = ds::createShader(gsInfo, "ParticlesGS");
 
 	// very special buffer layout 
 	ds::InputLayoutDefinition decl[] = {

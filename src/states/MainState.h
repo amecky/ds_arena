@@ -1,7 +1,6 @@
 #pragma once
 #include "..\lib\Stack.h"
 #include "..\lib\HexGrid.h"
-#include "..\utils\sprites.h"
 #include "..\lib\DataArray.h"
 #include "..\lib\math.h"
 #include "..\lib\FloatArray.h"
@@ -69,7 +68,7 @@ public:
 	MainState(GameContext* ctx, BackgroundState* backgroundState);
 	virtual ~MainState();
 	int tick(float dt, EventStream* stream);
-	void render();
+	void render(SpriteBatchBuffer* buffer);
 	void startSpawning();
 	void stopSpawning();
 	void startKilling();

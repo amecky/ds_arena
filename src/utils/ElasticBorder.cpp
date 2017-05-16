@@ -109,8 +109,10 @@ RID ElasticBorder::createStateGroup(int numVertices, RID textureID) {
 	ds::BlendStateInfo myBlendState = { ds::BlendStates::SRC_ALPHA, ds::BlendStates::SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, true };
 	RID bs_id = ds::createBlendState(myBlendState);
 
-	RID vertexShader = ds::createVertexShader(Border_VS_Main, sizeof(Border_VS_Main), "Border_VS");
-	RID pixelShader = ds::createPixelShader(Border_PS_Main, sizeof(Border_PS_Main), "Border_PS");
+	ds::ShaderInfo vsInfo = { 0 , Border_VS_Main, sizeof(Border_VS_Main), ds::ShaderType::ST_VERTEX_SHADER };
+	RID vertexShader = ds::createShader(vsInfo, "Border_VS");
+	ds::ShaderInfo psInfo = { 0 , Border_PS_Main, sizeof(Border_PS_Main), ds::ShaderType::ST_PIXEL_SHADER };
+	RID pixelShader = ds::createShader(psInfo, "Border_PS");
 
 	ds::InputLayoutDefinition decl[] = {
 		{ ds::BufferAttribute::POSITION,ds::BufferAttributeType::FLOAT,3 },

@@ -26,9 +26,6 @@
     <ClCompile Include="src\utils\ElasticBorder.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\sprites.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\lib\HexGrid.cpp">
       <Filter>lib</Filter>
     </ClCompile>
@@ -78,9 +75,6 @@
     </ClInclude>
     <ClInclude Include="src\states\GameState.h">
       <Filter>states</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\sprites.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\ElasticBorder.h">
       <Filter>utils</Filter>

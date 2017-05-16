@@ -34,7 +34,6 @@
     <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
     <ClCompile Include="src\utils\json.cpp" />
-    <ClCompile Include="src\utils\sprites.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\lib\BlockArray.h" />
@@ -54,7 +53,6 @@
     <ClInclude Include="src\utils\highscores.h" />
     <ClInclude Include="src\utils\hud.h" />
     <ClInclude Include="src\utils\json.h" />
-    <ClInclude Include="src\utils\sprites.h" />
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>
@@ -66,9 +64,9 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D3D09002-96D0-4629-88B8-122C0256058C}</ProjectGuid>
-    <RootNamespace>Dodger</RootNamespace>
+    <RootNamespace>ds_arena</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <ProjectName>Dodger</ProjectName>
+    <ProjectName>ds_arena</ProjectName>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -137,6 +135,12 @@
     <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\Diesel2\Release;C:\devtools\DirectX_SDK\Lib\x86;$(LibraryPath)</LibraryPath>
     <ReferencePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\devtools\DirectX_SDK\Lib\x86;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>$(IncludePath);..\diesel</IncludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <IncludePath>$(IncludePath);..\diesel</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
@@ -154,10 +158,10 @@
     <Link>
       <AdditionalOptions>/IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Dodger.exe</OutputFile>
+      <OutputFile>$(OutDir)ds_arena.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)Dodger.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)ds_arena.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -188,7 +192,7 @@
     <Link>
       <AdditionalOptions>/IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>Diesel2.lib;d3dxof.lib;dxguid.lib;d3dx9.lib;d3d9.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Dodger.exe</OutputFile>
+      <OutputFile>$(OutDir)ds_arena.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
@@ -224,10 +228,10 @@
     <Link>
       <AdditionalOptions>/IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>d3d11.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Dodger.exe</OutputFile>
+      <OutputFile>$(OutDir)ds_arena.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <ProgramDatabaseFile>$(OutDir)Dodger.pdb</ProgramDatabaseFile>
+      <ProgramDatabaseFile>$(OutDir)ds_arena.pdb</ProgramDatabaseFile>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
       <DataExecutionPrevention>
@@ -257,7 +261,7 @@
     <Link>
       <AdditionalOptions>/IGNORE:4089 %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>d3dxof.lib;dxguid.lib;d3dx9.lib;d3d9.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <OutputFile>$(OutDir)Dodger.exe</OutputFile>
+      <OutputFile>$(OutDir)ds_arena.exe</OutputFile>
       <GenerateManifest>false</GenerateManifest>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>

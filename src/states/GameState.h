@@ -2,7 +2,6 @@
 #include "StateMachine.h"
 #include "..\lib\HexGrid.h"
 #include "..\utils\ElasticBorder.h"
-#include "..\utils\sprites.h"
 #include "..\utils\GameContext.h"
 #include "..\lib\FloatArray.h"
 
@@ -33,7 +32,7 @@ public:
 		_scalePath.add(1.0f, 1.0f);
 	}
 	int tick(float dt, EventStream* stream);
-	void render();
+	void render(SpriteBatchBuffer* buffer);
 	void activate();
 	void deactivate();
 private:
@@ -49,7 +48,7 @@ class GameOverState : public GameState {
 public:
 	GameOverState(GameContext* ctx) : GameState(ctx, "GameOverState") {}
 	int tick(float dt, EventStream* stream);
-	void render();
+	void render(SpriteBatchBuffer* buffer);
 	void activate();
 	void deactivate() {
 		_active = false;
@@ -66,7 +65,7 @@ class HighscoreState : public GameState {
 public:
 	HighscoreState(GameContext* ctx) : GameState(ctx, "HighscoreState") {}
 	int tick(float dt, EventStream* stream);
-	void render();
+	void render(SpriteBatchBuffer* buffer);
 	void activate() {
 		_index = 0;
 		_timer = 0.0f;
@@ -87,7 +86,7 @@ class MainMenuState : public GameState {
 public:
 	MainMenuState(GameContext* ctx) : GameState(ctx, "MainMenuState") {}
 	int tick(float dt, EventStream* stream);
-	void render();
+	void render(SpriteBatchBuffer* buffer);
 	void activate() {
 		_active = true;
 	}
@@ -106,7 +105,7 @@ public:
 	BackgroundState(GameContext* ctx);
 	~BackgroundState();
 	int tick(float dt, EventStream* stream);
-	void render();
+	void render(SpriteBatchBuffer* buffer);
 	void activate() {
 		_active = true;
 	}
