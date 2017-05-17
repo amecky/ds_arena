@@ -58,9 +58,6 @@
   <ItemGroup>
     <None Include="shaders\Border_PS_Main.inc" />
     <None Include="shaders\Border_VS_Main.inc" />
-    <None Include="src\particles\Particles_GS_Main.inc" />
-    <None Include="src\particles\Particles_PS_Main.inc" />
-    <None Include="src\particles\Particles_VS_Main.inc" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D3D09002-96D0-4629-88B8-122C0256058C}</ProjectGuid>

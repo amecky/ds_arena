@@ -94,15 +94,6 @@ private:
 	float _spawnTimer;
 	float _spawnQueueTimer;
 	AbstractPath<float> _scalePath;
-	ParticleManager* _particleManager;
-	PSUID _enemyExplosion;
-	PSUID _playerTrail;
-	PSUID _wakeUpSystem;
-	ParticlesystemInstanceSettings _explosionSettings;
-	ParticlesystemInstanceSettings _deathSettings;
-	ParticlesystemInstanceSettings _bulletExplosionSettings;
-	ParticlesystemInstanceSettings _playerTrailSettings;
-	ParticlesystemInstanceSettings _wakeupSettings;
 	std::stack<SpawnItem> _spawnItems;
 	BackgroundState* _backgroundState;
 	spawnFunction _spawnFunctions[8];

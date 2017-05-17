@@ -85,17 +85,6 @@ void spawnBottomLine(SpawnItem* items, int count, int type) {
 	}
 }
 
-
-void loadSettings(const SJSONReader& reader, const char* catName, ParticlesystemInstanceSettings* settings) {
-	reader.get("count", &settings->count, catName);
-	reader.get("angle_variance", &settings->angleVariance, catName);
-	reader.get("radius_variance", &settings->radiusVariance, catName);
-	reader.get("ttl", &settings->ttl, catName);
-	reader.get("velocity_variance", &settings->velocityVariance, catName);
-	reader.get("size_variance", &settings->sizeVariance, catName);
-	reader.get("acceleration_variance", &settings->accelerationVariance, catName);
-}
-
 // ---------------------------------------------------------------
 // MainState
 // ---------------------------------------------------------------
@@ -120,27 +109,13 @@ MainState::MainState(GameContext* ctx, BackgroundState* backgroundState) : GameS
 	_spawnFunctions[4] = spawnBottomLine;
 
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
-	_particleManager = new ParticleManager(4096, textureID);
-
-	_enemyExplosion = _particleManager->load("explosion", textureID);
-	_playerTrail = _particleManager->load("player_trail", textureID);
-	_wakeUpSystem = _particleManager->load("wake_up", textureID);
-
-	SJSONReader reader;
-	reader.parse("content\\particlesystems.json");
-
-	loadSettings(reader, "explosion_settings", &_explosionSettings);
-	loadSettings(reader, "bullet_explosion_settings", &_bulletExplosionSettings);
-	loadSettings(reader, "player_trail_settings", &_playerTrailSettings);
-	loadSettings(reader, "wake_up_settings", &_wakeupSettings);
-	loadSettings(reader, "death_settings", &_deathSettings);
+	
 
 	_ctx->score = 0;
 
 }
 
 MainState::~MainState() {
-	delete _particleManager;
 }
 
 int MainState::tick(float dt, EventStream* stream) {
@@ -162,12 +137,12 @@ int MainState::tick(float dt, EventStream* stream) {
 			_killTimer -= 0.4f;
 			if (_enemies.numObjects > 0) {
 				const Enemy& e = _enemies.first();
-				_particleManager->emitt(_enemyExplosion, _explosionSettings, e.pos.x, e.pos.y, 10.0f);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->explosionSettings);
 				_enemies.remove(e.id);
 			}
 		}
 	}
-	_particleManager->tick(dt);
+	_ctx->particleManager->tick(dt);
 	return 0;
 }
 
@@ -199,7 +174,8 @@ void MainState::activate() {
 
 void MainState::render(SpriteBatchBuffer* buffer) {
 	// particles
-	_particleManager->render();
+	buffer->flush();
+	_ctx->particleManager->render();
 	if (_running) {
 		numbers::draw(buffer, ds::vec2(80, 720),_player.energy,3,false);
 		numbers::draw(buffer, ds::vec2(750, 720), _ctx->score, 6, true);		
@@ -272,7 +248,7 @@ void MainState::spawnEnemies(float dt) {
 			e.scale = ds::vec2(1.0f);
 			e.energy = 3;
 			e.type = type;
-			_particleManager->emitt(_wakeUpSystem, _wakeupSettings, np.x, np.y, 5.0f);
+			_ctx->particleManager->emitt(_ctx->wakeUpSystem, np, _ctx->wakeupSettings);
 			_backgroundState->highlight(np, _ctx->settings.wakeUpHightlightColor);
 		}
 	}
@@ -313,11 +289,11 @@ bool MainState::handlePlayerCollision(EventStream* stream) {
 	while (eit != _enemies.end()) {
 		if (eit->state == ES_MOVING) {
 			if (math::checkCircleIntersection(_player.pos, 20.0f, eit->pos, 20.0f, &dist, &pnv)) {
-				_particleManager->emitt(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->explosionSettings);
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
 				if (_player.energy <= 0) {
-					_particleManager->emitt(_enemyExplosion, _deathSettings, _player.pos.x, _player.pos.y, 10.0f);
+					_ctx->particleManager->emitt(_ctx->enemyExplosion, _player.pos, _ctx->deathSettings);
 					stream->add(ET_PLAYER_KILLED);
 				}
 				hit = true;
@@ -348,13 +324,13 @@ void MainState::handleCollisions() {
 			if (eit->state == ES_MOVING) {
 				if (math::checkCircleIntersection(it->pos, 5.0f, eit->pos, 20.0f, &dist, &pnv)) {
 					if (_bullets.contains(it->id)) {
-						_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+						_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos,_ctx->bulletExplosionSettings);
 						it = _bullets.remove(it->id);
 						hit = true;
 					}
 					--eit->energy;
 					if (eit->energy <= 0) {
-						_particleManager->emitt(_enemyExplosion, _explosionSettings, eit->pos.x, eit->pos.y, 10.0f);
+						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->explosionSettings);
 						eit = _enemies.remove(eit->id);
 						_ctx->score += 50;
 					}
@@ -383,11 +359,11 @@ void MainState::moveBullets(float dt) {
 	while (it != _bullets.end()) {
 		it->pos += it->velocity * static_cast<float>(ds::getElapsedSeconds());
 		if (it->pos.x < 0.0f || it->pos.x > 1024.0f || it->pos.y < 0.0f || it->pos.y > 768.0f) {
-			_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->bulletExplosionSettings);
 			it = _bullets.remove(it->id);
 		}
 		else if (_backgroundState->borderCollision(it->pos, 4.0f)) {
-			_particleManager->emitt(_enemyExplosion, _bulletExplosionSettings, it->pos.x, it->pos.y, 5.0f);
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->bulletExplosionSettings);
 			it = _bullets.remove(it->id);
 		}
 		else {
@@ -489,7 +465,7 @@ void MainState::movePlayer(float dt) {
 		ds::vec2 d = _player.pos - _player.previous;
 		if (sqr_length(d) > 100.0f) {
 			_player.previous = _player.pos;
-			_particleManager->emitt(_playerTrail, _playerTrailSettings, _player.previous.x, _player.previous.y, 10.0f);
+			_ctx->particleManager->emitt(_ctx->playerTrail, _player.previous, _ctx->playerTrailSettings);
 		}
 	}
 	ds::vec2 mp = ds::getMousePosition();

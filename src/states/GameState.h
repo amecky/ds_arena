@@ -128,3 +128,31 @@ private:
 	ElasticBorder* _borders;
 };
 
+// ---------------------------------------------------------------
+// MainMenuState
+// ---------------------------------------------------------------
+class ParticlesTestState : public GameState {
+
+public:
+	ParticlesTestState(GameContext* ctx) : GameState(ctx, "ParticlesTestState") {}
+	int tick(float dt, EventStream* stream);
+	void render(SpriteBatchBuffer* buffer);
+	void activate() {
+		_active = true;
+		_timer = 100.0f;
+		_flags[0] = 0;
+		_flags[1] = 1;
+		_flags[2] = 0;
+		_flags[3] = 0;
+		for (int i = 0; i < 4; ++i) {
+			_pressed[i] = 0;
+		}
+	}
+	void deactivate() {
+		_active = false;
+	}
+private:
+	float _timer;
+	int _flags[4];
+	int _pressed[4];
+};

@@ -2,7 +2,6 @@ explosion {
     max_particles : 1024
 	particle_dimension : 40, 40
 	scale : 0.2, 0.2
-	growth : -0.5, -0.5
 	start_color : 250, 250, 250, 255
 	end_color : 248, 213, 131, 0
 	texture_rect : 200, 20, 40, 40	
@@ -28,45 +27,65 @@ wake_up {
 explosion_settings {
 	count : 128
 	angle_variance : 0.1
+	radius : 20
 	radius_variance : 10.0
 	ttl : 0.6, 0.9
+	velocity : 0,0
 	velocity_variance : 100.0, 240.0
+	size : 1,1
 	size_variance : 0.5, 2.0
-	acceleration_variance : -0.5,-0.3
+	growth : 0.1,0.1
+	acceleration : -0.5,-0.3
 }
 bullet_explosion_settings {
 	count : 16
 	angle_variance : 0.1
-	radius_variance : 5.0
+	radius : 2
+	radius_variance : 0
 	ttl : 0.6, 0.9
+	velocity : 0,0
 	velocity_variance : 100.0, 240.0
-	size_variance : 0.5, 2.0
-	acceleration_variance : -0.5,-0.3
+	size : 0.5,0.1
+	size_variance : 0,0
+	acceleration : 0,0
+	growth : 0.5,0
 }
 player_trail_settings {
 	count : 8
 	angle_variance : 0.1
-	radius_variance : 10.0
+	radius : 10
+	radius_variance : 4
 	ttl : 0.9, 1.5
+	velocity : 0,0
 	velocity_variance : 0,0
+	size : 1,1
 	size_variance : 0.5, 2.0
-	acceleration_variance : 0.0,0.0
+	growth : 0.1,0.1
+	acceleration : 0.0,0.0
 }
 wake_up_settings {
 	count : 4
 	angle_variance : 0.9
+	radius : 30
 	radius_variance : 20.0
 	ttl : 0.9, 1.5
+	velocity : 0,0
 	velocity_variance : 10,30
+	size : 1,1
 	size_variance : 0.5, 0.8
-	acceleration_variance : 0.0,0.0
+	growth : 0.1,0.1
+	acceleration : 0.0,0.0
 }
 death_settings {
 	count : 256
 	angle_variance : 0.1
+	radius : 20
 	radius_variance : 4.0
 	ttl : 0.6, 1.5
+	velocity : 0,0
 	velocity_variance : 100.0, 240.0
+	size : 1,1
 	size_variance : 0.5, 2.0
-	acceleration_variance : -0.5,-0.3
+	growth : 0.1,0.1
+	acceleration : -0.5,-0.3
 }

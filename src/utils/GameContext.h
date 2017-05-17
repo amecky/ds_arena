@@ -1,6 +1,7 @@
 #pragma once
 #include <stdint.h>
-#include "..\..\..\diesel\diesel.h"
+#include <diesel.h>
+#include "..\particles\Particlesystem.h"
 // ---------------------------------------------------------------
 // game settings
 // ---------------------------------------------------------------
@@ -21,6 +22,15 @@ struct GameContext {
 
 	int score;
 	int highscores[10];
+	ParticleManager* particleManager;
+	int enemyExplosion;
+	int playerTrail;
+	int wakeUpSystem;
+	EmitterSettings explosionSettings;
+	EmitterSettings deathSettings;
+	EmitterSettings bulletExplosionSettings;
+	EmitterSettings playerTrailSettings;
+	EmitterSettings wakeupSettings;
 
 	GameSettings settings;
 

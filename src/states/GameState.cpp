@@ -222,3 +222,47 @@ void BackgroundState::render(SpriteBatchBuffer* buffer) {
 	// elastic borders
 	_borders->render();
 }
+
+
+// ---------------------------------------------------------------
+// ParticlesTestState
+// ---------------------------------------------------------------
+int ParticlesTestState::tick(float dt, EventStream* stream) {
+	_timer += dt;
+	if (_timer >= 1.0f) {
+		_timer = 0.0f;
+		if (_flags[0] == 1) {
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(200, 384), _ctx->explosionSettings);
+		}
+		if (_flags[1] == 1) {
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(500, 384), _ctx->bulletExplosionSettings);
+		}
+		if (_flags[2] == 1) {
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(800, 384), _ctx->deathSettings);
+		}
+	}
+	_ctx->particleManager->tick(dt);
+
+	const char keys[] = { '1','2','3' };
+	for (int i = 0; i < 3; ++i) {
+		if (ds::isKeyPressed(keys[i])) {
+			if (_pressed[i] == 0) {
+				_flags[i] = (_flags[i] + 1) & 1;
+				_pressed[i] = 1;
+			}
+		}
+		else {
+			_pressed[i] = 0;
+		}
+	}
+
+	return 0;
+}
+
+void ParticlesTestState::render(SpriteBatchBuffer* buffer) {
+	buffer->flush();
+	_ctx->particleManager->render();
+	for (int i = 0; i < 4; ++i) {
+		ds::dbgPrint(0, 2 + i, "PS %d: %d", i, _flags[i]);
+	}
+}

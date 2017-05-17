@@ -21,6 +21,32 @@ RID loadImage(const char* name) {
 	return textureID;
 }
 
+void loadSettings(const SJSONReader& reader, const char* catName, EmitterSettings* settings) {
+	reader.get("count", &settings->count, catName);
+	reader.get("angle_variance", &settings->angleVariance, catName);
+	reader.get("radius", &settings->radius, catName);
+	reader.get("radius_variance", &settings->radiusVariance, catName);
+	reader.get("ttl", &settings->ttl, catName);
+	reader.get("velocity", &settings->velocity, catName);
+	reader.get("velocity_variance", &settings->velocityVariance, catName);
+	reader.get("size", &settings->size, catName);
+	reader.get("size_variance", &settings->sizeVariance, catName);
+	reader.get("growth", &settings->growth, catName);
+	reader.get("acceleration", &settings->acceleration, catName);
+}
+
+void loadDescriptor(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
+	reader.get("max_particles", &descriptor->maxParticles, catName);
+	reader.get("particle_dimension", &descriptor->particleDimension, catName);
+	reader.get("scale", &descriptor->scale, catName);
+	reader.get("start_color", &descriptor->startColor, catName);
+	reader.get("end_color", &descriptor->endColor, catName);
+	ds::vec4 r;
+	reader.get("texture_rect", &r, catName);
+	r.z += r.x;
+	r.w += r.y;
+	descriptor->textureRect = r / 1024.0f;
+}
 // ---------------------------------------------------------------
 // main method
 // ---------------------------------------------------------------
@@ -43,9 +69,35 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	SpriteBatchBufferInfo sbbInfo = { 2048, textureID };
 	SpriteBatchBuffer spriteBuffer(sbbInfo);
 
+	ParticlesystemDescriptor enemyExplosionDescriptor;
+	ParticlesystemDescriptor playerTrailDescriptor;
+	ParticlesystemDescriptor wakeUpDescriptor;
+	
+
 	GameContext ctx;
 	highscore::load("scores.scr", &ctx);
 	ctx.score = 125634;
+
+	ctx.particleManager = new ParticleManager(4096, textureID);
+
+	SJSONReader psReader;
+	psReader.parse("content\\particlesystems.json");
+
+	loadDescriptor(psReader, "explosion", &enemyExplosionDescriptor);
+	ctx.enemyExplosion = ctx.particleManager->add(&enemyExplosionDescriptor);
+
+	loadDescriptor(psReader, "payler_trail", &playerTrailDescriptor);
+	ctx.playerTrail = ctx.particleManager->add(&playerTrailDescriptor);
+
+	loadDescriptor(psReader, "wake_up", &wakeUpDescriptor);
+	ctx.wakeUpSystem = ctx.particleManager->add(&wakeUpDescriptor);
+
+	loadSettings(psReader, "explosion_settings", &ctx.explosionSettings);
+	loadSettings(psReader, "bullet_explosion_settings", &ctx.bulletExplosionSettings);
+	loadSettings(psReader, "player_trail_settings", &ctx.playerTrailSettings);
+	loadSettings(psReader, "wake_up_settings", &ctx.wakeupSettings);
+	loadSettings(psReader, "death_settings", &ctx.deathSettings);
+
 	//
 	// read game settings from json
 	//
@@ -67,15 +119,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	HighscoreState* highscoreState = new HighscoreState(&ctx);
 	MainMenuState* mainMenuState = new MainMenuState(&ctx);
 	MainState* mainState = new MainState(&ctx, backgroundState);
+	ParticlesTestState* particlesTestState = new ParticlesTestState(&ctx);
 	// just add all of them in the right order
 	stateMachine->add(backgroundState);
+	stateMachine->add(particlesTestState);
 	stateMachine->add(mainState);
 	stateMachine->add(prepareState);
 	stateMachine->add(mainMenuState);
 	stateMachine->add(gameOverState);
 	stateMachine->add(highscoreState);
 	// and activate the main menu state
-	stateMachine->activate("GameOverState");
+	stateMachine->activate("ParticlesTestState");
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;
@@ -154,6 +208,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		ds::end();
 	}	
 	highscore::save("scores.scr", &ctx);
+	delete ctx.particleManager;
 	delete mainState;
 	delete mainMenuState;
 	delete highscoreState;
