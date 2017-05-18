@@ -238,13 +238,16 @@ int ParticlesTestState::tick(float dt, EventStream* stream) {
 			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(500, 384), _ctx->bulletExplosionSettings);
 		}
 		if (_flags[2] == 1) {
+			_ctx->particleManager->emitt(_ctx->wakeUpSystem, ds::vec2(512, 200), _ctx->wakeupSettings);
+		}
+		if (_flags[3] == 1) {
 			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(800, 384), _ctx->deathSettings);
 		}
 	}
 	_ctx->particleManager->tick(dt);
 
-	const char keys[] = { '1','2','3' };
-	for (int i = 0; i < 3; ++i) {
+	const char keys[] = { '1','2','3','4' };
+	for (int i = 0; i < 4; ++i) {
 		if (ds::isKeyPressed(keys[i])) {
 			if (_pressed[i] == 0) {
 				_flags[i] = (_flags[i] + 1) & 1;
@@ -260,9 +263,10 @@ int ParticlesTestState::tick(float dt, EventStream* stream) {
 }
 
 void ParticlesTestState::render(SpriteBatchBuffer* buffer) {
+	const char* NAMES[] = { "Explosion","Bullet-Explosion","WakeUp","Death-Explosion" };
 	buffer->flush();
 	_ctx->particleManager->render();
 	for (int i = 0; i < 4; ++i) {
-		ds::dbgPrint(0, 2 + i, "PS %d: %d", i, _flags[i]);
+		ds::dbgPrint(0, 2 + i, "%d - %s", _flags[i], NAMES[i]);
 	}
 }

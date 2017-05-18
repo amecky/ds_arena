@@ -1,56 +1,36 @@
 explosion {
-    max_particles : 1024
-	particle_dimension : 40, 40
-	scale : 0.2, 0.2
-	start_color : 250, 250, 250, 255
-	end_color : 248, 213, 131, 0
-	texture_rect : 200, 20, 40, 40	
-}
-player_trail {
-    max_particles : 512
-	particle_dimension : 40, 40
-	scale : 0.1, 0.1
-	growth : 3.0, 3.0
-	start_color : 246, 229,123, 255
-	end_color : 246, 229, 123, 0
-	texture_rect : 200, 20, 40, 40
-}
-wake_up {
-    max_particles : 512
-	particle_dimension : 40, 40
-	scale : 0.2, 0.2
-	growth : 4.0, 4.0
-	start_color : 255, 244,220, 255
-	end_color : 255, 244,220, 0
-	texture_rect : 40, 160, 40, 40	
-}
-explosion_settings {
-	count : 128
+	count : 256
 	angle_variance : 0.1
-	radius : 20
-	radius_variance : 10.0
+	radius : 5
+	radius_variance : 3
 	ttl : 0.6, 0.9
 	velocity : 0,0
 	velocity_variance : 100.0, 240.0
-	size : 1,1
-	size_variance : 0.5, 2.0
+	size : 0.2,0.1
+	size_variance : 0.05,0.05
 	growth : 0.1,0.1
-	acceleration : -0.5,-0.3
+	acceleration : -0.6,-0.6
+	texture_rect : 200, 20, 40, 40
+	color : 248, 213, 131, 0
+	decay : 0.9
 }
-bullet_explosion_settings {
+bullet_explosion {
 	count : 16
 	angle_variance : 0.1
 	radius : 2
 	radius_variance : 0
-	ttl : 0.6, 0.9
+	ttl : 0.4, 0.6
 	velocity : 0,0
 	velocity_variance : 100.0, 240.0
 	size : 0.5,0.1
 	size_variance : 0,0
-	acceleration : 0,0
+	acceleration : -0.5,-0.5
 	growth : 0.5,0
+	texture_rect : 200, 20, 40, 40
+	color : 42, 202, 236, 255
+	decay : 0.9
 }
-player_trail_settings {
+player_trail {
 	count : 8
 	angle_variance : 0.1
 	radius : 10
@@ -58,25 +38,31 @@ player_trail_settings {
 	ttl : 0.9, 1.5
 	velocity : 0,0
 	velocity_variance : 0,0
-	size : 1,1
+	size : 0.2,0.2
 	size_variance : 0.5, 2.0
-	growth : 0.1,0.1
+	growth : -0.1,-0.1
 	acceleration : 0.0,0.0
+	texture_rect : 200, 20, 40, 40
+	color : 248, 213, 131, 0
+	decay : 0.9
 }
-wake_up_settings {
+wake_up {
 	count : 4
 	angle_variance : 0.9
-	radius : 30
-	radius_variance : 20.0
-	ttl : 0.9, 1.5
+	radius : 2
+	radius_variance : 1.0
+	ttl : 0.4, 0.7
 	velocity : 0,0
 	velocity_variance : 10,30
-	size : 1,1
-	size_variance : 0.5, 0.8
-	growth : 0.1,0.1
+	size : 0.5,0.5
+	size_variance : 0,0
+	growth : 0.4,0.4
 	acceleration : 0.0,0.0
+	texture_rect : 40, 160, 40, 40
+	color : 248, 213, 131, 255
+	decay : 0.9
 }
-death_settings {
+death {
 	count : 256
 	angle_variance : 0.1
 	radius : 20
@@ -88,4 +74,7 @@ death_settings {
 	size_variance : 0.5, 2.0
 	growth : 0.1,0.1
 	acceleration : -0.5,-0.3
+	texture_rect : 200, 20, 40, 40
+	color : 248, 213, 131, 0
+	decay : 0.9
 }

@@ -85,20 +85,13 @@ ParticleManager::~ParticleManager() {
 	delete[] _vertices;
 }
 
-uint32_t ParticleManager::add(ParticlesystemDescriptor* descriptor) {
+uint32_t ParticleManager::add(const ParticlesystemDescriptor& descriptor) {
 	Particlesystem* ps = new Particlesystem;
-	ps->descriptor = descriptor;
-	ps->array.initialize(descriptor->maxParticles);
+	ps->textureID = descriptor.textureID;
+	ps->maxParticles = descriptor.maxParticles;
+	ps->array.initialize(descriptor.maxParticles);
 	_particleSystems.push_back(ps);
 	return _particleSystems.size() - 1;
-}
-
-void ParticleManager::prepareBuffer(const ParticlesystemDescriptor& descriptor) {
-	_constantBuffer.startColor = descriptor.startColor;
-	_constantBuffer.endColor = descriptor.endColor;
-	_constantBuffer.texture = descriptor.textureRect;
-	_constantBuffer.dimension = descriptor.particleDimension;
-	_constantBuffer.dummy = ds::vec2(0.0f);
 }
 
 void ParticleManager::tick(float dt) {
@@ -120,8 +113,6 @@ void ParticleManager::render() {
 	ds::matrix w = ds::matIdentity();
 	_constantBuffer.wvp = ds::matTranspose(_viewprojectionMatrix);
 	for (size_t p = 0; p < _particleSystems.size(); ++p) {
-		ParticlesystemDescriptor* desc = _particleSystems[p]->descriptor;
-		prepareBuffer(*desc);
 		const ParticleArray& array = _particleSystems[p]->array;
 		for (int i = 0; i < array.countAlive; ++i) {
 			_vertices[i] = { 
@@ -131,7 +122,10 @@ void ParticleManager::render() {
 				array.accelerations[i], 
 				ds::vec2(array.timers[i].x,array.timers[i].z),
 				array.scales[i],
-				array.growth[i]
+				array.growth[i],
+				array.colors[i],
+				array.decays[i],
+				array.texRects[i]
 			};
 		}
 		ds::mapBufferData(_structuredBufferId, _vertices, array.countAlive * sizeof(GPUParticle));
@@ -170,6 +164,9 @@ void ParticleManager::emitt(uint32_t id, const ds::vec2& pos, const EmitterSetti
 			array.accelerations[start].x = array.velocities[start].x * emitter.acceleration.x;
 			array.accelerations[start].y = array.velocities[start].y * emitter.acceleration.y;
 			array.positions[start] = ds::vec2(x,y);
+			array.colors[start] = emitter.color;
+			array.decays[start] = emitter.decay;
+			array.texRects[start] = emitter.texRect;
 			array.wake(start);
 			++start;
 		}

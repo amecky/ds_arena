@@ -33,20 +33,11 @@ void loadSettings(const SJSONReader& reader, const char* catName, EmitterSetting
 	reader.get("size_variance", &settings->sizeVariance, catName);
 	reader.get("growth", &settings->growth, catName);
 	reader.get("acceleration", &settings->acceleration, catName);
+	reader.get("decay", &settings->decay, catName);
+	reader.get("color", &settings->color, catName);
+	reader.get("texture_rect", &settings->texRect, catName);
 }
 
-void loadDescriptor(const SJSONReader& reader, const char* catName, ParticlesystemDescriptor* descriptor) {
-	reader.get("max_particles", &descriptor->maxParticles, catName);
-	reader.get("particle_dimension", &descriptor->particleDimension, catName);
-	reader.get("scale", &descriptor->scale, catName);
-	reader.get("start_color", &descriptor->startColor, catName);
-	reader.get("end_color", &descriptor->endColor, catName);
-	ds::vec4 r;
-	reader.get("texture_rect", &r, catName);
-	r.z += r.x;
-	r.w += r.y;
-	descriptor->textureRect = r / 1024.0f;
-}
 // ---------------------------------------------------------------
 // main method
 // ---------------------------------------------------------------
@@ -69,10 +60,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	SpriteBatchBufferInfo sbbInfo = { 2048, textureID };
 	SpriteBatchBuffer spriteBuffer(sbbInfo);
 
-	ParticlesystemDescriptor enemyExplosionDescriptor;
-	ParticlesystemDescriptor playerTrailDescriptor;
-	ParticlesystemDescriptor wakeUpDescriptor;
-	
+	ParticlesystemDescriptor descriptor = { 4096, textureID };
 
 	GameContext ctx;
 	highscore::load("scores.scr", &ctx);
@@ -83,20 +71,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	SJSONReader psReader;
 	psReader.parse("content\\particlesystems.json");
 
-	loadDescriptor(psReader, "explosion", &enemyExplosionDescriptor);
-	ctx.enemyExplosion = ctx.particleManager->add(&enemyExplosionDescriptor);
+	ctx.enemyExplosion = ctx.particleManager->add(descriptor);
+	ctx.playerTrail = ctx.particleManager->add(descriptor);
+	ctx.wakeUpSystem = ctx.particleManager->add(descriptor);
 
-	loadDescriptor(psReader, "payler_trail", &playerTrailDescriptor);
-	ctx.playerTrail = ctx.particleManager->add(&playerTrailDescriptor);
-
-	loadDescriptor(psReader, "wake_up", &wakeUpDescriptor);
-	ctx.wakeUpSystem = ctx.particleManager->add(&wakeUpDescriptor);
-
-	loadSettings(psReader, "explosion_settings", &ctx.explosionSettings);
-	loadSettings(psReader, "bullet_explosion_settings", &ctx.bulletExplosionSettings);
-	loadSettings(psReader, "player_trail_settings", &ctx.playerTrailSettings);
-	loadSettings(psReader, "wake_up_settings", &ctx.wakeupSettings);
-	loadSettings(psReader, "death_settings", &ctx.deathSettings);
+	loadSettings(psReader, "explosion", &ctx.explosionSettings);
+	loadSettings(psReader, "bullet_explosion", &ctx.bulletExplosionSettings);
+	loadSettings(psReader, "player_trail", &ctx.playerTrailSettings);
+	loadSettings(psReader, "wake_up", &ctx.wakeupSettings);
+	loadSettings(psReader, "death", &ctx.deathSettings);
 
 	//
 	// read game settings from json

@@ -11,6 +11,9 @@ struct GPUParticle {
 	ds::vec2 timer;
 	ds::vec2 scale;
 	ds::vec2 growth;
+	ds::Color color;
+	float decay;
+	ds::vec4 texRect;
 };
 
 // ---------------------------------------------------------------
@@ -18,11 +21,6 @@ struct GPUParticle {
 // ---------------------------------------------------------------
 struct ParticleConstantBuffer {
 	ds::vec4 screenCenter;
-	ds::Color startColor;
-	ds::Color endColor;
-	ds::vec4 texture;
-	ds::vec2 dimension;
-	ds::vec2 dummy;
 	ds::matrix wvp;
 };
 
@@ -38,6 +36,9 @@ struct ParticleArray {
 	ds::vec2* scales;
 	ds::vec2* growth;
 	ds::vec3* timers;
+	ds::Color* colors;
+	float* decays;
+	ds::vec4* texRects;
 	char* buffer;
 
 	uint32_t count;
@@ -52,7 +53,7 @@ struct ParticleArray {
 	}
 
 	void initialize(unsigned int maxParticles) {
-		int size = maxParticles * (sizeof(ds::vec2) + sizeof(ds::vec2) + sizeof(ds::vec2) + sizeof(float) + sizeof(ds::vec2) + sizeof(ds::vec2) + sizeof(ds::vec3));
+		int size = maxParticles * (sizeof(ds::vec2) + sizeof(ds::vec2) + sizeof(ds::vec2) + sizeof(float) + sizeof(ds::vec2) + sizeof(ds::vec2) + sizeof(ds::vec3) + sizeof(ds::Color) + sizeof(float) + sizeof(ds::vec4));
 		buffer = new char[size];
 		positions = (ds::vec2*)(buffer);
 		velocities = (ds::vec2*)(positions + maxParticles);
@@ -61,6 +62,9 @@ struct ParticleArray {
 		scales = (ds::vec2*)(rotations + maxParticles);
 		growth = (ds::vec2*)(scales + maxParticles);
 		timers = (ds::vec3*)(growth + maxParticles);
+		colors = (ds::Color*)(timers + maxParticles);
+		decays = (float*)(colors + maxParticles);
+		texRects = (ds::vec4*)(decays + maxParticles);
 		count = maxParticles;
 		countAlive = 0;
 	}
@@ -74,6 +78,9 @@ struct ParticleArray {
 			scales[a] = scales[b];
 			growth[a] = growth[b];
 			timers[a] = timers[b];
+			colors[a] = colors[b];
+			decays[a] = decays[b];
+			texRects[a] = texRects[b];
 		}
 	}
 
@@ -97,12 +104,7 @@ struct ParticleArray {
 // -------------------------------------------------------
 struct ParticlesystemDescriptor {
 	uint16_t maxParticles;
-	ds::vec2 particleDimension;
 	RID textureID;
-	ds::vec2 scale;
-	ds::Color startColor;
-	ds::Color endColor;
-	ds::vec4 textureRect;
 };
 
 // -------------------------------------------------------
@@ -120,13 +122,17 @@ struct EmitterSettings {
 	ds::vec2 sizeVariance;
 	ds::vec2 growth;
 	ds::vec2 acceleration;
+	ds::Color color;
+	float decay;
+	ds::vec4 texRect;
 };
 
 // -------------------------------------------------------
 // Particlesystem
 // -------------------------------------------------------
 struct Particlesystem {
-	ParticlesystemDescriptor* descriptor;
+	int maxParticles;
+	RID textureID;
 	ParticleArray array;
 };
 
@@ -138,7 +144,7 @@ class ParticleManager {
 public:
 	ParticleManager(int maxParticles, RID textureID);
 	~ParticleManager();
-	uint32_t add(ParticlesystemDescriptor* descriptor);
+	uint32_t add(const ParticlesystemDescriptor& descriptor);
 	void emitt(uint32_t id, const ds::vec2& pos, const EmitterSettings& emitter);
 	void tick(float dt);
 	void render();
@@ -146,7 +152,6 @@ public:
 		return _particleSystems[id]->array.countAlive;
 	}
 private:
-	void prepareBuffer(const ParticlesystemDescriptor& descriptor);
 	ParticleConstantBuffer _constantBuffer;
 	std::vector<Particlesystem*> _particleSystems;
 	GPUParticle* _vertices;
