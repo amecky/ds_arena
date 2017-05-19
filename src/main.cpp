@@ -80,6 +80,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	loadSettings(psReader, "player_trail", &ctx.playerTrailSettings);
 	loadSettings(psReader, "wake_up", &ctx.wakeupSettings);
 	loadSettings(psReader, "death", &ctx.deathSettings);
+	loadSettings(psReader, "light_streaks", &ctx.lightStreaksSettings);
 
 	//
 	// read game settings from json
@@ -112,7 +113,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	stateMachine->add(gameOverState);
 	stateMachine->add(highscoreState);
 	// and activate the main menu state
-	stateMachine->activate("ParticlesTestState");
+	stateMachine->activate("PrepareState");
+	stateMachine->activate("MainState");
+	//stateMachine->activate("ParticlesTestState");
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;

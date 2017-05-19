@@ -28,6 +28,7 @@ struct GameContext {
 	int wakeUpSystem;
 	EmitterSettings explosionSettings;
 	EmitterSettings deathSettings;
+	EmitterSettings lightStreaksSettings;
 	EmitterSettings bulletExplosionSettings;
 	EmitterSettings playerTrailSettings;
 	EmitterSettings wakeupSettings;

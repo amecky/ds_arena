@@ -233,6 +233,7 @@ int ParticlesTestState::tick(float dt, EventStream* stream) {
 		_timer = 0.0f;
 		if (_flags[0] == 1) {
 			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(200, 384), _ctx->explosionSettings);
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(200, 384), _ctx->lightStreaksSettings);
 		}
 		if (_flags[1] == 1) {
 			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(500, 384), _ctx->bulletExplosionSettings);

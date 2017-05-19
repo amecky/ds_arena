@@ -138,6 +138,7 @@ int MainState::tick(float dt, EventStream* stream) {
 			if (_enemies.numObjects > 0) {
 				const Enemy& e = _enemies.first();
 				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->explosionSettings);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->lightStreaksSettings);
 				_enemies.remove(e.id);
 			}
 		}
@@ -290,6 +291,7 @@ bool MainState::handlePlayerCollision(EventStream* stream) {
 		if (eit->state == ES_MOVING) {
 			if (math::checkCircleIntersection(_player.pos, 20.0f, eit->pos, 20.0f, &dist, &pnv)) {
 				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->explosionSettings);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->lightStreaksSettings);
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
 				if (_player.energy <= 0) {
@@ -331,6 +333,7 @@ void MainState::handleCollisions() {
 					--eit->energy;
 					if (eit->energy <= 0) {
 						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->explosionSettings);
+						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->lightStreaksSettings);
 						eit = _enemies.remove(eit->id);
 						_ctx->score += 50;
 					}
