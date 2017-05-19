@@ -4,6 +4,8 @@
 #include <examples\common\stb_image.h>
 #define SPRITE_IMPLEMENTATION
 #include "utils\SpriteBatchBuffer.h"
+#define DS_STATEMACHINE_IMPLEMENTATION
+#include <StateMachine.h>
 #include "states\GameState.h"
 #include "states\MainState.h"
 #include "utils\GameContext.h"
@@ -96,7 +98,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	//
 	// create the state machine and add all the game states
 	//
-	StateMachine* stateMachine = new StateMachine(&spriteBuffer);
+	ArenaStateMachine* stateMachine = new ArenaStateMachine(&spriteBuffer);
 	PrepareState* prepareState = new PrepareState(&ctx);
 	BackgroundState* backgroundState = new BackgroundState(&ctx);
 	GameOverState* gameOverState = new GameOverState(&ctx);

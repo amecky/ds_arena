@@ -21,7 +21,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\lib\BlockArray.cpp" />
-    <ClCompile Include="src\lib\EventStream.cpp" />
     <ClCompile Include="src\lib\HexGrid.cpp" />
     <ClCompile Include="src\lib\math.cpp" />
     <ClCompile Include="src\lib\tweening.cpp" />
@@ -29,7 +28,7 @@
     <ClCompile Include="src\particles\Particlesystem.cpp" />
     <ClCompile Include="src\states\GameState.cpp" />
     <ClCompile Include="src\states\MainState.cpp" />
-    <ClCompile Include="src\states\StateMachine.cpp" />
+    <ClCompile Include="src\states\ArenaStateMachine.cpp" />
     <ClCompile Include="src\utils\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
@@ -39,7 +38,6 @@
     <ClInclude Include="src\lib\BlockArray.h" />
     <ClInclude Include="src\lib\DataArray.h" />
     <ClInclude Include="src\lib\DynamicArray.h" />
-    <ClInclude Include="src\lib\EventStream.h" />
     <ClInclude Include="src\lib\FloatArray.h" />
     <ClInclude Include="src\lib\HexGrid.h" />
     <ClInclude Include="src\lib\math.h" />
@@ -47,7 +45,7 @@
     <ClInclude Include="src\particles\Particlesystem.h" />
     <ClInclude Include="src\states\GameState.h" />
     <ClInclude Include="src\states\MainState.h" />
-    <ClInclude Include="src\states\StateMachine.h" />
+    <ClInclude Include="src\states\ArenaStateMachine.h" />
     <ClInclude Include="src\utils\ElasticBorder.h" />
     <ClInclude Include="src\utils\GameContext.h" />
     <ClInclude Include="src\utils\highscores.h" />
@@ -133,10 +131,10 @@
     <ReferencePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\devtools\DirectX_SDK\Lib\x86;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath);..\diesel</IncludePath>
+    <IncludePath>$(IncludePath);..\diesel;..\ds_gamestate</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>$(IncludePath);..\diesel</IncludePath>
+    <IncludePath>$(IncludePath);..\diesel;..\ds_gamestate</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

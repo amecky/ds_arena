@@ -88,7 +88,7 @@ void spawnBottomLine(SpawnItem* items, int count, int type) {
 // ---------------------------------------------------------------
 // MainState
 // ---------------------------------------------------------------
-MainState::MainState(GameContext* ctx, BackgroundState* backgroundState) : GameState(ctx, "MainState"), _backgroundState(backgroundState) {
+MainState::MainState(GameContext* ctx, BackgroundState* backgroundState) : ArenaGameState(ctx, "MainState"), _backgroundState(backgroundState) {
 	_player.pos = ds::vec2(512, 384);
 	_player.previous = _player.pos;
 	_player.angle = 0.0f;

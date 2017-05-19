@@ -10,9 +10,6 @@
     <ClCompile Include="src\utils\hud.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="src\states\StateMachine.cpp">
-      <Filter>states</Filter>
-    </ClCompile>
     <ClCompile Include="src\lib\math.cpp">
       <Filter>lib</Filter>
     </ClCompile>
@@ -32,14 +29,14 @@
     <ClCompile Include="src\lib\BlockArray.cpp">
       <Filter>lib</Filter>
     </ClCompile>
-    <ClCompile Include="src\lib\EventStream.cpp">
-      <Filter>lib</Filter>
-    </ClCompile>
     <ClCompile Include="src\states\MainState.cpp">
       <Filter>states</Filter>
     </ClCompile>
     <ClCompile Include="src\utils\highscores.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\states\ArenaStateMachine.cpp">
+      <Filter>states</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -51,9 +48,6 @@
     </ClInclude>
     <ClInclude Include="src\utils\hud.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="src\states\StateMachine.h">
-      <Filter>states</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\Stack.h">
       <Filter>lib</Filter>
@@ -85,9 +79,6 @@
     <ClInclude Include="src\lib\BlockArray.h">
       <Filter>lib</Filter>
     </ClInclude>
-    <ClInclude Include="src\lib\EventStream.h">
-      <Filter>lib</Filter>
-    </ClInclude>
     <ClInclude Include="src\states\MainState.h">
       <Filter>states</Filter>
     </ClInclude>
@@ -96,6 +87,9 @@
     </ClInclude>
     <ClInclude Include="src\utils\highscores.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\states\ArenaStateMachine.h">
+      <Filter>states</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

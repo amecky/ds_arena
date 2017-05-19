@@ -159,7 +159,7 @@ void MainMenuState::render(SpriteBatchBuffer* buffer) {
 // ---------------------------------------------------------------
 // Background state
 // ---------------------------------------------------------------
-BackgroundState::BackgroundState(GameContext* ctx) : GameState(ctx, "BackgroundState") {
+BackgroundState::BackgroundState(GameContext* ctx) : ArenaGameState(ctx, "BackgroundState") {
 	_width = 26;
 	_height = 18;
 	_grid.resize(_width, _height);
