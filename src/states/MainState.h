@@ -62,7 +62,7 @@ struct Enemy {
 // ---------------------------------------------------------------
 // MainState
 // ---------------------------------------------------------------
-class MainState : public GameState {
+class MainState : public ArenaGameState {
 
 public:
 	MainState(GameContext* ctx, BackgroundState* backgroundState);

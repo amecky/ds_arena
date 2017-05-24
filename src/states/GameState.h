@@ -1,5 +1,5 @@
 #pragma once
-#include "StateMachine.h"
+#include "ArenaStateMachine.h"
 #include "..\lib\HexGrid.h"
 #include "..\utils\ElasticBorder.h"
 #include "..\utils\GameContext.h"
@@ -20,10 +20,10 @@ enum EventTypes {
 // ---------------------------------------------------------------
 // PrepareState
 // ---------------------------------------------------------------
-class PrepareState : public GameState {
+class PrepareState : public ArenaGameState {
 
 public:
-	PrepareState(GameContext* ctx) : GameState(ctx, "PrepareState") {
+	PrepareState(GameContext* ctx) : ArenaGameState(ctx, "PrepareState") {
 		_scalePath.add(0.0f, 0.2f);
 		_scalePath.add(0.2f, 1.2f);
 		_scalePath.add(0.4f, 0.8f);
@@ -43,10 +43,10 @@ private:
 // ---------------------------------------------------------------
 // GameOverState
 // ---------------------------------------------------------------
-class GameOverState : public GameState {
+class GameOverState : public ArenaGameState {
 
 public:
-	GameOverState(GameContext* ctx) : GameState(ctx, "GameOverState") {}
+	GameOverState(GameContext* ctx) : ArenaGameState(ctx, "GameOverState") {}
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
 	void activate();
@@ -60,10 +60,10 @@ private:
 // ---------------------------------------------------------------
 // HighscoreState
 // ---------------------------------------------------------------
-class HighscoreState : public GameState {
+class HighscoreState : public ArenaGameState {
 
 public:
-	HighscoreState(GameContext* ctx) : GameState(ctx, "HighscoreState") {}
+	HighscoreState(GameContext* ctx) : ArenaGameState(ctx, "HighscoreState") {}
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
 	void activate() {
@@ -81,10 +81,10 @@ private:
 // ---------------------------------------------------------------
 // MainMenuState
 // ---------------------------------------------------------------
-class MainMenuState : public GameState {
+class MainMenuState : public ArenaGameState {
 
 public:
-	MainMenuState(GameContext* ctx) : GameState(ctx, "MainMenuState") {}
+	MainMenuState(GameContext* ctx) : ArenaGameState(ctx, "MainMenuState") {}
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
 	void activate() {
@@ -99,7 +99,7 @@ public:
 // ---------------------------------------------------------------
 class HexGrid;
 
-class BackgroundState : public GameState {
+class BackgroundState : public ArenaGameState {
 
 public:
 	BackgroundState(GameContext* ctx, const ElasticBorderSettings& borderSettings);
@@ -131,10 +131,10 @@ private:
 // ---------------------------------------------------------------
 // MainMenuState
 // ---------------------------------------------------------------
-class ParticlesTestState : public GameState {
+class ParticlesTestState : public ArenaGameState {
 
 public:
-	ParticlesTestState(GameContext* ctx) : GameState(ctx, "ParticlesTestState") {}
+	ParticlesTestState(GameContext* ctx) : ArenaGameState(ctx, "ParticlesTestState") {}
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
 	void activate() {
