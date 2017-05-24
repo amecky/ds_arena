@@ -158,7 +158,7 @@ void MainMenuState::render(SpriteBatchBuffer* buffer) {
 // ---------------------------------------------------------------
 // Background state
 // ---------------------------------------------------------------
-BackgroundState::BackgroundState(GameContext* ctx, const ElasticBorderSettings& borderSettings) : GameState(ctx, "BackgroundState") , _borderSettings(borderSettings) {
+BackgroundState::BackgroundState(GameContext* ctx, const ElasticBorderSettings& borderSettings) : ArenaGameState(ctx, "BackgroundState") , _borderSettings(borderSettings) {
 	_width = 26;
 	_height = 18;
 	_grid.resize(_width, _height);
