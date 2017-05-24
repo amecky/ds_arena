@@ -1,8 +1,7 @@
 #include "GameState.h"
-#include "..\utils\json.h"
 #include "..\utils\hud.h"
 #include "..\utils\highscores.h"
-
+#include <ds_tweakable.h>
 // -------------------------------------------------------
 // check if mouse cursor is inside box
 // -------------------------------------------------------
@@ -159,24 +158,13 @@ void MainMenuState::render(SpriteBatchBuffer* buffer) {
 // ---------------------------------------------------------------
 // Background state
 // ---------------------------------------------------------------
-BackgroundState::BackgroundState(GameContext* ctx) : GameState(ctx, "BackgroundState") {
+BackgroundState::BackgroundState(GameContext* ctx, const ElasticBorderSettings& borderSettings) : GameState(ctx, "BackgroundState") , _borderSettings(borderSettings) {
 	_width = 26;
 	_height = 18;
 	_grid.resize(_width, _height);
 	_grid.setBaseColor(ctx->settings.gridBaseColor);
-	SJSONReader settingsReader;
-	settingsReader.parse("content\\settings.json");
-	settingsReader.get("Tension", &_borderSettings.Tension, "border_settings");
-	settingsReader.get("Dampening", &_borderSettings.Dampening, "border_settings");
-	settingsReader.get("Spread", &_borderSettings.Spread, "border_settings");
-	settingsReader.get("numX", &_borderSettings.numX, "border_settings");
-	settingsReader.get("numY", &_borderSettings.numY, "border_settings");
-	settingsReader.get("thickness", &_borderSettings.thickness, "border_settings");
-	settingsReader.get("verticalTexture", &_borderSettings.verticalTexture, "border_settings");
-	settingsReader.get("horizontalTexture", &_borderSettings.horizontalTexture, "border_settings");
-	settingsReader.get("targetHeight", &_borderSettings.targetHeight, "border_settings");
-	settingsReader.get("splashForce", &_borderSettings.splashForce, "border_settings");
-	settingsReader.get("length", &_borderSettings.length, "border_settings");
+	
+	
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
 	_borderSettings.textureID = textureID;
 	_borders = new ElasticBorder(&_borderSettings);

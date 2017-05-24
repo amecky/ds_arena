@@ -4,9 +4,6 @@
     <ClCompile Include="src\particles\Particlesystem.cpp">
       <Filter>particles</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\json.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils\hud.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -45,9 +42,6 @@
   <ItemGroup>
     <ClInclude Include="src\particles\Particlesystem.h">
       <Filter>particles</Filter>
-    </ClInclude>
-    <ClInclude Include="src\utils\json.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="src\utils\hud.h">
       <Filter>utils</Filter>

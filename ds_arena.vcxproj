@@ -33,7 +33,6 @@
     <ClCompile Include="src\utils\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
-    <ClCompile Include="src\utils\json.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\lib\BlockArray.h" />
@@ -52,7 +51,6 @@
     <ClInclude Include="src\utils\GameContext.h" />
     <ClInclude Include="src\utils\highscores.h" />
     <ClInclude Include="src\utils\hud.h" />
-    <ClInclude Include="src\utils\json.h" />
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>
@@ -133,7 +131,7 @@
     <ReferencePath Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\devtools\DirectX_SDK\Lib\x86;$(ReferencePath)</ReferencePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>$(IncludePath);..\diesel</IncludePath>
+    <IncludePath>$(IncludePath);..\diesel;ext</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>$(IncludePath);..\diesel</IncludePath>

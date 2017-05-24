@@ -102,7 +102,7 @@ class HexGrid;
 class BackgroundState : public GameState {
 
 public:
-	BackgroundState(GameContext* ctx);
+	BackgroundState(GameContext* ctx, const ElasticBorderSettings& borderSettings);
 	~BackgroundState();
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
@@ -122,8 +122,8 @@ public:
 	bool borderCollision(const ds::vec2& p, float radius);
 private:
 	HexGrid _grid;
-	int _height;
-	int _width;
+	uint32_t _height;
+	uint32_t _width;
 	ElasticBorderSettings _borderSettings;
 	ElasticBorder* _borders;
 };

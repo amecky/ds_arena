@@ -34,8 +34,8 @@ struct ElasticBorderSettings {
 	float Tension;
 	float Dampening;
 	float Spread;
-	int numX;
-	int numY;
+	uint32_t numX;
+	uint32_t numY;
 	float thickness;
 	ds::vec4 verticalTexture;
 	ds::vec4 horizontalTexture;

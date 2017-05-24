@@ -8,7 +8,8 @@
 #include "states\MainState.h"
 #include "utils\GameContext.h"
 #include "utils\highscores.h"
-#include "utils\json.h"
+#define GAMESETTINGS_IMPLEMENTATION
+#include <ds_tweakable.h>
 // ---------------------------------------------------------------
 // load image using stb_image
 // ---------------------------------------------------------------
@@ -21,21 +22,21 @@ RID loadImage(const char* name) {
 	return textureID;
 }
 
-void loadSettings(const SJSONReader& reader, const char* catName, EmitterSettings* settings) {
-	reader.get("count", &settings->count, catName);
-	reader.get("angle_variance", &settings->angleVariance, catName);
-	reader.get("radius", &settings->radius, catName);
-	reader.get("radius_variance", &settings->radiusVariance, catName);
-	reader.get("ttl", &settings->ttl, catName);
-	reader.get("velocity", &settings->velocity, catName);
-	reader.get("velocity_variance", &settings->velocityVariance, catName);
-	reader.get("size", &settings->size, catName);
-	reader.get("size_variance", &settings->sizeVariance, catName);
-	reader.get("growth", &settings->growth, catName);
-	reader.get("acceleration", &settings->acceleration, catName);
-	reader.get("decay", &settings->decay, catName);
-	reader.get("color", &settings->color, catName);
-	reader.get("texture_rect", &settings->texRect, catName);
+void addSettings(const char* catName, EmitterSettings* settings) {
+	twk_add(catName,"count", &settings->count);
+	twk_add(catName, "angle_variance", &settings->angleVariance);
+	twk_add(catName, "radius", &settings->radius);
+	twk_add(catName, "radius_variance", &settings->radiusVariance);
+	twk_add(catName, "ttl", &settings->ttl);
+	twk_add(catName, "velocity", &settings->velocity);
+	twk_add(catName, "velocity_variance", &settings->velocityVariance);
+	twk_add(catName, "size", &settings->size);
+	twk_add(catName, "size_variance", &settings->sizeVariance);
+	twk_add(catName, "growth", &settings->growth);
+	twk_add(catName, "acceleration", &settings->acceleration);
+	twk_add(catName, "decay", &settings->decay);
+	twk_add(catName, "color", &settings->color);
+	twk_add(catName, "texture_rect", &settings->texRect);
 }
 
 // ---------------------------------------------------------------
@@ -68,37 +69,48 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	ctx.particleManager = new ParticleManager(4096, textureID);
 
-	SJSONReader psReader;
-	psReader.parse("content\\particlesystems.json");
+
+	twk_init("content\\settings.json");
+
 
 	ctx.enemyExplosion = ctx.particleManager->add(descriptor);
 	ctx.playerTrail = ctx.particleManager->add(descriptor);
 	ctx.wakeUpSystem = ctx.particleManager->add(descriptor);
 
-	loadSettings(psReader, "explosion", &ctx.explosionSettings);
-	loadSettings(psReader, "bullet_explosion", &ctx.bulletExplosionSettings);
-	loadSettings(psReader, "player_trail", &ctx.playerTrailSettings);
-	loadSettings(psReader, "wake_up", &ctx.wakeupSettings);
-	loadSettings(psReader, "death", &ctx.deathSettings);
-	loadSettings(psReader, "light_streaks", &ctx.lightStreaksSettings);
+	addSettings("explosion", &ctx.explosionSettings);
+	addSettings("bullet_explosion", &ctx.bulletExplosionSettings);
+	addSettings("player_trail", &ctx.playerTrailSettings);
+	addSettings("wake_up", &ctx.wakeupSettings);
+	addSettings("death", &ctx.deathSettings);
+	addSettings("light_streaks", &ctx.lightStreaksSettings);
 
-	//
-	// read game settings from json
-	//
-	SJSONReader settingsReader;
-	settingsReader.parse("content\\settings.json");
-	settingsReader.get("max_spawn_enemies", &ctx.settings.maxSpawnEnemies, "settings");
-	settingsReader.get("player_highlight", &ctx.settings.playerHightlightColor, "settings");
-	settingsReader.get("wake_up_hightlight", &ctx.settings.wakeUpHightlightColor, "settings");
-	settingsReader.get("grid_base_color", &ctx.settings.gridBaseColor, "settings");
-	settingsReader.get("prepare_ttl", &ctx.settings.prepareTTL, "settings");
-	settingsReader.get("prepare_flashing_ttl", &ctx.settings.prepareFlashingTTL, "settings");
+	twk_add("settings","max_spawn_enemies", &ctx.settings.maxSpawnEnemies);
+	twk_add("settings", "player_highlight", &ctx.settings.playerHightlightColor);
+	twk_add("settings", "wake_up_hightlight", &ctx.settings.wakeUpHightlightColor);
+	twk_add("settings", "grid_base_color", &ctx.settings.gridBaseColor);
+	twk_add("settings", "prepare_ttl", &ctx.settings.prepareTTL);
+	twk_add("settings", "prepare_flashing_ttl", &ctx.settings.prepareFlashingTTL);
+
+	ElasticBorderSettings borderSettings;
+	twk_add("border_settings", "Tension", &borderSettings.Tension);
+	twk_add("border_settings", "Dampening", &borderSettings.Dampening);
+	twk_add("border_settings", "Spread", &borderSettings.Spread);
+	twk_add("border_settings", "numX", &borderSettings.numX);
+	twk_add("border_settings", "numY", &borderSettings.numY);
+	twk_add("border_settings", "thickness", &borderSettings.thickness);
+	twk_add("border_settings", "verticalTexture", &borderSettings.verticalTexture);
+	twk_add("border_settings", "horizontalTexture", &borderSettings.horizontalTexture);
+	twk_add("border_settings", "targetHeight", &borderSettings.targetHeight);
+	twk_add("border_settings", "splashForce", &borderSettings.splashForce);
+	twk_add("border_settings", "length", &borderSettings.length);
+
+	twk_load();
 	//
 	// create the state machine and add all the game states
 	//
 	StateMachine* stateMachine = new StateMachine(&spriteBuffer);
 	PrepareState* prepareState = new PrepareState(&ctx);
-	BackgroundState* backgroundState = new BackgroundState(&ctx);
+	BackgroundState* backgroundState = new BackgroundState(&ctx, borderSettings);
 	GameOverState* gameOverState = new GameOverState(&ctx);
 	HighscoreState* highscoreState = new HighscoreState(&ctx);
 	MainMenuState* mainMenuState = new MainMenuState(&ctx);
@@ -119,6 +131,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;
+
+	
 
 	while (ds::isRunning() && rendering) {
 

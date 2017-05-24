@@ -7,7 +7,7 @@
 // ---------------------------------------------------------------
 struct GameSettings {
 
-	int maxSpawnEnemies;
+	uint32_t maxSpawnEnemies;
 	ds::Color playerHightlightColor;
 	ds::Color wakeUpHightlightColor;
 	ds::Color gridBaseColor;
