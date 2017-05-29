@@ -41,6 +41,11 @@ void addSettings(const char* catName, EmitterSettings* settings) {
 	twk_add(catName, "texture_rect", &settings->texRect);
 }
 
+
+void printErrors(const char* message) {
+	OutputDebugString(message);
+	OutputDebugString("\n");
+}
 // ---------------------------------------------------------------
 // main method
 // ---------------------------------------------------------------
@@ -72,7 +77,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	ctx.particleManager = new ParticleManager(4096, textureID);
 
 
-	twk_init("content\\settings.json");
+	twk_init("content\\settings.json",&printErrors);
 
 
 	ctx.enemyExplosion = ctx.particleManager->add(descriptor);
@@ -127,9 +132,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	stateMachine->add(gameOverState);
 	stateMachine->add(highscoreState);
 	// and activate the main menu state
-	stateMachine->activate("PrepareState");
-	stateMachine->activate("MainState");
-	//stateMachine->activate("ParticlesTestState");
+	//stateMachine->activate("PrepareState");
+	//stateMachine->activate("MainState");
+	stateMachine->activate("ParticlesTestState");
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;
@@ -139,6 +144,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	while (ds::isRunning() && rendering) {
 
 		ds::begin();
+
+		if (twk_load()) {
+			printErrors("File reloaded");
+		}
 
 		if (ds::isKeyPressed('U') ) {
 			if (!pressed) {
@@ -154,11 +163,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 			stateMachine->tick(static_cast<float>(ds::getElapsedSeconds()));
 		}
 		//
-		// handle all the events that might have occured in one frame
+		// handle all the events that might have occurred in one frame
 		//
 		uint32_t num = stateMachine->numEvents();
 		for (uint32_t i = 0; i < num; ++i) {
-			// the "get ready" message has elapsed so deacvivate the state
+			// the "get ready" message has elapsed so deactivate the state
 			if (stateMachine->getEventType(i) == ET_PREPARE_ELAPSED) {
 				stateMachine->deactivate("PrepareState");
 				mainState->startSpawning();

@@ -15,7 +15,7 @@ border_settings {
 	thickness : 20.0
 	verticalTexture : 0,0,0,0
 	horizontalTexture : 0,0,0,0
-	textureID : textureID
+	textureID : 0
 	targetHeight : 40.0
 	splashForce : 15.0
 	length : 20.0
@@ -53,7 +53,7 @@ light_streaks {
 	decay : 0.9
 }
 bullet_explosion {
-	count : 16
+	count : 10
 	angle_variance : 0.1
 	radius : 2
 	radius_variance : 0
