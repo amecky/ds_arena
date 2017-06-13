@@ -1,7 +1,7 @@
 #include <diesel.h>
 #include <StateMachine.h>
 #include "..\utils\GameContext.h"
-#include "..\utils\SpriteBatchBuffer.h"
+#include <SpriteBatchBuffer.h>
 // ---------------------------------------------------------------
 // GameState
 // ---------------------------------------------------------------

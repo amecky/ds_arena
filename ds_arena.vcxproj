@@ -32,8 +32,12 @@
     <ClCompile Include="src\utils\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
+    <ClCompile Include="src\utils\Sandbox.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ext\ds_imgui.h" />
+    <ClInclude Include="ext\ds_tweakable.h" />
+    <ClInclude Include="ext\SpriteBatchBuffer.h" />
     <ClInclude Include="src\lib\BlockArray.h" />
     <ClInclude Include="src\lib\DataArray.h" />
     <ClInclude Include="src\lib\DynamicArray.h" />
@@ -49,6 +53,7 @@
     <ClInclude Include="src\utils\GameContext.h" />
     <ClInclude Include="src\utils\highscores.h" />
     <ClInclude Include="src\utils\hud.h" />
+    <ClInclude Include="src\utils\Sandbox.h" />
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>

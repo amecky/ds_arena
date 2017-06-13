@@ -23,7 +23,7 @@ enum EventTypes {
 class PrepareState : public ArenaGameState {
 
 public:
-	PrepareState(GameContext* ctx) : ArenaGameState(ctx, "PrepareState") {
+	PrepareState(GameContext* ctx) : ArenaGameState(ctx, "PrepareState") , _prepareTimer(0.0f) {
 		_scalePath.add(0.0f, 0.2f);
 		_scalePath.add(0.2f, 1.2f);
 		_scalePath.add(0.4f, 0.8f);
@@ -134,25 +134,41 @@ private:
 class ParticlesTestState : public ArenaGameState {
 
 public:
-	ParticlesTestState(GameContext* ctx) : ArenaGameState(ctx, "ParticlesTestState") {}
+	ParticlesTestState(GameContext* ctx) : ArenaGameState(ctx, "ParticlesTestState"), _selectedSystem(-1), _selectedCategory(-1) {
+		for (int i = 0; i < 16; ++i) {
+			_flags[i] = false;
+		}
+		_dialogState = 1;
+	}
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
 	void activate() {
 		_active = true;
 		_timer = 100.0f;
-		_flags[0] = 0;
-		_flags[1] = 1;
-		_flags[2] = 0;
-		_flags[3] = 0;
-		for (int i = 0; i < 4; ++i) {
-			_pressed[i] = 0;
+		for (int i = 0; i < 16; ++i) {
+			_flags[i] = false;
 		}
+		_flags[3] = true;
+		_dropDownState = 1;
+		_selectedSystem = -1;
+		_dropDownOffset = 0;
+		_emitterState = 1;
+		_categoryOffset = 0;
+		_categoryState = 1;
+		_selectedCategory = -1;
 	}
 	void deactivate() {
 		_active = false;
 	}
 private:
+	int _dialogState;
+	int _dropDownState;
+	int _selectedSystem;
+	int _dropDownOffset;
+	int _emitterState;
+	int _categoryState;
+	int _categoryOffset;
+	int _selectedCategory;
 	float _timer;
-	int _flags[4];
-	int _pressed[4];
+	bool _flags[16];
 };

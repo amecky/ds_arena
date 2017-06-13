@@ -35,6 +35,9 @@
     <ClCompile Include="src\states\ArenaStateMachine.cpp">
       <Filter>states</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\Sandbox.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\particles\Particlesystem.h">
@@ -85,6 +88,18 @@
     <ClInclude Include="src\states\ArenaStateMachine.h">
       <Filter>states</Filter>
     </ClInclude>
+    <ClInclude Include="ext\ds_tweakable.h">
+      <Filter>ext</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\ds_imgui.h">
+      <Filter>ext</Filter>
+    </ClInclude>
+    <ClInclude Include="ext\SpriteBatchBuffer.h">
+      <Filter>ext</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\Sandbox.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="particles">
@@ -101,6 +116,9 @@
     </Filter>
     <Filter Include="lib">
       <UniqueIdentifier>{2c006d86-9641-4fdb-bb2a-c94ca41ae283}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ext">
+      <UniqueIdentifier>{98ea06fc-ccf3-46e4-9334-6b1c0c9ecd4b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -2,6 +2,8 @@
 #include "..\utils\hud.h"
 #include "..\utils\highscores.h"
 #include <ds_tweakable.h>
+#define DS_IMGUI_IMPLEMENTATION
+#include <ds_imgui.h>
 // -------------------------------------------------------
 // check if mouse cursor is inside box
 // -------------------------------------------------------
@@ -168,7 +170,7 @@ BackgroundState::BackgroundState(GameContext* ctx, const ElasticBorderSettings& 
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
 	_borderSettings.textureID = textureID;
 	_borders = new ElasticBorder(&_borderSettings);
-	_active = true;
+	//_active = true;
 }
 
 BackgroundState::~BackgroundState() {
@@ -191,9 +193,10 @@ bool BackgroundState::borderCollision(const ds::vec2& p, float radius) {
 
 void BackgroundState::render(SpriteBatchBuffer* buffer) {
 	// background
-	for (int r = 0; r < _height; r++) {
+	for (int r = 0; r < _height; ++r) {
 		int q_offset = r >> 1;
-		for (int q = -q_offset; q < _width - q_offset; q++) {
+		int delta = _width - q_offset;
+		for (int q = -q_offset; q < delta; ++q) {
 			Hex h = Hex(q, r);
 			if (_grid.isValid(h)) {
 				GridItem& current = _grid.get(h);
@@ -208,7 +211,7 @@ void BackgroundState::render(SpriteBatchBuffer* buffer) {
 	}
 	buffer->flush();
 	// elastic borders
-	_borders->render();
+	//_borders->render();
 }
 
 
@@ -219,43 +222,78 @@ int ParticlesTestState::tick(float dt, EventStream* stream) {
 	_timer += dt;
 	if (_timer >= 1.0f) {
 		_timer = 0.0f;
-		if (_flags[0] == 1) {
-			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(200, 384), _ctx->explosionSettings);
-			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(200, 384), _ctx->lightStreaksSettings);
-		}
-		if (_flags[1] == 1) {
-			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(500, 384), _ctx->bulletExplosionSettings);
-		}
-		if (_flags[2] == 1) {
-			_ctx->particleManager->emitt(_ctx->wakeUpSystem, ds::vec2(512, 200), _ctx->wakeupSettings);
-		}
-		if (_flags[3] == 1) {
-			_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(800, 384), _ctx->deathSettings);
+		for (int i = 0; i < 6; ++i) {
+			if (_flags[i]) {
+				int px = ds::random(300, 900);
+				int py = ds::random(100, 600);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, ds::vec2(px, py), _ctx->emitterSettings[i]);
+			}
 		}
 	}
 	_ctx->particleManager->tick(dt);
-
-	const char keys[] = { '1','2','3','4' };
-	for (int i = 0; i < 4; ++i) {
-		if (ds::isKeyPressed(keys[i])) {
-			if (_pressed[i] == 0) {
-				_flags[i] = (_flags[i] + 1) & 1;
-				_pressed[i] = 1;
-			}
-		}
-		else {
-			_pressed[i] = 0;
-		}
-	}
-
 	return 0;
 }
 
 void ParticlesTestState::render(SpriteBatchBuffer* buffer) {
-	const char* NAMES[] = { "Explosion","Bullet-Explosion","WakeUp","Death-Explosion" };
 	buffer->flush();
 	_ctx->particleManager->render();
-	for (int i = 0; i < 4; ++i) {
-		ds::dbgPrint(0, 2 + i, "%d - %s", _flags[i], NAMES[i]);
+	gui::start(ds::vec2(0, 700));
+	gui::begin("Settings", &_dialogState);
+	if (_dialogState == 1) {
+		/*
+		for (int i = 0; i < 5; ++i) {
+			gui::Checkbox(PS_NAMES[i], &_flags[i]);
+		}
+		gui::DropDownBox("Particlesystem", PS_NAMES, 5, &_dropDownState, &_selectedSystem, &_dropDownOffset, 5, true);
+		*/
+		//gui::Button("Button");
+		const char* cats[32];
+		int num = twk_num_categories();
+		for (int i = 0; i < num; ++i) {
+			const char* n = twk_get_category_name(i);
+			cats[i] = n;
+
+		}
+		gui::DropDownBox("Categories", cats, num, &_categoryState, &_selectedCategory, &_categoryOffset, 4, true);
 	}
+	if (_selectedCategory != -1) {
+		Tweakable tweakables[32];
+		int nt = twk_get_tweakables(_selectedCategory, tweakables, 32);
+		for (int i = 0; i < nt; ++i) {
+			const Tweakable& twk = tweakables[i];
+			if (twk.type == TweakableType::ST_FLOAT) {
+				gui::Input(twk.name, twk.ptr.fPtr);
+			}
+			else if (twk.type == TweakableType::ST_VEC2) {
+				gui::Input(twk.name, twk.ptr.v2Ptr);
+			}
+			else if (twk.type == TweakableType::ST_VEC3) {
+				gui::Input(twk.name, twk.ptr.v3Ptr);
+			}
+			else if (twk.type == TweakableType::ST_VEC4) {
+				gui::Input(twk.name, twk.ptr.v4Ptr);
+			}
+		}
+	}
+	gui::Button("Save");
+	/*
+	if (_selectedSystem != -1) {
+		gui::begin("Emitter", &_emitterState);
+		gui::Input("Count", &_ctx->emitterSettings[_selectedSystem].count);
+		gui::Input("TTL", &_ctx->emitterSettings[_selectedSystem].ttl);
+		gui::Input("Angle var",&_ctx->emitterSettings[_selectedSystem].angleVariance);
+		gui::Input("Radius",&_ctx->emitterSettings[_selectedSystem].radius);
+		gui::Input("Radius var",&_ctx->emitterSettings[_selectedSystem].radiusVariance);
+		gui::Input("Veclocity",&_ctx->emitterSettings[_selectedSystem].velocity);
+		gui::Input("Vel var",&_ctx->emitterSettings[_selectedSystem].velocityVariance);
+		gui::Input("Size", &_ctx->emitterSettings[_selectedSystem].size);
+		gui::Input("Size var", &_ctx->emitterSettings[_selectedSystem].sizeVariance);
+		gui::Input("Growth", &_ctx->emitterSettings[_selectedSystem].growth);
+		gui::Input("Accel", &_ctx->emitterSettings[_selectedSystem].acceleration);
+		gui::Input("Color", &_ctx->emitterSettings[_selectedSystem].color);
+		gui::Input("Decay", &_ctx->emitterSettings[_selectedSystem].decay);
+		gui::Input("Tex rect", &_ctx->emitterSettings[_selectedSystem].texRect);
+	}
+	*/
+	gui::end();
 }

@@ -3,7 +3,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 #include <examples\common\stb_image.h>
 #define SPRITE_IMPLEMENTATION
-#include "utils\SpriteBatchBuffer.h"
+#include <SpriteBatchBuffer.h>
 #define DS_STATEMACHINE_IMPLEMENTATION
 #include <StateMachine.h>
 #include "states\GameState.h"
@@ -12,6 +12,9 @@
 #include "utils\highscores.h"
 #define GAMESETTINGS_IMPLEMENTATION
 #include <ds_tweakable.h>
+#include <ds_imgui.h>
+#include "utils\Sandbox.h"
+
 // ---------------------------------------------------------------
 // load image using stb_image
 // ---------------------------------------------------------------
@@ -65,7 +68,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// load the one and only texture
 	//
 	RID textureID = loadImage("content\\TextureArray.png");
-	SpriteBatchBufferInfo sbbInfo = { 2048, textureID };
+	SpriteBatchBufferInfo sbbInfo = { 2048, textureID, ds::TextureFilters::LINEAR };
 	SpriteBatchBuffer spriteBuffer(sbbInfo);
 
 	ParticlesystemDescriptor descriptor = { 4096, textureID };
@@ -76,6 +79,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 
 	ctx.particleManager = new ParticleManager(4096, textureID);
 
+	gui::init();
 
 	twk_init("content\\settings.json",&printErrors);
 
@@ -84,12 +88,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	ctx.playerTrail = ctx.particleManager->add(descriptor);
 	ctx.wakeUpSystem = ctx.particleManager->add(descriptor);
 
-	addSettings("explosion", &ctx.explosionSettings);
-	addSettings("bullet_explosion", &ctx.bulletExplosionSettings);
-	addSettings("player_trail", &ctx.playerTrailSettings);
-	addSettings("wake_up", &ctx.wakeupSettings);
-	addSettings("death", &ctx.deathSettings);
-	addSettings("light_streaks", &ctx.lightStreaksSettings);
+	addSettings("explosion", &ctx.emitterSettings[PSystems::PS_EXPLOSION]);
+	addSettings("bullet_explosion", &ctx.emitterSettings[PSystems::PS_BULLET]);
+	addSettings("player_trail", &ctx.emitterSettings[PSystems::PS_TRAIL]);
+	addSettings("wake_up", &ctx.emitterSettings[PSystems::PS_WAKEUP]);
+	addSettings("death", &ctx.emitterSettings[PSystems::PS_DEATH]);
+	addSettings("light_streaks", &ctx.emitterSettings[PSystems::PS_LIGHT_STREAKS]);
 
 	twk_add("settings","max_spawn_enemies", &ctx.settings.maxSpawnEnemies);
 	twk_add("settings", "player_highlight", &ctx.settings.playerHightlightColor);
@@ -134,12 +138,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// and activate the main menu state
 	//stateMachine->activate("PrepareState");
 	//stateMachine->activate("MainState");
-	stateMachine->activate("ParticlesTestState");
+	//stateMachine->activate("ParticlesTestState");
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;
 
-	
+
+	SandBox sandbox;
 
 	while (ds::isRunning() && rendering) {
 
@@ -213,6 +218,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		}
 		// now render all active states
 		stateMachine->render();
+
+		sandbox.render();
 		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
 		ds::dbgPrint(0, 1, "Running: %s", update ? "YES" : "NO");
@@ -227,5 +234,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	delete prepareState;
 	delete backgroundState;
 	delete stateMachine;
+	gui::shutdown();
 	ds::shutdown();
 }

@@ -18,8 +18,16 @@ struct Sprite {
 };
 
 struct SpriteBatchBufferInfo {
+
 	unsigned int maxSprites;
 	RID textureID;
+	ds::TextureFilters textureFilter;
+	RID blendState;
+
+	SpriteBatchBufferInfo() : maxSprites(1024), textureID(NO_RID), textureFilter(ds::TextureFilters::LINEAR) , blendState(NO_RID) {}
+	SpriteBatchBufferInfo(int max,RID tex) : maxSprites(max), textureID(tex), textureFilter(ds::TextureFilters::LINEAR), blendState(NO_RID) {}
+	SpriteBatchBufferInfo(int max, RID tex, ds::TextureFilters filter) : maxSprites(max), textureID(tex), textureFilter(filter), blendState(NO_RID) {}
+	SpriteBatchBufferInfo(int max, RID tex, ds::TextureFilters filter,RID blend) : maxSprites(max), textureID(tex), textureFilter(filter), blendState(blend) {}
 };
 
 class SpriteBatchBuffer {
@@ -314,12 +322,14 @@ SpriteBatchBuffer::SpriteBatchBuffer(const SpriteBatchBufferInfo& info) : _max(i
 	ds::ShaderInfo psInfo = { 0 , Sprites_PS_Main, sizeof(Sprites_PS_Main), ds::ShaderType::ST_PIXEL_SHADER };
 	RID pixelShader = ds::createShader(psInfo, "SpritesPS");
 
-	ds::BlendStateInfo blendInfo = { ds::BlendStates::SRC_ALPHA, ds::BlendStates::SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, true };
-	RID bs_id = ds::createBlendState(blendInfo);
-
+	RID bs_id = info.blendState;
+	if (bs_id == NO_RID) {
+		ds::BlendStateInfo blendInfo = { ds::BlendStates::SRC_ALPHA, ds::BlendStates::SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, ds::BlendStates::INV_SRC_ALPHA, true };
+		bs_id = ds::createBlendState(blendInfo);
+	}
 	RID constantBuffer = ds::createConstantBuffer(sizeof(SpriteBatchConstantBuffer), &_constantBuffer);
 
-	ds::SamplerStateInfo samplerInfo = { ds::TextureAddressModes::CLAMP, ds::TextureFilters::LINEAR };
+	ds::SamplerStateInfo samplerInfo = { ds::TextureAddressModes::CLAMP, info.textureFilter };
 	RID ssid = ds::createSamplerState(samplerInfo);
 
 	int indices[] = { 0,1,2,1,3,2 };
@@ -337,6 +347,7 @@ SpriteBatchBuffer::SpriteBatchBuffer(const SpriteBatchBufferInfo& info) : _max(i
 
 	RID basicGroup = ds::StateGroupBuilder()
 		.constantBuffer(constantBuffer, vertexShader)
+		.blendState(bs_id)
 		.structuredBuffer(_structuredBufferId, vertexShader, 1)
 		.vertexBuffer(NO_RID)
 		.vertexShader(vertexShader)

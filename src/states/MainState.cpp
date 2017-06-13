@@ -136,8 +136,8 @@ int MainState::tick(float dt, EventStream* stream) {
 			_killTimer -= 0.4f;
 			if (_enemies.numObjects > 0) {
 				const Enemy& e = _enemies.first();
-				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->explosionSettings);
-				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->lightStreaksSettings);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->emitterSettings[PSystems::PS_EXPLOSION]);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, e.pos, _ctx->emitterSettings[PSystems::PS_LIGHT_STREAKS]);
 				_enemies.remove(e.id);
 			}
 		}
@@ -248,7 +248,7 @@ void MainState::spawnEnemies(float dt) {
 			e.scale = ds::vec2(1.0f);
 			e.energy = 3;
 			e.type = type;
-			_ctx->particleManager->emitt(_ctx->wakeUpSystem, np, _ctx->wakeupSettings);
+			_ctx->particleManager->emitt(_ctx->wakeUpSystem, np, _ctx->emitterSettings[PSystems::PS_WAKEUP]);
 			_backgroundState->highlight(np, _ctx->settings.wakeUpHightlightColor);
 		}
 	}
@@ -289,12 +289,12 @@ bool MainState::handlePlayerCollision(EventStream* stream) {
 	while (eit != _enemies.end()) {
 		if (eit->state == ES_MOVING) {
 			if (math::checkCircleIntersection(_player.pos, 20.0f, eit->pos, 20.0f, &dist, &pnv)) {
-				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->explosionSettings);
-				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->lightStreaksSettings);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->emitterSettings[PSystems::PS_EXPLOSION]);
+				_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->emitterSettings[PSystems::PS_LIGHT_STREAKS]);
 				eit = _enemies.remove(eit->id);
 				_player.energy -= 10;
 				if (_player.energy <= 0) {
-					_ctx->particleManager->emitt(_ctx->enemyExplosion, _player.pos, _ctx->deathSettings);
+					_ctx->particleManager->emitt(_ctx->enemyExplosion, _player.pos, _ctx->emitterSettings[PSystems::PS_DEATH]);
 					stream->add(ET_PLAYER_KILLED);
 				}
 				hit = true;
@@ -325,14 +325,14 @@ void MainState::handleCollisions() {
 			if (eit->state == ES_MOVING) {
 				if (math::checkCircleIntersection(it->pos, 5.0f, eit->pos, 20.0f, &dist, &pnv)) {
 					if (_bullets.contains(it->id)) {
-						_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos,_ctx->bulletExplosionSettings);
+						_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->emitterSettings[PSystems::PS_BULLET]);
 						it = _bullets.remove(it->id);
 						hit = true;
 					}
 					--eit->energy;
 					if (eit->energy <= 0) {
-						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->explosionSettings);
-						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->lightStreaksSettings);
+						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->emitterSettings[PSystems::PS_EXPLOSION]);
+						_ctx->particleManager->emitt(_ctx->enemyExplosion, eit->pos, _ctx->emitterSettings[PSystems::PS_LIGHT_STREAKS]);
 						eit = _enemies.remove(eit->id);
 						_ctx->score += 50;
 					}
@@ -361,11 +361,11 @@ void MainState::moveBullets(float dt) {
 	while (it != _bullets.end()) {
 		it->pos += it->velocity * static_cast<float>(ds::getElapsedSeconds());
 		if (it->pos.x < 0.0f || it->pos.x > 1024.0f || it->pos.y < 0.0f || it->pos.y > 768.0f) {
-			_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->bulletExplosionSettings);
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->emitterSettings[PSystems::PS_BULLET]);
 			it = _bullets.remove(it->id);
 		}
 		else if (_backgroundState->borderCollision(it->pos, 4.0f)) {
-			_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->bulletExplosionSettings);
+			_ctx->particleManager->emitt(_ctx->enemyExplosion, it->pos, _ctx->emitterSettings[PSystems::PS_BULLET]);
 			it = _bullets.remove(it->id);
 		}
 		else {
@@ -467,7 +467,7 @@ void MainState::movePlayer(float dt) {
 		ds::vec2 d = _player.pos - _player.previous;
 		if (sqr_length(d) > 100.0f) {
 			_player.previous = _player.pos;
-			_ctx->particleManager->emitt(_ctx->playerTrail, _player.previous, _ctx->playerTrailSettings);
+			_ctx->particleManager->emitt(_ctx->playerTrail, _player.previous, _ctx->emitterSettings[PSystems::PS_TRAIL]);
 		}
 	}
 	ds::vec2 mp = ds::getMousePosition();
