@@ -222,7 +222,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		sandbox.render();
 		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
-		ds::dbgPrint(0, 1, "Running: %s", update ? "YES" : "NO");
+		//ds::dbgPrint(0, 1, "Running: %s", update ? "YES" : "NO");
 		ds::end();
 	}	
 	highscore::save("scores.scr", &ctx);

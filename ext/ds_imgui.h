@@ -54,6 +54,8 @@ namespace gui {
 
 	void FormattedText(const char* fmt, ...);
 
+	void Message(const char* fmt, ...);
+
 	bool Input(const char* label, char* str, int maxLength);
 
 	void Input(const char* label, int* v);
@@ -643,25 +645,30 @@ namespace gui {
 		bool selected = isBoxSelected(new_id, p, ds::vec2(width, 20.0f));
 		if (selected) {
 			sprintf_s(_guiCtx->inputText, 32, "%s", v);
-			//_guiCtx->caretPos = strlen(_guiCtx->inputText);
+			_guiCtx->caretPos = strlen(_guiCtx->inputText);
 			_guiCtx->active = new_id;
 		}
 		if (_guiCtx->active == new_id) {
-			addBox(p, ds::vec2(150.0f, 20.0f), ds::Color(0, 192, 0, 255));
-			//ret = handleTextInput();
+			addBox(p, ds::vec2(width, 16.0f), _guiCtx->settings.activeInputBoxColor);
+			ret = handleTextInput(false);
 			strncpy(v, _guiCtx->inputText, maxLength);
+			ds::vec2 textDim = textSize(_guiCtx->inputText);
 			ds::vec2 cp = p;
-			//ds::vec2 cursorPos = ds::font::calculateLimitedSize(guiContext->font, guiContext->inputText, guiContext->caretPos, CHAR_PADDING);
-			//cp.x = _guiCtx->currentPos.x + 2.0f+ (width + 10.0f) * index + cursorPos.x + guiContext->settings[GS_LABELSIZE];
-			//guiContext->addBox(cp, ds::vec2(2, BOX_HEIGHT - 4.0f), ds::Color(192, 0, 0, 255));
+			ds::vec2 cursorPos = limitedTextSize(_guiCtx->inputText, _guiCtx->caretPos);
+			cp.x += (width - textDim.x) * 0.5f + cursorPos.x - 2.0f;
+			cp.y -= 6.0f;
+			addBox(cp, ds::vec2(10.0f, 3.0f), ds::Color(192, 0, 192, 255));
+			p.x += (width - textDim.x) * 0.5f;
 			p.y -= 1.0f;
 			addText(p, _guiCtx->inputText, 0.0f);
 			sprintf_s(v, maxLength, "%s", _guiCtx->inputText);
 		}
 		else {
 			sprintf_s(_guiCtx->tmpBuffer, 64, "%s", v);
-			addBox(p, ds::vec2(150.0f, 20.0f), ds::Color(192, 0, 0, 255));
+			addBox(p, ds::vec2(width, 16.0f), _guiCtx->settings.inputBoxColor);
+			ds::vec2 textDim = textSize(_guiCtx->tmpBuffer);
 			p.y -= 1.0f;
+			p.x += (width - textDim.x) * 0.5f;
 			addText(p, _guiCtx->tmpBuffer, 0.0f);
 		}
 		return ret;
@@ -918,6 +925,21 @@ namespace gui {
 	// Formatted text
 	// --------------------------------------------------------
 	void FormattedText(const char* fmt, ...) {
+		char buffer[1024];
+		va_list args;
+		va_start(args, fmt);
+		vsprintf(buffer, fmt, args);
+		Text(buffer);
+		va_end(args);
+
+	}
+
+	// --------------------------------------------------------
+	// Message
+	// --------------------------------------------------------
+	void Message(const char* fmt, ...) {
+		ds::vec2 pos = _guiCtx->currentPos;
+		addBox(pos, 10, 20, _guiCtx->settings.labelBoxColor, true);
 		char buffer[1024];
 		va_list args;
 		va_start(args, fmt);
