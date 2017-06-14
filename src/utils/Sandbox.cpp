@@ -10,7 +10,8 @@ const static char* NAMES[] = {
 
 SandBox::SandBox() {
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"),ds::ResourceType::RT_SRV);
-	ds::BlendStateInfo blendInfo = { ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, true };
+	//ds::BlendStateInfo blendInfo = { ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, true };
+	ds::BlendStateInfo blendInfo = { ds::BlendStates::ONE, ds::BlendStates::SRC_ALPHA, ds::BlendStates::ONE, ds::BlendStates::INV_SRC_ALPHA, true };
 	RID bs_id = ds::createBlendState(blendInfo);
 	SpriteBatchBufferInfo sbbInfo = { 2048, textureID, ds::TextureFilters::POINT, bs_id};
 	_sprites = new SpriteBatchBuffer(sbbInfo);
@@ -25,6 +26,9 @@ SandBox::~SandBox() {
 	delete _sprites;
 }
 
+// -------------------------------------------------------
+// clear internal list
+// -------------------------------------------------------
 void SandBox::clear() {
 	_num = 0;
 	_selection = -1;
@@ -36,10 +40,14 @@ void SandBox::clear() {
 		_items[i].scaling = ds::vec2(1, 1);
 		_items[i].rotation = 0.0f;
 		_items[i].color = ds::Color(255, 255, 255, 255);
-		_items[i].textureRect = ds::vec4(330, 70, 50, 48);
+		//_items[i].textureRect = ds::vec4(330, 70, 50, 48);
+		_items[i].textureRect = ds::vec4(200, 20, 40, 40);
 	}
 }
 
+// -------------------------------------------------------
+// load sprites
+// -------------------------------------------------------
 void SandBox::load() {
 	clear();
 	FILE* fp = fopen(_fileName, "rb");
@@ -52,6 +60,9 @@ void SandBox::load() {
 	}
 }
 
+// -------------------------------------------------------
+// save sprites
+// -------------------------------------------------------
 void SandBox::save() {
 	FILE* fp = fopen(_fileName, "wb");
 	if (fp) {
@@ -63,6 +74,9 @@ void SandBox::save() {
 	}
 }
 
+// -------------------------------------------------------
+// render
+// -------------------------------------------------------
 void SandBox::render() {
 	gui::start(ds::vec2(0, 730));
 	gui::begin("Settings", &_dialogState);

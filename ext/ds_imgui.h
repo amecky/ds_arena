@@ -287,7 +287,7 @@ namespace gui {
 		ds::Color(38,38,38,255), // box background color
 		ds::Color(167,77,75,255), // box selection color
 		ds::Color(96,96,96,255), // slider color
-		ds::Color(255,0,255,255), // scroll slider color
+		ds::Color(128,128,128,255), // scroll slider color
 		5.0f // line spacing
 	};
 
@@ -1400,8 +1400,12 @@ namespace gui {
 				}
 			}
 
-			float d = 1.0f - static_cast<float>(*offset) / static_cast<float>(max);
-			float dy = d * (sideHeight) - 20.0f;
+			float d = 0.0f;
+			float ds = static_cast<float>(size - max);
+			if (ds > 0.0f) {
+				d = 1.0f - static_cast<float>(*offset) / ds;
+			}
+			float dy = d * (sideHeight) - 40.0f;
 			p.y = cy + dy;
 			addBox(p, ds::vec2(20.0f, 6.0f), _guiCtx->settings.scrollSliderColor);
 			
