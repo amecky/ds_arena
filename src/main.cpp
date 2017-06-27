@@ -13,8 +13,8 @@
 #define GAMESETTINGS_IMPLEMENTATION
 #include <ds_tweakable.h>
 #include <ds_imgui.h>
-#include "utils\Sandbox.h"
-
+#include "sandbox\SpriteEditorState.h"
+#include "sandbox\TextureViewerState.h"
 // ---------------------------------------------------------------
 // load image using stb_image
 // ---------------------------------------------------------------
@@ -127,6 +127,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	MainMenuState* mainMenuState = new MainMenuState(&ctx);
 	MainState* mainState = new MainState(&ctx, backgroundState);
 	ParticlesTestState* particlesTestState = new ParticlesTestState(&ctx);
+	TextureViewerState* tvState = new TextureViewerState(&ctx);
+	SpriteEditorState* seState = new SpriteEditorState(&ctx);
 	// just add all of them in the right order
 	stateMachine->add(backgroundState);
 	stateMachine->add(particlesTestState);
@@ -135,16 +137,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	stateMachine->add(mainMenuState);
 	stateMachine->add(gameOverState);
 	stateMachine->add(highscoreState);
+	stateMachine->add(tvState);
+	stateMachine->add(seState);
 	// and activate the main menu state
 	//stateMachine->activate("PrepareState");
 	//stateMachine->activate("MainState");
 	//stateMachine->activate("ParticlesTestState");
+	stateMachine->activate("TextureViewerState");
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;
-
-
-	SandBox sandbox;
 
 	while (ds::isRunning() && rendering) {
 
@@ -219,7 +221,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		// now render all active states
 		stateMachine->render();
 
-		sandbox.render();
 		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());
 		//ds::dbgPrint(0, 1, "Running: %s", update ? "YES" : "NO");
@@ -227,6 +228,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	}	
 	highscore::save("scores.scr", &ctx);
 	delete ctx.particleManager;
+	delete tvState;
 	delete mainState;
 	delete mainMenuState;
 	delete highscoreState;

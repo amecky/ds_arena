@@ -35,8 +35,11 @@
     <ClCompile Include="src\states\ArenaStateMachine.cpp">
       <Filter>states</Filter>
     </ClCompile>
-    <ClCompile Include="src\utils\Sandbox.cpp">
-      <Filter>utils</Filter>
+    <ClCompile Include="src\sandbox\TextureViewerState.cpp">
+      <Filter>sandbox</Filter>
+    </ClCompile>
+    <ClCompile Include="src\sandbox\SpriteEditorState.cpp">
+      <Filter>sandbox</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -97,8 +100,11 @@
     <ClInclude Include="ext\SpriteBatchBuffer.h">
       <Filter>ext</Filter>
     </ClInclude>
-    <ClInclude Include="src\utils\Sandbox.h">
-      <Filter>utils</Filter>
+    <ClInclude Include="src\sandbox\TextureViewerState.h">
+      <Filter>sandbox</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sandbox\SpriteEditorState.h">
+      <Filter>sandbox</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -119,6 +125,9 @@
     </Filter>
     <Filter Include="ext">
       <UniqueIdentifier>{98ea06fc-ccf3-46e4-9334-6b1c0c9ecd4b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sandbox">
+      <UniqueIdentifier>{700a530a-be13-475e-9106-867eb487c8a3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

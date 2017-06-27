@@ -26,13 +26,14 @@
     <ClCompile Include="src\lib\tweening.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\particles\Particlesystem.cpp" />
+    <ClCompile Include="src\sandbox\SpriteEditorState.cpp" />
+    <ClCompile Include="src\sandbox\TextureViewerState.cpp" />
     <ClCompile Include="src\states\GameState.cpp" />
     <ClCompile Include="src\states\MainState.cpp" />
     <ClCompile Include="src\states\ArenaStateMachine.cpp" />
     <ClCompile Include="src\utils\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
-    <ClCompile Include="src\utils\Sandbox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ext\ds_imgui.h" />
@@ -46,6 +47,8 @@
     <ClInclude Include="src\lib\math.h" />
     <ClInclude Include="src\lib\tweening.h" />
     <ClInclude Include="src\particles\Particlesystem.h" />
+    <ClInclude Include="src\sandbox\SpriteEditorState.h" />
+    <ClInclude Include="src\sandbox\TextureViewerState.h" />
     <ClInclude Include="src\states\GameState.h" />
     <ClInclude Include="src\states\MainState.h" />
     <ClInclude Include="src\states\ArenaStateMachine.h" />
@@ -53,7 +56,6 @@
     <ClInclude Include="src\utils\GameContext.h" />
     <ClInclude Include="src\utils\highscores.h" />
     <ClInclude Include="src\utils\hud.h" />
-    <ClInclude Include="src\utils\Sandbox.h" />
     <ClInclude Include="src\utils\Stack.h" />
   </ItemGroup>
   <ItemGroup>

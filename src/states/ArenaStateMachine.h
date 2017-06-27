@@ -1,3 +1,4 @@
+#pragma once
 #include <diesel.h>
 #include <StateMachine.h>
 #include "..\utils\GameContext.h"

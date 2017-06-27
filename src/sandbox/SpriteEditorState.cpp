@@ -1,4 +1,4 @@
-#include "Sandbox.h"
+#include "SpriteEditorState.h"
 #include <ds_imgui.h>
 
 const static char* NAMES[] = { 
@@ -8,7 +8,7 @@ const static char* NAMES[] = {
 	"Item30","Item31","Item32","Item33"
 };
 
-SandBox::SandBox() {
+SpriteEditorState::SpriteEditorState(GameContext* ctx) : ArenaGameState(ctx, "SpriteEditorState") {
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"),ds::ResourceType::RT_SRV);
 	//ds::BlendStateInfo blendInfo = { ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, ds::BlendStates::ONE, true };
 	ds::BlendStateInfo blendInfo = { ds::BlendStates::ONE, ds::BlendStates::SRC_ALPHA, ds::BlendStates::ONE, ds::BlendStates::INV_SRC_ALPHA, true };
@@ -22,14 +22,14 @@ SandBox::SandBox() {
 	sprintf_s(_message, "-");
 }
 
-SandBox::~SandBox() {
+SpriteEditorState::~SpriteEditorState() {
 	delete _sprites;
 }
 
 // -------------------------------------------------------
 // clear internal list
 // -------------------------------------------------------
-void SandBox::clear() {
+void SpriteEditorState::clear() {
 	_num = 0;
 	_selection = -1;
 	_spriteSelectionOffset = 0;
@@ -48,7 +48,7 @@ void SandBox::clear() {
 // -------------------------------------------------------
 // load sprites
 // -------------------------------------------------------
-void SandBox::load() {
+void SpriteEditorState::load() {
 	clear();
 	FILE* fp = fopen(_fileName, "rb");
 	if (fp) {
@@ -63,7 +63,7 @@ void SandBox::load() {
 // -------------------------------------------------------
 // save sprites
 // -------------------------------------------------------
-void SandBox::save() {
+void SpriteEditorState::save() {
 	FILE* fp = fopen(_fileName, "wb");
 	if (fp) {
 		fwrite(&_num, sizeof(int), 1, fp);
@@ -74,10 +74,14 @@ void SandBox::save() {
 	}
 }
 
+int SpriteEditorState::tick(float dt, EventStream* stream) {
+	return 0;
+}
+
 // -------------------------------------------------------
 // render
 // -------------------------------------------------------
-void SandBox::render() {
+void SpriteEditorState::render(SpriteBatchBuffer* buffer) {
 	gui::start(ds::vec2(0, 730));
 	gui::begin("Settings", &_dialogState);
 	if (_dialogState == 1) {
@@ -139,4 +143,5 @@ void SandBox::render() {
 	}
 
 	_sprites->flush();
+	
 }
