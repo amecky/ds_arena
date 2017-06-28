@@ -1,5 +1,5 @@
 #pragma once
-#include "..\..\..\diesel\diesel.h"
+#include <diesel.h>
 
 typedef uint8_t BYTE;
 

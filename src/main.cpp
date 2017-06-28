@@ -1,7 +1,7 @@
 #define DS_IMPLEMENTATION
 #include <diesel.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include <examples\common\stb_image.h>
+#include <stb_image.h>
 #define SPRITE_IMPLEMENTATION
 #include <SpriteBatchBuffer.h>
 #define DS_STATEMACHINE_IMPLEMENTATION

@@ -115,9 +115,9 @@ RID ElasticBorder::createStateGroup(int numVertices, RID textureID) {
 	RID pixelShader = ds::createShader(psInfo, "Border_PS");
 
 	ds::InputLayoutDefinition decl[] = {
-		{ ds::BufferAttribute::POSITION,ds::BufferAttributeType::FLOAT,3 },
-		{ ds::BufferAttribute::TEXCOORD,ds::BufferAttributeType::FLOAT,2 },
-		{ ds::BufferAttribute::COLOR,ds::BufferAttributeType::FLOAT,4 }
+		{ "POSITION", 0, ds::BufferAttributeType::FLOAT3 },
+		{ "TEXCOORD", 0, ds::BufferAttributeType::FLOAT2 },
+		{ "COLOR"   , 0, ds::BufferAttributeType::FLOAT4 }
 	};
 
 	int q = numVertices / 4 * 6;

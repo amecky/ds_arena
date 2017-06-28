@@ -1,5 +1,5 @@
 #pragma once
-#include "..\..\..\diesel\diesel.h"
+#include <diesel.h>
 
 // http://gizma.com/easing/
 namespace tweening {
