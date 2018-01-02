@@ -41,6 +41,18 @@
     <ClCompile Include="src\sandbox\SpriteEditorState.cpp">
       <Filter>sandbox</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils\tweening.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="src\objects\Bullets.cpp">
+      <Filter>objects</Filter>
+    </ClCompile>
+    <ClCompile Include="src\core\SpriteArray.cpp">
+      <Filter>core</Filter>
+    </ClCompile>
+    <ClCompile Include="src\utils\background_grid.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\particles\Particlesystem.h">
@@ -106,6 +118,18 @@
     <ClInclude Include="ext\diesel.h">
       <Filter>ext</Filter>
     </ClInclude>
+    <ClInclude Include="src\utils\tweening.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="src\objects\Bullets.h">
+      <Filter>objects</Filter>
+    </ClInclude>
+    <ClInclude Include="src\core\SpriteArray.h">
+      <Filter>core</Filter>
+    </ClInclude>
+    <ClInclude Include="src\utils\background_grid.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="particles">
@@ -128,6 +152,12 @@
     </Filter>
     <Filter Include="sandbox">
       <UniqueIdentifier>{700a530a-be13-475e-9106-867eb487c8a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="objects">
+      <UniqueIdentifier>{e5d0dec3-fcd0-4c62-a951-2e43da2e870d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="core">
+      <UniqueIdentifier>{25276e23-aa63-4ed6-9568-6ba5cb2772a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

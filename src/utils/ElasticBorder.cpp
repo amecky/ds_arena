@@ -1,10 +1,8 @@
 #include "ElasticBorder.h"
 #include "..\..\shaders\Border_PS_Main.inc"
 #include "..\..\shaders\Border_VS_Main.inc"
-
-//const float Tension = 0.025f;
-//const float Dampening = 0.025f;
-//const float Spread = 0.15f;
+#include "..\lib\math.h"
+#include "..\utils\tweening.h"
 
 void initializeRibbon(Ribbon* ribbon, int num, const ds::vec2& startPos, const ds::vec2& dir, bool vertical, float size) {
 	ribbon->points = new LinePoint[num];
@@ -64,14 +62,42 @@ void updateRibbon(Ribbon* ribbon, ElasticBorderSettings* settings) {
 //
 // ---------------------------------------------------
 ElasticBorder::ElasticBorder(ElasticBorderSettings* settings) : _settings(settings) {
+
+	
+	float startX = (settings->world_size.x - _settings->numX * _settings->thickness) / 2;
+	float startY = (settings->world_size.y - _settings->numY * _settings->thickness) / 2;
+	float endX = startX + (_settings->numX - 1) * _settings->thickness;
+	float endY = startY + (_settings->numY - 1) * _settings->thickness;
+
+	_boundingBox = ds::vec4(startX, startY, endX, endY);
 	// bottom
-	initializeRibbon(&_ribbons[0], settings->numX, ds::vec2(40, 8), ds::vec2(1, 0), true, settings->length);
+	initializeRibbon(&_ribbons[0], settings->numX, ds::vec2(startX, startY - _settings->thickness), ds::vec2(1, 0), true, settings->length);
 	// top
-	initializeRibbon(&_ribbons[1], settings->numX, ds::vec2(40, 620), ds::vec2(1, 0), true, settings->length);
+	initializeRibbon(&_ribbons[1], settings->numX, ds::vec2(startX, endY - _settings->thickness), ds::vec2(1, 0), true, settings->length);
 	// left
-	initializeRibbon(&_ribbons[2], settings->numY, ds::vec2(4, 35), ds::vec2(0, 1), false, settings->length);
+	initializeRibbon(&_ribbons[2], settings->numY, ds::vec2(startX - _settings->thickness, startY), ds::vec2(0, 1), false, settings->length);
 	// right
-	initializeRibbon(&_ribbons[3], settings->numY, ds::vec2(946, 35), ds::vec2(0, 1), false, settings->length);
+	initializeRibbon(&_ribbons[3], settings->numY, ds::vec2(endX - _settings->thickness, startY), ds::vec2(0, 1), false, settings->length);
+
+	// corner dots
+	ds::vec3 p[4];
+	int idx = 0;
+	ds::vec3 BOX_VERTICES[] = { ds::vec3(-10, 10, 0), ds::vec3(10, 10, 0), ds::vec3(10, -10, 0), ds::vec3(-10, -10, 0) };
+	ds::vec3 cp[] = { 
+		ds::vec3(startX + _settings->thickness * 0.5f, startY + _settings->thickness * 0.5f, 0.0f),
+		ds::vec3(startX + _settings->thickness * 0.5f, endY + _settings->thickness * 0.5f, 0.0f),
+		ds::vec3(endX + _settings->thickness * 0.5f, endY + _settings->thickness * 0.5f, 0.0f),
+		ds::vec3(endX + _settings->thickness * 0.5f, startY + _settings->thickness * 0.5f, 0.0f)
+	};
+	for (int i = 0; i < 4; ++i) {
+		for (int j = 0; j < 4; ++j) {
+			p[j] = cp[i] + BOX_VERTICES[j];
+		}
+		_cornerVertices[idx++] = { p[0] , ds::vec2(120.0f,40.0f), ds::Color(17, 112, 120, 255) };
+		_cornerVertices[idx++] = { p[1] , ds::vec2(140.0f,40.0f), ds::Color(17, 112, 120, 255) };
+		_cornerVertices[idx++] = { p[2] , ds::vec2(140.0f,60.0f), ds::Color(17, 112, 120, 255) };
+		_cornerVertices[idx++] = { p[3] , ds::vec2(120.0f,60.0f), ds::Color(17, 112, 120, 255) };
+	}
 
 	int total = settings->numX * settings->numY * 2;
 	_vertices = new GridVertex[total * 4];
@@ -91,12 +117,16 @@ ElasticBorder::ElasticBorder(ElasticBorderSettings* settings) : _settings(settin
 		0.0f,
 		0.0f
 	};
-	ds::RenderPassInfo rpInfo = { &_orthoCamera, ds::DepthBufferState::DISABLED, 0, 0 };
+
+	ds::ViewportInfo vpInfo = { 1280, 720, 0.0f, 1.0f };
+	RID vp = ds::createViewport(vpInfo);
+
+	ds::RenderPassInfo rpInfo = { &_orthoCamera, vp, ds::DepthBufferState::DISABLED, 0, 0 };
 	_orthoPass = ds::createRenderPass(rpInfo);
 
 	_constantBuffer.viewprojectionMatrix = ds::matTranspose(orthoView * orthoProjection);
 	_constantBuffer.worldMatrix = ds::matTranspose(ds::matIdentity());
-
+	_constantBuffer.center = ds::vec4(640.0f, 360.0f, 0.0f, 1.0);
 	RID stateGroup = createStateGroup(total * 4, settings->textureID);
 	ds::DrawCommand drawCmd = { 100, ds::DrawType::DT_INDEXED, ds::PrimitiveTypes::TRIANGLE_LIST, 0 };
 
@@ -184,6 +214,19 @@ void ElasticBorder::render() {
 			ds::Color sc = ribbon.points[i + 1].color;
 			sc.r = 192 + ribbon.points[i + 1].height * 2.0f;
 			sc.g = ribbon.points[i + 1].height * 0.5f - 20.0f;
+
+			ds::Color clr = ds::Color(35, 230, 247, 255);
+			fc = clr;
+			sc = clr;
+			float d = fabs(static_cast<float>(ribbon.points[i].targetHeight - ribbon.points[i].height) / _settings->length);
+			if (d > 0.1f) {
+				fc = tweening::interpolate(tweening::easeSinus, ds::Color(35, 230, 247, 255), ds::Color(17, 112, 120,255), d, 1.0f);
+			}
+			d = fabs(static_cast<float>(ribbon.points[i + 1].targetHeight - ribbon.points[i + 1].height) / _settings->length);
+			if (d > 0.1f) {
+				sc = tweening::interpolate(tweening::easeSinus, ds::Color(35, 230, 247, 255), ds::Color(17, 112, 120, 255), d, 1.0f);
+			}
+
 			if (ribbon.vertical) {
 				ds::vec2 f = ds::vec2(0.0f, ribbon.points[i].height);				
 				f += ribbon.points[i].pos;
@@ -206,18 +249,10 @@ void ElasticBorder::render() {
 			}
 		}
 	}
-	// corner dots
 	
-	ds::vec3 dp[] = { ds::vec3(-10, 10, 0), ds::vec3(10, 10, 0), ds::vec3(10, -10, 0), ds::vec3(-10, -10, 0) };
-	ds::vec3 cp[] = { ds::vec3(35, 35, 0), ds::vec3(35, 650, 0), ds::vec3(975, 650, 0), ds::vec3(975, 35, 0) };
-	for (int i = 0; i < 4; ++i) {
-		for (int j = 0; j < 4; ++j) {
-			p[j] = cp[i] + dp[j];
-		}
-		_vertices[idx++] = { p[0] , ds::vec2(120.0f,40.0f), ds::Color(192,0,0,255) };
-		_vertices[idx++] = { p[1] , ds::vec2(140.0f,40.0f), ds::Color(192,0,0,255) };
-		_vertices[idx++] = { p[2] , ds::vec2(140.0f,60.0f), ds::Color(192,0,0,255) };
-		_vertices[idx++] = { p[3] , ds::vec2(120.0f,60.0f), ds::Color(192,0,0,255) };
+	// corner dots
+	for (int i = 0; i < 16; ++i) {
+		_vertices[idx++] = _cornerVertices[i];
 	}
 	
 
@@ -227,25 +262,27 @@ void ElasticBorder::render() {
 
 bool ElasticBorder::collides(const ds::vec2& s, float r) {
 	bool hit = false;
-	if (s.x < 40.0f) {
+	int sides = math::out_of_bounds(s, _boundingBox);
+
+	if ((sides & 1) == 1) {
 		// left
 		int idx = (s.y - 40.0f) / _settings->length;
 		splash(2, idx, _settings->splashForce);
 		hit = true;
 	}
-	if (s.y < 40.0f) {
+	if ((sides & 8) == 8) {
 		// bottom
 		int idx = (s.x - 40.0f) / _settings->length;
 		splash(0, idx, _settings->splashForce);
 		hit = true;
 	}
-	if (s.y > 670.0f) {
+	if ((sides & 2) == 2) {
 		// top
 		int idx = (s.x - 40.0f) / _settings->length;
 		splash(1, idx, _settings->splashForce);
 		hit = true;
 	}
-	if (s.x > 960.0f) {
+	if ((sides & 4) == 4) {
 		// right
 		int idx = (s.y - 40.0f) / _settings->length;
 		splash(3, idx, _settings->splashForce);
@@ -262,4 +299,9 @@ void ElasticBorder::splash(int ribbonIndex, int index, float speed) {
 	if (index >= 0 && index < ribbon.num) {
 		ribbon.points[index].speed = speed;
 	}
+}
+
+void ElasticBorder::setScreenCenter(const ds::vec2& center) {
+	_constantBuffer.center.x = center.x;
+	_constantBuffer.center.y = center.y;
 }

@@ -6,7 +6,7 @@ int TextureViewerState::tick(float dt, EventStream * stream) {
 }
 
 void TextureViewerState::render(SpriteBatchBuffer * buffer) {
-	buffer->add(ds::vec2(512, 384), ds::vec4(0, 0, 1024, 1024));
+	buffer->add(ds::vec2(640, 360), ds::vec4(0, 0, 1024, 1024));
 }
 
 void TextureViewerState::activate() {

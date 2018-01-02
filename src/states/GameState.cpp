@@ -161,10 +161,10 @@ void MainMenuState::render(SpriteBatchBuffer* buffer) {
 // Background state
 // ---------------------------------------------------------------
 BackgroundState::BackgroundState(GameContext* ctx, const ElasticBorderSettings& borderSettings) : ArenaGameState(ctx, "BackgroundState") , _borderSettings(borderSettings) {
-	_width = 26;
-	_height = 18;
-	_grid.resize(_width, _height);
-	_grid.setBaseColor(ctx->settings.gridBaseColor);
+	_width = 50;
+	_height = 40;
+	_ctx->grid.resize(_width, _height);
+	_ctx->grid.setBaseColor(ctx->settings.gridBaseColor);
 	
 	
 	RID textureID = ds::findResource(SID("content\\TextureArray.png"), ds::ResourceType::RT_SRV);
@@ -178,13 +178,13 @@ BackgroundState::~BackgroundState() {
 }
 
 int BackgroundState::tick(float dt, EventStream* stream) {
-	_grid.tick(dt);
+	_ctx->grid.tick(dt);
 	_borders->tick(dt);
 	return 0;
 }
 
 void BackgroundState::highlight(const ds::vec2& p, const ds::Color& color) {
-	_grid.highlight(p, color);
+	_ctx->grid.highlight(p, color);
 }
 
 bool BackgroundState::borderCollision(const ds::vec2& p, float radius) {
@@ -193,25 +193,27 @@ bool BackgroundState::borderCollision(const ds::vec2& p, float radius) {
 
 void BackgroundState::render(SpriteBatchBuffer* buffer) {
 	// background
+	/*
 	for (int r = 0; r < _height; ++r) {
 		int q_offset = r >> 1;
 		int delta = _width - q_offset;
 		for (int q = -q_offset; q < delta; ++q) {
 			Hex h = Hex(q, r);
-			if (_grid.isValid(h)) {
-				GridItem& current = _grid.get(h);
+			if (_ctx->grid.isValid(h)) {
+				GridItem& current = _ctx->grid.get(h);
 				if (current.timer > 0.0f) {
 					buffer->add(current.position, ds::vec4(320, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
 				}
 				else {
-					buffer->add(current.position, ds::vec4(380, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
+					buffer->add(current.position, ds::vec4(320, 0, 42, 46), ds::vec2(1, 1), 0.0f, current.color);
 				}
 			}
 		}
 	}
 	buffer->flush();
+	*/
 	// elastic borders
-	//_borders->render();
+	_borders->render();
 }
 
 
@@ -237,7 +239,9 @@ int ParticlesTestState::tick(float dt, EventStream* stream) {
 void ParticlesTestState::render(SpriteBatchBuffer* buffer) {
 	buffer->flush();
 	_ctx->particleManager->render();
-	gui::start(ds::vec2(0, 700));
+}
+
+void ParticlesTestState::renderGUI() {
 	gui::begin("Settings", &_dialogState);
 	if (_dialogState == 1) {
 		/*
@@ -295,5 +299,4 @@ void ParticlesTestState::render(SpriteBatchBuffer* buffer) {
 		gui::Input("Tex rect", &_ctx->emitterSettings[_selectedSystem].texRect);
 	}
 	*/
-	gui::end();
 }

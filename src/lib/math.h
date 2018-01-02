@@ -40,4 +40,6 @@ namespace math {
 	float clamp(float value, float min, float max);
 
 	bool checkCircleIntersection(const ds::vec2& p1, float r1, const ds::vec2& p2, float r2, float* dist = 0, ds::vec2* penVec = 0);
+
+	int out_of_bounds(const ds::vec2& pos, const ds::vec4& box);
 }

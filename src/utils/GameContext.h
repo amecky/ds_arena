@@ -2,6 +2,9 @@
 #include <stdint.h>
 #include <diesel.h>
 #include "..\particles\Particlesystem.h"
+#include "..\lib\HexGrid.h"
+#include "..\core\SpriteArray.h"
+#include "background_grid.h"
 // ---------------------------------------------------------------
 // game settings
 // ---------------------------------------------------------------
@@ -13,6 +16,10 @@ struct GameSettings {
 	ds::Color gridBaseColor;
 	float prepareTTL;
 	float prepareFlashingTTL;
+	float fire_rate;
+	float bullet_velocity;
+	float player_velocity;
+	float enemy_seek_velocity;
 };
 
 enum PSystems {
@@ -46,5 +53,11 @@ struct GameContext {
 	int wakeUpSystem;
 	EmitterSettings emitterSettings[16];
 	GameSettings settings;
-
+	ds::vec2 world_size;
+	ds::vec2 world_pos;
+	HexGrid grid;
+	SpriteArray sprites;
+	SUID player_id;
+	GridContext grid_context;
+	
 };

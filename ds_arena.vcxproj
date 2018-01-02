@@ -20,26 +20,31 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\core\SpriteArray.cpp" />
     <ClCompile Include="src\lib\BlockArray.cpp" />
     <ClCompile Include="src\lib\HexGrid.cpp" />
     <ClCompile Include="src\lib\math.cpp" />
     <ClCompile Include="src\lib\tweening.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\objects\Bullets.cpp" />
     <ClCompile Include="src\particles\Particlesystem.cpp" />
     <ClCompile Include="src\sandbox\SpriteEditorState.cpp" />
     <ClCompile Include="src\sandbox\TextureViewerState.cpp" />
     <ClCompile Include="src\states\GameState.cpp" />
     <ClCompile Include="src\states\MainState.cpp" />
     <ClCompile Include="src\states\ArenaStateMachine.cpp" />
+    <ClCompile Include="src\utils\background_grid.cpp" />
     <ClCompile Include="src\utils\ElasticBorder.cpp" />
     <ClCompile Include="src\utils\highscores.cpp" />
     <ClCompile Include="src\utils\hud.cpp" />
+    <ClCompile Include="src\utils\tweening.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ext\diesel.h" />
     <ClInclude Include="ext\ds_imgui.h" />
     <ClInclude Include="ext\ds_tweakable.h" />
     <ClInclude Include="ext\SpriteBatchBuffer.h" />
+    <ClInclude Include="src\core\SpriteArray.h" />
     <ClInclude Include="src\lib\BlockArray.h" />
     <ClInclude Include="src\lib\DataArray.h" />
     <ClInclude Include="src\lib\DynamicArray.h" />
@@ -47,16 +52,19 @@
     <ClInclude Include="src\lib\HexGrid.h" />
     <ClInclude Include="src\lib\math.h" />
     <ClInclude Include="src\lib\tweening.h" />
+    <ClInclude Include="src\objects\Bullets.h" />
     <ClInclude Include="src\particles\Particlesystem.h" />
     <ClInclude Include="src\sandbox\SpriteEditorState.h" />
     <ClInclude Include="src\sandbox\TextureViewerState.h" />
     <ClInclude Include="src\states\GameState.h" />
     <ClInclude Include="src\states\MainState.h" />
     <ClInclude Include="src\states\ArenaStateMachine.h" />
+    <ClInclude Include="src\utils\background_grid.h" />
     <ClInclude Include="src\utils\ElasticBorder.h" />
     <ClInclude Include="src\utils\GameContext.h" />
     <ClInclude Include="src\utils\highscores.h" />
     <ClInclude Include="src\utils\hud.h" />
+    <ClInclude Include="src\utils\tweening.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\Border_PS_Main.inc" />

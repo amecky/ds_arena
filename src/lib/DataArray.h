@@ -34,7 +34,6 @@ struct DataArray {
 		typedef U value_type;
 		typedef U& reference;
 		typedef U* pointer;
-		//typedef std::forward_iterator_tag iterator_category;
 		typedef int difference_type;
 		iterator(pointer ptr) : ptr_(ptr) { }
 		self_type operator++() { self_type i = *this; ptr_++; return i; }
@@ -55,7 +54,6 @@ struct DataArray {
 		typedef U& reference;
 		typedef U* pointer;
 		typedef int difference_type;
-		//typedef std::forward_iterator_tag iterator_category;
 		const_iterator(pointer ptr) : ptr_(ptr) { }
 		self_type operator++() { self_type i = *this; ptr_++; return i; }
 		self_type operator++(int junk) { ptr_++; return *this; }
@@ -126,7 +124,6 @@ struct DataArray {
 		assert(numObjects != MAX_FLOW_OBJECTS);
 		Index &in = indices[free_dequeue];
 		free_dequeue = in.next;
-		//in.id += NEW_OBJECT_ID_ADD;
 		in.index = numObjects++;
 		U& o = objects[in.index];
 		o.id = in.id;

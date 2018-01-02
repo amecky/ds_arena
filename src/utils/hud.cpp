@@ -34,7 +34,7 @@ namespace numbers {
 			if (leadingZeros) {
 				const ds::vec4& t = NUMBERS[r];
 				if (r >= 0 && r < 10) {
-					buffer->add(hp, t, ds::vec2_ONE,0.0f,color);
+					buffer->add(hp, t, ds::vec2(1.0f),0.0f,color);
 					hp.x += t.z + 2.0f;
 				}
 			}
@@ -42,7 +42,7 @@ namespace numbers {
 				if (printed) {
 					const ds::vec4& t = NUMBERS[r];
 					if (r >= 0 && r < 10) {
-						buffer->add(hp, t, ds::vec2_ONE, 0.0f, color);
+						buffer->add(hp, t, ds::vec2(1.0f), 0.0f, color);
 						hp.x += t.z + 2.0f;
 					}
 				}
@@ -50,7 +50,7 @@ namespace numbers {
 					if (r > 0) {
 						const ds::vec4& t = NUMBERS[r];
 						if (r >= 0 && r < 10) {
-							buffer->add(hp, t, ds::vec2_ONE, 0.0f, color);
+							buffer->add(hp, t, ds::vec2(1.0f), 0.0f, color);
 							hp.x += t.z + 2.0f;
 						}
 						printed = true;

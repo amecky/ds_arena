@@ -151,6 +151,7 @@ public:
 	int numAlive(uint32_t id) const {
 		return _particleSystems[id]->array.countAlive;
 	}
+	void setScreenCenter(const ds::vec2& center);
 private:
 	ParticleConstantBuffer _constantBuffer;
 	std::vector<Particlesystem*> _particleSystems;

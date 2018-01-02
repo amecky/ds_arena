@@ -70,7 +70,11 @@ ParticleManager::ParticleManager(int maxParticles, RID textureID) {
 		0.0f,
 		0.0f
 	};
-	ds::RenderPassInfo rpInfo = { &camera, ds::DepthBufferState::DISABLED, 0, 0 };
+
+	ds::ViewportInfo vpInfo = { 1280, 720, 0.0f, 1.0f };
+	RID vp = ds::createViewport(vpInfo);
+
+	ds::RenderPassInfo rpInfo = { &camera, vp, ds::DepthBufferState::DISABLED, 0, 0 };
 	_orthoPass = ds::createRenderPass(rpInfo, "ParticleOrthoPass");
 
 }
@@ -114,23 +118,30 @@ void ParticleManager::render() {
 	_constantBuffer.wvp = ds::matTranspose(_viewprojectionMatrix);
 	for (size_t p = 0; p < _particleSystems.size(); ++p) {
 		const ParticleArray& array = _particleSystems[p]->array;
-		for (int i = 0; i < array.countAlive; ++i) {
-			_vertices[i] = { 
-				array.positions[i], 
-				array.rotations[i], 
-				array.velocities[i], 
-				array.accelerations[i], 
-				ds::vec2(array.timers[i].x,array.timers[i].z),
-				array.scales[i],
-				array.growth[i],
-				array.colors[i],
-				array.decays[i],
-				array.texRects[i]
-			};
+		if (array.countAlive > 0) {
+			for (int i = 0; i < array.countAlive; ++i) {
+				_vertices[i] = {
+					array.positions[i],
+					array.rotations[i],
+					array.velocities[i],
+					array.accelerations[i],
+					ds::vec2(array.timers[i].x,array.timers[i].z),
+					array.scales[i],
+					array.growth[i],
+					array.colors[i],
+					array.decays[i],
+					array.texRects[i]
+				};
+			}
+			ds::mapBufferData(_structuredBufferId, _vertices, array.countAlive * sizeof(GPUParticle));
+			ds::submit(_orthoPass, _drawItem, array.countAlive * 6);
 		}
-		ds::mapBufferData(_structuredBufferId, _vertices, array.countAlive * sizeof(GPUParticle));
-		ds::submit(_orthoPass, _drawItem, array.countAlive * 6);
 	}
+}
+
+void ParticleManager::setScreenCenter(const ds::vec2& center) {
+	_constantBuffer.screenCenter.x = center.x;
+	_constantBuffer.screenCenter.y = center.y;
 }
 
 // -------------------------------------------------------
@@ -159,7 +170,7 @@ void ParticleManager::emitt(uint32_t id, const ds::vec2& pos, const EmitterSetti
 			array.scales[start] = s;
 			array.growth[start] = emitter.growth;
 			float ttl = ds::random(emitter.ttl.x, emitter.ttl.y);
-			array.timers[start] = ds::vec3(0.0f, ttl, 1);
+			array.timers[start] = ds::vec3(0.0f, ttl, 1.0f);
 			array.velocities[start] = ds::random(emitter.velocityVariance.x, emitter.velocityVariance.y) * ds::vec2(cos(angle), sin(angle));
 			array.accelerations[start].x = array.velocities[start].x * emitter.acceleration.x;
 			array.accelerations[start].y = array.velocities[start].y * emitter.acceleration.y;

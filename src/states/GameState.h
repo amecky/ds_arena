@@ -113,15 +113,17 @@ public:
 		_active = false;
 	}
 	Hex convert(const ds::vec2& p) {
-		return _grid.convert(p);
+		return _ctx->grid.convert(p);
 	}
 	ds::vec2 convert(const Hex& h) {
-		return _grid.convert(h);
+		return _ctx->grid.convert(h);
 	}
 	void highlight(const ds::vec2& p, const ds::Color& color);
 	bool borderCollision(const ds::vec2& p, float radius);
+	void setScreenCenter(const ds::vec2& pos) {
+		_borders->setScreenCenter(pos);
+	}
 private:
-	HexGrid _grid;
 	uint32_t _height;
 	uint32_t _width;
 	ElasticBorderSettings _borderSettings;
@@ -157,6 +159,7 @@ public:
 		_categoryState = 1;
 		_selectedCategory = -1;
 	}
+	void renderGUI();
 	void deactivate() {
 		_active = false;
 	}

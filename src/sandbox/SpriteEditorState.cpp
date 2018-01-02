@@ -82,7 +82,6 @@ int SpriteEditorState::tick(float dt, EventStream* stream) {
 // render
 // -------------------------------------------------------
 void SpriteEditorState::render(SpriteBatchBuffer* buffer) {
-	gui::start(ds::vec2(0, 730));
 	gui::begin("Settings", &_dialogState);
 	if (_dialogState == 1) {
 		gui::Input("Name", _fileName, 16);
@@ -133,7 +132,6 @@ void SpriteEditorState::render(SpriteBatchBuffer* buffer) {
 		gui::Input("Color", &s.color);
 	}
 	gui::Message(_message);
-	gui::end();
 
 	_sprites->begin();
 

@@ -8,6 +8,7 @@
 #include "..\utils\hud.h"
 #include <stack>
 #include "GameState.h"
+
 // ---------------------------------------------------------------
 // Spawn item
 // ---------------------------------------------------------------
@@ -16,48 +17,7 @@ struct SpawnItem {
 	ds::vec2 pos;
 };
 
-typedef void(*spawnFunction)(SpawnItem*, int, int);
-
-// ---------------------------------------------------------------
-// Player
-// ---------------------------------------------------------------
-struct Player {
-	ds::vec2 pos;
-	ds::vec2 previous;
-	float angle;
-	int energy;
-};
-
-// ---------------------------------------------------------------
-// Bullet
-// ---------------------------------------------------------------
-struct Bullet {
-	ID id;
-	ds::vec2 pos;
-	ds::vec2 velocity;
-	float angle;
-};
-
-enum EnemyState {
-	ES_STARTING,
-	ES_MOVING
-};
-
-// ---------------------------------------------------------------
-// Enemy
-// ---------------------------------------------------------------
-struct Enemy {
-	ID id;
-	ds::vec2 pos;
-	ds::vec2 velocity;
-	ds::vec2 force;
-	float angle;
-	float timer;
-	EnemyState state;
-	ds::vec2 scale;
-	int energy;
-	int type;
-};
+typedef void(*spawnFunction)(GameContext*, SpawnItem*, int, int);
 
 // ---------------------------------------------------------------
 // MainState
@@ -69,6 +29,7 @@ public:
 	virtual ~MainState();
 	int tick(float dt, EventStream* stream);
 	void render(SpriteBatchBuffer* buffer);
+	void renderGUI();
 	void startSpawning();
 	void stopSpawning();
 	void startKilling();
@@ -86,9 +47,6 @@ private:
 	void handleShooting();
 	bool handlePlayerCollision(EventStream* stream);
 	void startGame();
-	Player _player;
-	DataArray<Bullet> _bullets;
-	DataArray<Enemy> _enemies;
 	bool _shooting;
 	float _shootingTimer;
 	float _spawnTimer;
@@ -100,5 +58,6 @@ private:
 	bool _spawning;
 	bool _running;
 	float _killTimer;
-
+	bool _rightClick;
+	SUID _selected;
 };

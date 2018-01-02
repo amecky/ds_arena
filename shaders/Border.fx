@@ -1,6 +1,7 @@
 cbuffer cbChangesPerObject : register( b0 ) {
     matrix mvp;
     matrix world;    
+	float4 center;
 };
 
 struct VS_Input {
@@ -18,8 +19,7 @@ struct PS_Input {
 
 PS_Input VS_Main( VS_Input vertex ) {
     PS_Input vsOut = ( PS_Input )0;
-	vertex.position.w = 1.0;
-	float4 center = float4(512, 364, 0, 1.0);
+	vertex.position.w = 1.0;	
 	float4 p = vertex.position - center;
 	p.z = 1.0;
 	p.w = 1.0;

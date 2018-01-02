@@ -44,4 +44,21 @@ namespace math {
 		return false;
 	}
 
+	int out_of_bounds(const ds::vec2& pos, const ds::vec4& box) {
+		int ret = 0;
+		if (pos.x < box.x) {
+			ret += 1;
+		}
+		if (pos.x > box.z) {
+			ret += 4;
+		}
+		if (pos.y > box.w) {
+			ret += 2;
+		}
+		if (pos.y < box.y) {
+			ret += 8;
+		}
+		return ret;
+	}
+
 }

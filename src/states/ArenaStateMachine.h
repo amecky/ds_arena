@@ -13,6 +13,7 @@ public:
 	virtual ~ArenaGameState() {}
 	virtual void render() {}
 	virtual void render(SpriteBatchBuffer* buffer) = 0;
+	virtual void renderGUI() {}
 protected:
 	GameContext* _ctx;
 };
@@ -26,6 +27,7 @@ public:
 	ArenaStateMachine(SpriteBatchBuffer* buffer);
 	virtual ~ArenaStateMachine() {}
 	void render();
+	void renderGUI();
 private:
 	SpriteBatchBuffer* _buffer;
 };

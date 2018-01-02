@@ -6,6 +6,7 @@ typedef uint8_t BYTE;
 struct CubeConstantBuffer {
 	ds::matrix viewprojectionMatrix;
 	ds::matrix worldMatrix;
+	ds::vec4 center;
 };
 
 struct GridVertex {
@@ -43,6 +44,7 @@ struct ElasticBorderSettings {
 	float targetHeight;
 	float splashForce;
 	float length;
+	ds::vec2 world_size;
 };
 // ---------------------------------------------------
 // AbstractBorder
@@ -55,19 +57,18 @@ public:
 	void tick(float dt);
 	void render();
 	bool collides(const ds::vec2& s, float r);
+	void setScreenCenter(const ds::vec2& center);
 private:
 	void splash(int ribbonIndex, int index, float speed);
 	RID createStateGroup(int numVertices, RID textureID);
 	ElasticBorderSettings* _settings;
-	//float _length;
-	//float _thickness;
-	//ds::vec4 _texture;
-	//RID _textureID;	
+	ds::vec4 _boundingBox;
 	CubeConstantBuffer _constantBuffer;
 	RID _vertexBufferID;
 	RID _drawItem;
 	RID _orthoPass;
 	GridVertex* _vertices;
+	GridVertex _cornerVertices[16];
 	float _timer;
 	Ribbon _ribbons[4];
 	ds::Camera _orthoCamera;

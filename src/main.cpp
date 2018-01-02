@@ -49,6 +49,11 @@ void printErrors(const char* message) {
 	OutputDebugString(message);
 	OutputDebugString("\n");
 }
+
+void myLogHandler(const LogLevel&, const char* message) {
+	OutputDebugString(message);
+	OutputDebugString("\n");
+}
 // ---------------------------------------------------------------
 // main method
 // ---------------------------------------------------------------
@@ -57,12 +62,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	// prepare application
 	//
 	ds::RenderSettings rs;
-	rs.width = 1024;
-	rs.height = 768;
+	rs.width = 1280;
+	rs.height = 720;
 	rs.title = "ds_arena";
 	rs.clearColor = ds::Color(0.0f, 0.0f, 0.0f, 1.0f);
 	rs.multisampling = 4;
 	rs.useGPUProfiling = false;
+	rs.logHandler = myLogHandler;
 	ds::init(rs);
 	//
 	// load the one and only texture
@@ -76,8 +82,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	GameContext ctx;
 	highscore::load("scores.scr", &ctx);
 	ctx.score = 125634;
-
+	// screen size * 1.2
+	ctx.world_size = ds::vec2(1536, 864);
+	ctx.world_pos = ctx.world_size * 0.5f;
 	ctx.particleManager = new ParticleManager(4096, textureID);
+
+	WarpingGridSettings warpingGridSettings;
+	warpingGridSettings.numX = 38;
+	warpingGridSettings.numY = 21;
+	warpingGridSettings.damping = 0.006f;
+	warpingGridSettings.stiffness = 0.28f;
+
+	grid::create(&ctx.grid_context, warpingGridSettings);
+	sprites::initialize(ctx.sprites, 4096);
 
 	gui::init();
 
@@ -101,6 +118,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	twk_add("settings", "grid_base_color", &ctx.settings.gridBaseColor);
 	twk_add("settings", "prepare_ttl", &ctx.settings.prepareTTL);
 	twk_add("settings", "prepare_flashing_ttl", &ctx.settings.prepareFlashingTTL);
+	twk_add("settings", "fire_rate", &ctx.settings.fire_rate);
+	twk_add("settings", "bullet_velocity", &ctx.settings.bullet_velocity);
+	twk_add("settings", "player_velocity", &ctx.settings.player_velocity);
+	twk_add("settings", "enemy_seek_velocity", &ctx.settings.enemy_seek_velocity);
 
 	ElasticBorderSettings borderSettings;
 	twk_add("border_settings", "Tension", &borderSettings.Tension);
@@ -114,7 +135,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	twk_add("border_settings", "targetHeight", &borderSettings.targetHeight);
 	twk_add("border_settings", "splashForce", &borderSettings.splashForce);
 	twk_add("border_settings", "length", &borderSettings.length);
-
+	borderSettings.world_size = ctx.world_size;
 	twk_load();
 	//
 	// create the state machine and add all the game states
@@ -141,12 +162,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	stateMachine->add(seState);
 	// and activate the main menu state
 	//stateMachine->activate("PrepareState");
-	//stateMachine->activate("MainState");
+	stateMachine->activate("BackgroundState");
+	stateMachine->activate("MainState");
 	//stateMachine->activate("ParticlesTestState");
-	stateMachine->activate("TextureViewerState");
+	//stateMachine->activate("TextureViewerState");
 	bool rendering = true;
 	bool update = true;
 	bool pressed = false;
+	bool showGUI = true;
+	bool guiKeyPressed = false;
 
 	while (ds::isRunning() && rendering) {
 
@@ -164,6 +188,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		}
 		else {
 			pressed = false;
+		}
+
+		if (ds::isKeyPressed('1')) {
+			if (!guiKeyPressed) {
+				showGUI = !showGUI;
+				guiKeyPressed = true;
+			}
+		}
+		else {
+			guiKeyPressed = false;
 		}
 
 		if (update) {
@@ -220,6 +254,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 		}
 		// now render all active states
 		stateMachine->render();
+
+		if (showGUI) {
+			p2i sp = p2i(10, 710);
+			gui::start(&sp,400);			
+			stateMachine->renderGUI();
+			gui::end();
+		}
 
 		// let us see how we are doing
 		ds::dbgPrint(0, 0, "FPS: %d", ds::getFramesPerSecond());

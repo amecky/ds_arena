@@ -16,3 +16,13 @@ void ArenaStateMachine::render() {
 	}
 	_buffer->flush();
 }
+
+void ArenaStateMachine::renderGUI() {
+	for (size_t i = 0; i < _states.size(); ++i) {
+		if (_states[i]->isActive()) {
+			ArenaGameState* ags = (ArenaGameState*)_states.at(i);
+			ags->renderGUI();
+		}
+	}
+	
+}
